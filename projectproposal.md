@@ -1,6 +1,6 @@
 # **Lifomation Project Proposal**
 
-## **Team Name**
+## Team Name
 
 Lifomation
 
