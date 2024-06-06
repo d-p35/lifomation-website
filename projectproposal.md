@@ -16,7 +16,7 @@ Lifomation is an advanced web application designed to securely store and manage 
 
 ## **Required Elements**
 
-- **Frontend Framework:** React Next.js with TypeScript for a modern, type-safe user interface.
+- **Frontend Framework:** Angular for a modern, type-safe user interface.
 - **Backend API:** Express.js for building a RESTful API.
 - **Database:** PostgreSQL for reliable and scalable data storage.
 - **ORM:** Sequelize for efficient database interaction.
@@ -54,12 +54,12 @@ Lifomation is an advanced web application designed to securely store and manage 
 
 ## **Tech Stack**
 
-- **Frontend:** React Next.js, TypeScript
+- **Frontend:** Angular, TypeScript
 - **Backend:** Express.js, Sequelize ORM
 - **Database:** PostgreSQL
 - **API:** Elastic Search, GPT
 - **Virtual Machine:** Docker
-- **Security:** Clerk
+- **Security:** Auth0
 - **Additional:** Webhook integration, real-time updates
 
 ## **Conclusion**
