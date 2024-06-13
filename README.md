@@ -38,27 +38,58 @@ Lifomation is an advanced web application designed to securely store and manage 
 - **Conditional Sharing:** Users can share documents with specific individuals under controlled conditions.
 - **Real-time Updates:** Changes made by users are reflected immediately across the platform.
 
-### Why We Chose These Technologies
+### **Technologies**
 
-- **Angular:** Provides a modern, dynamic, and scalable framework for our frontend, ensuring a responsive user interface.
-- **Express.js:** Facilitates the creation of a robust and scalable RESTful API on the backend.
-- **PostgreSQL:** Offers reliable and scalable data storage for complex queries and relationships.
-- **Sequelize ORM:** Simplifies database interactions and management.
-- **Docker & Docker Compose:** Ensures consistent deployment across different environments and simplifies the CI/CD process.
-- **OpenAI GPT API:** Enhances our search capabilities with powerful natural language processing.
-- **OAuth 2.0:** Provides secure user authentication and authorization.
+- **Frontend Framework:** Angular for a modern, type-safe user interface.
+- **Backend API:** Express.js for building a RESTful API.
+- **Database:** PostgreSQL for reliable and scalable data storage.
+- **ORM:** Sequelize for efficient database interaction.
+- **Deployment:** Docker and Docker Compose for seamless deployment on a Virtual Machine, ensuring consistency and reproducibility. Deployment files will be committed to GitHub along with CI files for automated image building.
+- **Public Accessibility:** The application will be fully accessible to the public without any additional steps or requirements.
+- **Third-party API:** Integration with OpenAI's GPT API for natural language processing and document analysis.
+- **OAuth 2.0:** Implementation of OAuth 2.0 for secure user authentication and authorization.
+
+### **Additional Requirements**
+
+- **Webhook Integration:** A webhook will be utilized to trigger specific actions within the application based on external events.
+- **Real-time Updates:** The application will incorporate real-time features to reflect changes made by other users without requiring manual page refreshes.
+
+### **Tech Stack**
+
+- **Frontend:** Angular, TypeScript
+- **Backend:** Express.js, Sequelize ORM
+- **Database:** PostgreSQL
+- **API:** Elastic Search, GPT
+- **Virtual Machine:** Docker
+- **Security:** Auth0
+- **Additional:** Webhook integration, real-time updates
+
+
 
 ### Challenges and Future Features
+ **Alpha Version Milestone**
 
-- **Challenges:**
-  - Integrating real-time updates to ensure instant reflection of changes without refreshing.
-  - Ensuring secure and scalable document storage and retrieval.
-  - Developing robust and flexible access control mechanisms for document sharing.
+- **Frontend:** Basic UI components for document upload, viewing, and search.
+- **Backend:** API endpoints for document management and authentication.
+- **Database:** Initial database schema and data models.
+- **Uplaod:** Set up database to ensure documents, and image uploading.
+- **Figma:** Create initial design
+- **Login/Signup:** Authenticate and create Users
 
-- **Future Features:**
-  - Enhanced AI capabilities for document summarization and categorization.
-  - Mobile application development for on-the-go document management.
-  - Integration with additional third-party services for broader functionality.
+ **Beta Version Milestone**
+
+- **Search Functionality:** Implementation of a robust search engine.
+- **Conditional Access Controls:** Development of access control mechanisms.
+- **Deployment:** Initial deployment on a Virtual Machine using Docker.
+- **OCR Integration:** Basic OCR functionality for text extraction.
+
+ **Final Version Milestone**
+
+- **Refinement:** Polish UI/UX, optimize performance, and conduct thorough testing.
+- **Documentation:** Create comprehensive documentation for the project.
+- **Deployment:** Final deployment and configuration.
+
+
 
 ## Installation
 
