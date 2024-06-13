@@ -51,8 +51,9 @@ Lifomation is an advanced web application designed to securely store and manage 
 
 ### **Additional Requirements**
 
-- **Webhook Integration:** A webhook will be utilized to trigger specific actions within the application based on external events.
-- **Real-time Updates:** The application will incorporate real-time features to reflect changes made by other users without requiring manual page refreshes.
+- **Webhook Integration:** A webhook will be utilized to trigger specific actions within the application based on external events where someone requests access to a document. For example, a doctor requesting access to your health records. 
+- **Real-time Updates:** The application will incorporate real-time features, such as instant notifications for document access requests, approvals/denials, shared document updates, system alerts, and presence indicators, to reflect changes made by other users without requiring manual page refreshes.
+- **OCR Integration:** Lifomation leverages advanced Optical Character Recognition (OCR) technology to automatically convert scanned images or photos of documents into searchable and editable text. This process typically takes up to 10 seconds per document, depending on the document's size, complexity, and image quality. 
 
 ### **Tech Stack**
 
