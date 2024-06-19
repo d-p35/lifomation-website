@@ -41,6 +41,7 @@ Lifomation is an advanced web application designed to securely store and manage 
 ### **Technologies**
 
 - **Frontend Framework:** Angular for a modern, type-safe user interface.
+- **Frontend UI Library:** Primeng for styling
 - **Backend API:** Express.js for building a RESTful API.
 - **Database:** PostgreSQL for reliable and scalable data storage.
 - **ORM:** Sequelize for efficient database interaction.
