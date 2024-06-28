@@ -4,12 +4,17 @@ import bodyParser from 'body-parser';
 import { port } from './config/config';
 import { dataSource } from './db/database';
 import { User } from './models/user';
-import { UsersRouter } from './routers/Users';
+import { UsersRouter } from './routers/users-router';
+import { DocumentsRouter } from './routers/documents-router';
 
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:4200",
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -19,6 +24,7 @@ dataSource.initialize().then(() => {
 
   // Dummy route
   app.use('/api/users', UsersRouter);
+  app.use('/api/documents', DocumentsRouter);
 
   // Start the server
   app.listen(port, () => {
