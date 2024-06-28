@@ -18,3 +18,5 @@ Thumbs.db
 
 # Editor Configurations
 .vscode/
+
+server/uploads/
