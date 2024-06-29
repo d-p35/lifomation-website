@@ -1,4 +1,4 @@
-# Lifomation Project README
+# Lifomation README
 
 <img src="https://ssl.gstatic.com/docs/doclist/images/empty_state_my_drive_v2.svg" alt="Lifomation Logo" width="200" height="100">
 
