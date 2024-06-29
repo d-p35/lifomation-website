@@ -3,10 +3,10 @@
 <img src="https://ssl.gstatic.com/docs/doclist/images/empty_state_my_drive_v2.svg" alt="Lifomation Logo" width="200" height="100">
 
 
-[![GitHub issues](https://img.shields.io/github/issues/your_username/lifomation)](https://github.com/your_username/lifomation/issues)
-[![GitHub forks](https://img.shields.io/github/forks/your_username/lifomation)](https://github.com/your_username/lifomation/network)
-[![GitHub stars](https://img.shields.io/github/stars/your_username/lifomation)](https://github.com/your_username/lifomation/stargazers)
-[![GitHub license](https://img.shields.io/github/license/your_username/lifomation)](https://github.com/your_username/lifomation/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/yashankxy/lifomation)](https://github.com/yashankxy/lifomation/issues)
+[![GitHub forks](https://img.shields.io/github/forks/yashankxy/lifomation)](https://github.com/yashankxy/lifomation/network)
+[![GitHub stars](https://img.shields.io/github/stars/yashankxy/lifomation)](https://github.com/yashankxy/lifomation/stargazers)
+[![GitHub license](https://img.shields.io/github/license/yashankxy/lifomation)](https://github.com/yashankxy/lifomation/blob/main/LICENSE)
 
 ## Table of Contents
 
