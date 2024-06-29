@@ -1,13 +1,11 @@
 
-server/node_modules/
+/node_modules
 
 # Build output
-client/dist/
-server/dist/
+/dist
 
 # Environment variables
-client/.env
-server/.env
+/.env
 
 # Logs
 *.log
@@ -19,4 +17,4 @@ Thumbs.db
 # Editor Configurations
 .vscode/
 
-server/uploads/
+/uploads

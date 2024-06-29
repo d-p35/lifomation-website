@@ -7,7 +7,8 @@ export const environment = {
   apiEndpoint: 'http://localhost:3000',
   auth: {
     domain: 'dev-8tnbwxvwy07fx47f.us.auth0.com',
-    clientId: 'v1i2B84ygCwXodkpfESsQnGZ9FTXF9LN'
+    clientId: '9NCIrdKfB5jHVsRCDPbCBYriJo9YQfmB',
+    redirectUri: window.location.origin,
   }
 };
 

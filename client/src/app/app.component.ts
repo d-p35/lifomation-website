@@ -1,19 +1,25 @@
 // app.component.ts
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { HeaderComponent } from './layout/header/header.component';
 import { ApiService } from './services/api.service';
 import * as THREE from 'three';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, HeaderComponent, CommonModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
   title = 'client';
-
+  features = [
+    { title: 'Feature 1', description: 'Description for feature 1' },
+    { title: 'Feature 2', description: 'Description for feature 2' },
+    { title: 'Feature 3', description: 'Description for feature 3' }
+  ];
   constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
