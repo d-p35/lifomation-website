@@ -1,6 +1,6 @@
 # Lifomation Project README
 
-![Lifomation Logo](path_to_logo_image) <!-- Replace with the path to your logo image -->
+![Lifomation Logo](https://ssl.gstatic.com/docs/doclist/images/empty_state_my_drive_v2.svg) <!-- Replace with the path to your logo image -->
 
 [![GitHub issues](https://img.shields.io/github/issues/your_username/lifomation)](https://github.com/your_username/lifomation/issues)
 [![GitHub forks](https://img.shields.io/github/forks/your_username/lifomation)](https://github.com/your_username/lifomation/network)
