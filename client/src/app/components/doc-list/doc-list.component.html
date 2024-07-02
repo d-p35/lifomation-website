@@ -1,0 +1,11 @@
+<div class="document-list-container">
+  <h2>Document List</h2>
+  <ul>
+    <li *ngFor="let document of documents" class="document-card">
+      <div class="document-details" (click)="viewDocument(document.id)">
+        <span class="document-name">{{ document.document.originalname }}</span>
+      </div>
+      <button class="delete-button" (click)="deleteDocument(document.id)">Delete</button>
+    </li>
+  </ul>
+</div>

@@ -1,0 +1,80 @@
+<div class="dashboard">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="" alt="Logo">
+      </div>
+      <nav>
+        <ul>
+          <li class="sidebar-item">Priority</li>
+          <li class="sidebar-item">Home</li>
+          <li class="sidebar-item">Shared with me</li>
+          <li class="sidebar-item">Recent</li>
+          <li class="sidebar-item">Starred</li>
+          <li class="sidebar-item">Trash</li>
+        </ul>
+      </nav>
+      <div class="storage">
+        <p>0 MB of 500 MB used</p>
+        <a href="#">Manage storage</a>
+      </div>
+    </aside>
+    <div class="main-container">
+      <header class="header">
+        <div class="search-bar">
+          <input type="text" placeholder="Search in Liformation">
+        </div>
+        <div class="user-profile">
+          <div class="avatar"></div>
+          <div class="username">John Doe</div>
+        </div>
+      </header>
+      <main class="main-content">
+        <section class="files-section">
+          <div class="section-header">
+            <h2>All files</h2>
+            <button class="add-new">+ Add new</button>
+          </div>
+          <div class="files-grid">
+            <div class="file-card" *ngFor="let file of files" (click)="OnFolderClick()">
+              <div class="file-icon">
+                <img [src]="file.icon" alt="File Icon">
+              </div>
+              <div class="file-info">
+                <h3>{{ file.title }}</h3>
+                <p>{{ file.date }}</p>
+              </div>
+              <div class="file-meta">
+                <p>Shared Users: {{ file.sharedUsers }}</p>
+                <p>Inside Files: {{ file.insideFiles }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="suggestions-section">
+          <h2>Suggestions</h2>
+          <div class="suggestions-list">
+            <div class="suggestion-item" *ngFor="let suggestion of suggestions">
+              <div class="file-icon">
+                <img [src]="suggestion.icon" alt="File Icon">
+              </div>
+              <div class="file-info">
+                <h3>{{ suggestion.title }}</h3>
+                <p>Shared Users: {{ suggestion.sharedUsers }}</p>
+                <p>File Size: {{ suggestion.size }}</p>
+                <p>Last Modified: {{ suggestion.lastModified }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="recent-files-section">
+          <h2>Recent Files</h2>
+          <div class="recent-files-grid">
+            <div class="recent-file-item" *ngFor="let recent of recentFiles">
+              <img [src]="recent.icon" alt="File Icon">
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  
