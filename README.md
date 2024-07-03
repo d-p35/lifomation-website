@@ -1,11 +1,12 @@
-# Lifomation Project README
+# Lifomation README
 
-![Lifomation Logo](path_to_logo_image) <!-- Replace with the path to your logo image -->
+<img src="https://ssl.gstatic.com/docs/doclist/images/empty_state_my_drive_v2.svg" alt="Lifomation Logo" width="200" height="100">
 
-[![GitHub issues](https://img.shields.io/github/issues/your_username/lifomation)](https://github.com/your_username/lifomation/issues)
-[![GitHub forks](https://img.shields.io/github/forks/your_username/lifomation)](https://github.com/your_username/lifomation/network)
-[![GitHub stars](https://img.shields.io/github/stars/your_username/lifomation)](https://github.com/your_username/lifomation/stargazers)
-[![GitHub license](https://img.shields.io/github/license/your_username/lifomation)](https://github.com/your_username/lifomation/blob/main/LICENSE)
+
+[![GitHub issues](https://img.shields.io/github/issues/yashankxy/lifomation)](https://github.com/yashankxy/lifomation/issues)
+[![GitHub forks](https://img.shields.io/github/forks/yashankxy/lifomation)](https://github.com/yashankxy/lifomation/network)
+[![GitHub stars](https://img.shields.io/github/stars/yashankxy/lifomation)](https://github.com/yashankxy/lifomation/stargazers)
+[![GitHub license](https://img.shields.io/github/license/yashankxy/lifomation)](https://github.com/yashankxy/lifomation/blob/main/LICENSE)
 
 ## Table of Contents
 
@@ -44,7 +45,7 @@ Lifomation is an advanced web application designed to securely store and manage 
 - **Frontend UI Library:** Primeng for styling
 - **Backend API:** Express.js for building a RESTful API.
 - **Database:** PostgreSQL for reliable and scalable data storage.
-- **ORM:** Sequelize for efficient database interaction.
+- **ORM:** TypeORM for efficient database interaction.
 - **Deployment:** Docker and Docker Compose for seamless deployment on a Virtual Machine, ensuring consistency and reproducibility. Deployment files will be committed to GitHub along with CI files for automated image building.
 - **Public Accessibility:** The application will be fully accessible to the public without any additional steps or requirements.
 - **Third-party API:** Integration with OpenAI's GPT API for natural language processing and document analysis.
@@ -67,8 +68,6 @@ Lifomation is an advanced web application designed to securely store and manage 
 - **Security:** Auth0
 - **Additional:** Webhook integration, real-time updates
 
-
-
 ### Challenges and Future Features
  **Alpha Version Milestone**
 
@@ -76,7 +75,7 @@ Lifomation is an advanced web application designed to securely store and manage 
 - **Backend:** API endpoints for document management and authentication.
 - **Database:** Initial database schema and data models.
 - **Uplaod:** Set up database to ensure documents, and image uploading.
-- **Figma:** Create initial design
+- **Figma:** Create initial design 
 - **Login/Signup:** Authenticate and create Users
 
  **Beta Version Milestone**
@@ -91,8 +90,6 @@ Lifomation is an advanced web application designed to securely store and manage 
 - **Refinement:** Polish UI/UX, optimize performance, and conduct thorough testing.
 - **Documentation:** Create comprehensive documentation for the project.
 - **Deployment:** Final deployment and configuration.
-
-
 
 ## Installation
 
@@ -189,6 +186,9 @@ These tests cover various aspects of the application, including unit tests for b
 
 Thank you for using Lifomation! If you encounter any issues or have suggestions for improvements, please open an issue on our [GitHub repository](https://github.com/your_username/lifomation/issues).
 
+## Learn More
+
+For additional information and updates, please visit our Notion page: [Lifomation](https://yashankxy.notion.site/Lifomation-f3fff6a1973d4b35aa7f4a23f72f2b9b?pvs=4) 
 ---
 
 *Keep your documents safe and accessible with Lifomation.*

@@ -35,6 +35,10 @@ deleteDocument(documentId: number): Observable<any> {
   return this.http.delete(this.endpoint + `/api/documents/${documentId}`);
 }
 
+getFile(documentId: number): Observable<Blob> {
+  return this.http.get(this.endpoint + `/api/documents/${documentId}/file`, { responseType: 'blob' });
+}
+
 //   deleteMessage(messageId: number): Observable<Message> {
 //     return this.http.delete<Message>(
 //       this.endpoint + `/api/messages/${messageId}`,
