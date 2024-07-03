@@ -1,0 +1,6 @@
+<div class="upload-container">
+    <h2>Upload Document</h2>
+    <input type="file" #fileInput accept=".pdf,image/*" (change)="onFileSelected($event)">
+    <button (click)="uploadFile()" [disabled]="!selectedFile">Upload</button>
+  </div>
+  

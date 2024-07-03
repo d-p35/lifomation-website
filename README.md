@@ -45,7 +45,7 @@ Lifomation is an advanced web application designed to securely store and manage 
 - **Frontend UI Library:** Primeng for styling
 - **Backend API:** Express.js for building a RESTful API.
 - **Database:** PostgreSQL for reliable and scalable data storage.
-- **ORM:** Sequelize for efficient database interaction.
+- **ORM:** TypeORM for efficient database interaction.
 - **Deployment:** Docker and Docker Compose for seamless deployment on a Virtual Machine, ensuring consistency and reproducibility. Deployment files will be committed to GitHub along with CI files for automated image building.
 - **Public Accessibility:** The application will be fully accessible to the public without any additional steps or requirements.
 - **Third-party API:** Integration with OpenAI's GPT API for natural language processing and document analysis.

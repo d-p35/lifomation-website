@@ -18,7 +18,7 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
     const allDocuments = await documentRepository.find();
     const count = await documentRepository.count();
-    res.status(200).json({ count, allDocuments });
+    res.status(200).json({ count, documents: allDocuments });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -27,8 +27,6 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
 DocumentsRouter.get("/:id/file", async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
-
-    // Find document by id
     const document = await documentRepository.findOne({ where: { id: id } });
 
     if (!document) {
@@ -56,7 +54,7 @@ DocumentsRouter.post(
       const newDocument = await documentRepository.save(document);
 
       // Return the new document
-      res.status(201).json(newDocument);
+      res.status(201).json({document: newDocument});
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
@@ -73,7 +71,6 @@ DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
-    console.log(document);
     // Delete document
     await documentRepository.delete(document.id);
 
