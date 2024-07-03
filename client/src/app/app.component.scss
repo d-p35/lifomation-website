@@ -102,32 +102,6 @@ body {
   animation: rotate 10s linear infinite;
 }
 
-.features {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px 0;
-}
-
-.feature {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  animation: fadeInUp 1s ease-in-out;
-}
-
-.feature-title {
-  font-size: 24px;
-  margin: 0 0 10px;
-  font-weight: 700;
-}
-
-.feature-description {
-  font-size: 16px;
-  margin: 0;
-}
-
 .footer {
   padding: 20px 0;
   background-color: #ffffff;
@@ -162,5 +136,74 @@ body {
   100% {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+.section-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.features, .steps, .reviews, .trusted-by {
+  padding: 50px 20px;
+}
+
+.features .feature, .reviews .review, .steps .step {
+  margin-bottom: 20px;
+
+  .feature-title, .step-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+
+  .feature-description, .step-description, .review-text {
+    font-size: 1rem;
+  }
+
+  .review-author {
+    font-size: 0.875rem;
+    text-align: right;
+    color: #555;
+  }
+}
+
+.steps-list {
+  list-style-type: decimal;
+  padding-left: 20px;
+}
+
+.trusted-logos {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+
+  img {
+    max-width: 100px;
+  }
+}
+
+.footer {
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .footer-links {
+      a {
+        color: #fff;
+        margin: 0 10px;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
   }
 }

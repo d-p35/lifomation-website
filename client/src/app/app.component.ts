@@ -14,11 +14,18 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'client';
+  title = 'Lifomation';
   features = [
-    { title: 'Feature 1', description: 'Description for feature 1' },
-    { title: 'Feature 2', description: 'Description for feature 2' },
-    { title: 'Feature 3', description: 'Description for feature 3' }
+    { title: 'Advanced Search', description: 'Retrieve documents quickly using natural language queries and OCR technology.' },
+    { title: 'Secure Storage', description: 'Your documents are encrypted at rest and in transit to ensure maximum security.' },
+    { title: 'Conditional Access', description: 'Share documents securely with family members or trusted individuals.' },
+    { title: 'Two-Factor Authentication', description: 'Add an extra layer of security with 2FA.' },
+    { title: 'Future Integration', description: 'Automatically receive updates and documents from government services.' }
+  ];
+  reviews = [
+    { text: 'Lifomation has transformed the way I manage my important documents. It\'s secure and so easy to use!', author: 'John Doe' },
+    { text: 'The advanced search feature is a game-changer. I can find any document in seconds.', author: 'Jane Smith' },
+    { text: 'Sharing documents with my family has never been easier. Lifomation is a must-have for anyone!', author: 'Emily Johnson' }
   ];
   constructor(private apiService: ApiService) {}
 

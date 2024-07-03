@@ -1,5 +1,3 @@
-
-<!-- app.component.html -->
 <header-component></header-component>
 <div class="container">
   <section class="hero">
@@ -12,14 +10,65 @@
   </section>
 
   <section class="features">
+    <h2 class="section-title">Features</h2>
     <div class="feature" *ngFor="let feature of features">
       <h3 class="feature-title">{{ feature.title }}</h3>
       <p class="feature-description">{{ feature.description }}</p>
     </div>
   </section>
 
+  <section class="steps">
+    <h2 class="section-title">How It Works</h2>
+    <ol class="steps-list">
+      <li class="step">
+        <h3 class="step-title">1. Sign Up</h3>
+        <p class="step-description">Create an account using your email and set up your profile.</p>
+      </li>
+      <li class="step">
+        <h3 class="step-title">2. Upload Documents</h3>
+        <p class="step-description">Easily upload your important documents in various categories.</p>
+      </li>
+      <li class="step">
+        <h3 class="step-title">3. Organize & Categorize</h3>
+        <p class="step-description">Organize your documents with categories and subcategories for easy access.</p>
+      </li>
+      <li class="step">
+        <h3 class="step-title">4. Advanced Search</h3>
+        <p class="step-description">Use the powerful search feature to find documents quickly and easily.</p>
+      </li>
+      <li class="step">
+        <h3 class="step-title">5. Share Securely</h3>
+        <p class="step-description">Share documents with family or trusted individuals securely.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="reviews">
+    <h2 class="section-title">User Reviews</h2>
+    <div class="review" *ngFor="let review of reviews">
+      <p class="review-text">{{ review.text }}</p>
+      <p class="review-author">- {{ review.author }}</p>
+    </div>
+  </section>
+
+  <section class="trusted-by">
+    <h2 class="section-title">Trusted By</h2>
+    <div class="trusted-logos">
+      <img src="assets/trusted-logo1.png" alt="Trusted Logo 1">
+      <img src="assets/trusted-logo2.png" alt="Trusted Logo 2">
+      <img src="assets/trusted-logo3.png" alt="Trusted Logo 3">
+      <img src="assets/trusted-logo4.png" alt="Trusted Logo 4">
+    </div>
+  </section>
+
   <footer class="footer">
-    <p>&copy; 2024 Lifomation. All rights reserved.</p>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+      </div>
+      <p>&copy; 2024 Lifomation. All rights reserved.</p>
+    </div>
   </footer>
 </div>
-
