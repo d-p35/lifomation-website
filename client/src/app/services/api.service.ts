@@ -7,7 +7,6 @@ import { environment } from '../../environments/environment'
   providedIn: 'root',
 })
 export class ApiService {
-  // endpoint = 'http://localhost:3000';
   endpoint = environment.apiEndpoint;
 
   constructor(private http: HttpClient) {}

@@ -1,17 +1,21 @@
+import { Component, OnInit } from '@angular/core';
 import { NgFor } from '@angular/common';
-import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+
+// Import the AuthService type from the SDK
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [NgFor],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
 
-  constructor(private router: Router) {}
+  // Inject the authentication service into your component through the constructor
+  constructor(public auth: AuthService, private router: Router) {}
 
   files = [
     { icon: 'assets/file-icon.png', title: 'Documents', date: 'Sep 25, 2022', sharedUsers: 80, insideFiles: 3985 },
@@ -39,6 +43,8 @@ export class DashboardComponent {
     { icon: 'assets/file-icon.png' },
     { icon: 'assets/file-icon.png' }
   ];
+
+  ngOnInit(): void {}
 
   OnFolderClick() {
     this.router.navigate(['/documents']);
