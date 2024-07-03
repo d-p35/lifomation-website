@@ -16,17 +16,58 @@ import { CommonModule } from '@angular/common';
 export class AppComponent implements OnInit {
   title = 'Lifomation';
   features = [
-    { title: 'Advanced Search', description: 'Retrieve documents quickly using natural language queries and OCR technology.' },
-    { title: 'Secure Storage', description: 'Your documents are encrypted at rest and in transit to ensure maximum security.' },
-    { title: 'Conditional Access', description: 'Share documents securely with family members or trusted individuals.' },
-    { title: 'Two-Factor Authentication', description: 'Add an extra layer of security with 2FA.' },
-    { title: 'Future Integration', description: 'Automatically receive updates and documents from government services.' }
+    { title: 'Secure Storage', description: 'Keep your documents safe and secure.', icon: 'assets/secure-icon.png' },
+    { title: 'Easy Access', description: 'Access your documents from anywhere.', icon: 'assets/access-icon.png' },
+    { title: 'Organized', description: 'Keep your documents well-organized.', icon: 'assets/organized-icon.png' },
+    { title: 'Advanced Search', description: 'Find documents quickly and easily.', icon: 'assets/search-icon.png' },
+    { title: 'Secure Sharing', description: 'Share documents securely.', icon: 'assets/share-icon.png' }
   ];
-  reviews = [
-    { text: 'Lifomation has transformed the way I manage my important documents. It\'s secure and so easy to use!', author: 'John Doe' },
-    { text: 'The advanced search feature is a game-changer. I can find any document in seconds.', author: 'Jane Smith' },
-    { text: 'Sharing documents with my family has never been easier. Lifomation is a must-have for anyone!', author: 'Emily Johnson' }
+
+  steps = [
+    { title: 'Sign Up', description: 'Create an account using your email and set up your profile.' },
+    { title: 'Upload Documents', description: 'Easily upload your important documents in various categories.' },
+    { title: 'Organize & Categorize', description: 'Organize your documents with categories and subcategories for easy access.' },
+    { title: 'Advanced Search', description: 'Use the powerful search feature to find documents quickly and easily.' },
+    { title: 'Share Securely', description: 'Share documents with family or trusted individuals securely.' }
   ];
+
+  testimonials = [
+    { text: 'Lifomation has changed the way I manage my documents.', author: 'John Doe' },
+    { text: 'The best document management solution I have used.', author: 'Jane Smith' },
+    { text: 'A lifesaver for managing important documents.', author: 'Alex Johnson' }
+  ];
+
+  pricingPlans = [
+    {
+      title: 'Basic',
+      price: '$9.99/month',
+      features: ['1 GB Storage', 'Basic Support', 'Access from Any Device']
+    },
+    {
+      title: 'Standard',
+      price: '$19.99/month',
+      features: ['10 GB Storage', 'Priority Support', 'Access from Any Device', 'Secure Sharing']
+    },
+    {
+      title: 'Premium',
+      price: '$29.99/month',
+      features: ['Unlimited Storage', '24/7 Support', 'Access from Any Device', 'Secure Sharing', 'Advanced Search']
+    }
+  ];
+
+  blogPosts = [
+    { title: 'How to Keep Your Documents Secure', image: 'assets/blog1.jpg', excerpt: 'Learn the best practices for keeping your documents secure in the digital age.' },
+    { title: 'The Benefits of Digital Document Management', image: 'assets/blog2.jpg', excerpt: 'Discover the advantages of managing your documents digitally.' },
+    { title: 'Top Features of Lifomation', image: 'assets/blog3.jpg', excerpt: 'Explore the top features that make Lifomation the best choice for document management.' }
+  ];
+
+  faqs = [
+    { question: 'What is Lifomation?', answer: 'Lifomation is a secure solution for managing and accessing important documents anytime, anywhere.' },
+    { question: 'How do I sign up?', answer: 'You can sign up by creating an account using your email and setting up your profile.' },
+    { question: 'Is my data secure?', answer: 'Yes, we use advanced encryption and security measures to keep your data safe.' },
+    { question: 'Can I share documents?', answer: 'Yes, you can securely share documents with family or trusted individuals.' }
+  ];
+
   constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
