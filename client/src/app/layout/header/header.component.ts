@@ -14,7 +14,7 @@ export class HeaderComponent {
     isDarkMode = false;
     // Inject the authentication service into your component through the constructor
     constructor(public auth: AuthService) {}
-
+    
     ngOnInit(): void {
     }
     toggleTheme() {

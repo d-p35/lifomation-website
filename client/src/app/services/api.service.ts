@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment'
+import { AuthService } from '@auth0/auth0-angular';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,14 @@ import { environment } from '../../environments/environment'
 export class ApiService {
   endpoint = environment.apiEndpoint;
 
-  constructor(private http: HttpClient) {}
+
+  constructor(private http: HttpClient, private auth: AuthService) {
+    // Existing constructor code
+  }
+  get isAuthenticated$() {
+    return this.auth.isAuthenticated$;
+  }
+
   /**
    * HttpClient has methods for all the CRUD actions: get, post, put, patch, delete, and head.
    * First parameter is the URL, and the second parameter is the body.

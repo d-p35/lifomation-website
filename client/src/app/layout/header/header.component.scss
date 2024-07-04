@@ -6,22 +6,20 @@ header {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    // z-index: 1000;
     transition: background-color 0.3s ease;
 
     .container {
         display: flex;
         justify-content: space-between;
-        align-items: center;
     }
 
     .logo {
         font-size: 24px;
         font-weight: 700;
-        color: #4285f4;
+        color: #006dd3;
         cursor: pointer;
         transition: color 0.3s ease;
-
         &:hover {
             color: #3367d6;
         }

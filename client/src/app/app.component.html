@@ -1,25 +1,116 @@
-
-<!-- app.component.html -->
 <header-component></header-component>
-<div class="container">
+<div>
+  <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content">
       <h2 class="hero-title">Welcome to Lifomation</h2>
       <p class="hero-description">Your secure solution for managing and accessing important documents anytime, anywhere.</p>
       <a href="#" class="hero-button">Get Started</a>
     </div>
-    <div id="hero-3d-object"></div>
   </section>
 
+  <!-- Features Section -->
   <section class="features">
-    <div class="feature" *ngFor="let feature of features">
-      <h3 class="feature-title">{{ feature.title }}</h3>
-      <p class="feature-description">{{ feature.description }}</p>
+    <h2 class="section-title">Features</h2>
+    <div class="feature-grid">
+      <div class="feature" *ngFor="let feature of features">
+        <div class="feature-icon">
+          <img [src]="feature.icon" alt="{{ feature.title }}">
+        </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
     </div>
   </section>
 
+  <!-- How It Works Section -->
+  <section class="steps">
+    <h2 class="section-title">How It Works</h2>
+    <ol class="steps-list">
+      <li class="step" *ngFor="let step of steps; let i = index">
+        <h3 class="step-title">{{ i + 1 }}. {{ step.title }}</h3>
+        <p class="step-description">{{ step.description }}</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <h2 class="section-title">What Our Users Say</h2>
+    <div class="testimonial-grid">
+      <div class="testimonial" *ngFor="let testimonial of testimonials">
+        <p class="testimonial-text">{{ testimonial.text }}</p>
+        <p class="testimonial-author">- {{ testimonial.author }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing">
+    <h2 class="section-title">Pricing Plans</h2>
+    <div class="pricing-grid">
+      <div class="pricing-plan" *ngFor="let plan of pricingPlans">
+        <h3 class="plan-title">{{ plan.title }}</h3>
+        <p class="plan-price">{{ plan.price }}</p>
+        <ul class="plan-features">
+          <li *ngFor="let feature of plan.features">{{ feature }}</li>
+        </ul>
+        <a href="#" class="plan-button">Choose Plan</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Section -->
+  <section class="blog">
+    <h2 class="section-title">Latest from Our Blog</h2>
+    <div class="blog-grid">
+      <div class="blog-post" *ngFor="let post of blogPosts">
+        <img [src]="post.image" alt="{{ post.title }}" class="blog-image">
+        <div class="blog-content">
+          <h3 class="blog-title">{{ post.title }}</h3>
+          <p class="blog-excerpt">{{ post.excerpt }}</p>
+          <a href="#" class="blog-button">Read More</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Section -->
+  <section class="call-to-action">
+    <h2 class="cta-title">Ready to Get Started?</h2>
+    <p class="cta-description">Join thousands of users who trust Lifomation for their document management needs.</p>
+    <a href="#" class="cta-button">Sign Up Now</a>
+  </section>
+
+  <!-- Trusted By Section -->
+  <section class="trusted-by">
+    <h2 class="section-title">Trusted By</h2>
+    <div class="trusted-logos">
+      <img src="assets/trusted-logo1.png" alt="Trusted Logo 1">
+      <img src="assets/trusted-logo2.png" alt="Trusted Logo 2">
+      <img src="assets/trusted-logo3.png" alt="Trusted Logo 3">
+      <img src="assets/trusted-logo4.png" alt="Trusted Logo 4">
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="faq-item" *ngFor="let faq of faqs">
+      <h3 class="faq-question">{{ faq.question }}</h3>
+      <p class="faq-answer">{{ faq.answer }}</p>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
   <footer class="footer">
-    <p>&copy; 2024 Lifomation. All rights reserved.</p>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+      </div>
+      <p>&copy; 2024 Lifomation. All rights reserved.</p>
+    </div>
   </footer>
 </div>
-
