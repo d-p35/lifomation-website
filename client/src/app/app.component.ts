@@ -1,6 +1,6 @@
 // app.component.ts
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { HeaderComponent } from './layout/header/header.component';
 import { ApiService } from './services/api.service';
 import * as THREE from 'three';
@@ -68,10 +68,17 @@ export class AppComponent implements OnInit {
     { question: 'Can I share documents?', answer: 'Yes, you can securely share documents with family or trusted individuals.' }
   ];
 
-  constructor(private apiService: ApiService) {}
-
+  
+  constructor(private apiService: ApiService, private router: Router) {} // Step 2: Inject Router
+  
+  
   ngOnInit(): void {
-    this.initThreeJS();
+    this.apiService.isAuthenticated$.subscribe((isAuthenticated) => {
+      if (isAuthenticated) {
+        // Navigate to the dashboard
+        this.router.navigate(['/dashboard']);
+      }
+    });
   }
   initThreeJS() {
     const scene = new THREE.Scene();
