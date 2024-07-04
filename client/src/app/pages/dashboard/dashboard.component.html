@@ -26,7 +26,10 @@
         </div>
         <div class="user-profile">
           <div class="avatar"></div>
-          <div class="username">John Doe</div>
+          <div class="user-menu">
+            <span class="welcome">Hi, {{ user.name || user.email }}</span>
+            <button class="btn logout" (click)="auth.logout()">Log out</button>
+        </div>
         </div>
       </header>
       <main class="main-content">

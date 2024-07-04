@@ -10,7 +10,7 @@ export const environment = {
     clientId: 'wH7dqxyGh512ufjQh9GQPnODSr8KHfHU',
     authorizationParams: {
       redirect_uri: window.location.origin
-    }
+    },
   }
 };
 
