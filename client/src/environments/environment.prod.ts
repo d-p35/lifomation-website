@@ -4,6 +4,8 @@ export const environment = {
   auth: {
     domain: 'dev-8tnbwxvwy07fx47f.us.auth0.com',
     clientId: 'wH7dqxyGh512ufjQh9GQPnODSr8KHfHU',
-    redirectUri: window.location.origin,
+    authorizationParams: {
+      redirect_uri: window.location.origin
+    }
   }
 };
