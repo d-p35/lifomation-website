@@ -8,7 +8,6 @@ body {
   padding: 0;
 }
 
-
 .header-component {
   background: #0073e6;
   color: white;
@@ -71,7 +70,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     .feature-icon img, .blog-image {
-      max-width: 100%;
+      width: 70px;
       height: auto;
       margin-bottom: 20px;
     }
