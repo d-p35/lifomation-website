@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgFor } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
-
+import { HeaderComponent } from '../../layout/header/header.component';
+import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NgFor, CommonModule],
+  imports: [NgFor, CommonModule, HeaderComponent, SidebarComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -25,21 +26,21 @@ export class DashboardComponent implements OnInit {
   ];
 
   suggestions = [
-    { icon: 'assets/file-icon.png', title: 'Driver License.png', sharedUsers: 12, size: '2.8 MB', lastModified: 'Dec 13, 2022' },
-    { icon: 'assets/file-icon.png', title: 'Tax2020.zip', sharedUsers: 5, size: '242 MB', lastModified: 'Dec 12, 2022' },
-    { icon: 'assets/file-icon.png', title: 'dsfd.png', sharedUsers: 0, size: '1.8 MB', lastModified: 'Dec 12, 2022' }
+    { icon: '../../..//public/doc-icon.png', title: 'Driver License.doc', sharedUsers: 12, size: '2.8 MB', lastModified: 'Dec 13, 2022' },
+    { icon: '../../..//public/doc-icon.png', title: 'Tax2020.pdf', sharedUsers: 5, size: '242 MB', lastModified: 'Dec 12, 2022' },
+    { icon: '../../..//public/pdf-icon.png', title: 'dsfd.png', sharedUsers: 0, size: '1.8 MB', lastModified: 'Dec 12, 2022' }
   ];
 
   recentFiles = [
-    { icon: 'assets/file-icon.png' },
-    { icon: 'assets/file-icon.png' },
-    { icon: 'assets/file-icon.png' },
-    { icon: 'assets/file-icon.png' },
-    { icon: 'assets/file-icon.png' },
-    { icon: 'assets/file-icon.png' },
-    { icon: 'assets/file-icon.png' },
-    { icon: 'assets/file-icon.png' },
-    { icon: 'assets/file-icon.png' }
+    { icon: '../../..//public/doc-icon.png' },
+    { icon: '../../..//public/doc-icon.png' },
+    { icon: '../../..//public/doc-icon.png' },
+    { icon: '../../..//public/pdf-icon.png' },
+    { icon: '../../..//public/pdf-icon.png' },
+    { icon: '../../..//public/doc-icon.png' },
+    { icon: '../../..//public/pdf-icon.png' },
+    { icon: '../../..//public/doc-icon.png' },
+    { icon: '../../..//public/pdf-icon.png' },
   ];
 
   ngOnInit(): void {}

@@ -1,7 +1,12 @@
 <header>
     <div class="container">
         <div class="logo">
-            <h3>Lifomation</h3>
+            <div class="logo-icon">
+                <img src="../../..//public/logo.png" alt="Logo" class="logo-img">
+            </div>
+            <div class="logo-name">
+                <h3>Lifomation</h3>
+            </div>
         </div>
         <nav class="nav">
             <a routerLink="/" class="nav-link">Home</a>
@@ -11,11 +16,11 @@
         </nav>
         <div *ngIf="auth.user$ | async as user; else loggedOut" class="user-menu">
             <span class="welcome">Hi, {{ user.name || user.email }}</span>
-            <button class="btn logout" (click)="auth.logout()">Log out</button>
+            <button class="btn logout-btn" (click)="auth.logout()">Log out</button>
         </div>
         <ng-template #loggedOut>
             <div class="auth-buttons">
-                <button class="btn login" (click)="auth.loginWithRedirect()">Log in</button>
+                <button class="btn login-btn" (click)="auth.loginWithRedirect()">Get Started</button>
             </div>
         </ng-template>
     </div>
