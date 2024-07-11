@@ -1,19 +1,22 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+// app.component.ts
+import { Component, OnInit } from '@angular/core';
+import { RouterOutlet, Router } from '@angular/router';
+import { HeaderComponent } from './layout/header/header.component';
 import { ApiService } from './services/api.service';
+import * as THREE from 'three';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, HeaderComponent, CommonModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'client';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private router: Router) {}
 
-  ngOnInit(): void {
-  }
+
+  
 }

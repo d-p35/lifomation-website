@@ -1,0 +1,14 @@
+<div *ngIf="!loading">
+    <h2>Document View</h2>
+    <div *ngIf="documentType !== 'pdf'">
+      <img [src]="documentUrl" alt="Document Image" width="1000px" height="600px">
+    </div>
+    <div *ngIf="documentType === 'pdf'">
+      <embed [src]="documentUrl" type="application/pdf" width="1000px" height="600px">
+    </div>
+  </div>
+  
+  <div *ngIf="loading">
+    <p>Loading document...</p>
+  </div>
+  
