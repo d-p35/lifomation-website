@@ -27,10 +27,10 @@
   <section class="steps">
     <h2 class="section-title">How It Works</h2>
     <ol class="steps-list">
-      <li class="step" *ngFor="let step of steps; let i = index">
+      <div class="step" *ngFor="let step of steps; let i = index">
         <h3 class="step-title">{{ i + 1 }}. {{ step.title }}</h3>
         <p class="step-description">{{ step.description }}</p>
-      </li>
+      </div>
     </ol>
   </section>
 

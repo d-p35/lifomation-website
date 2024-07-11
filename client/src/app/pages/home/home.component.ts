@@ -14,14 +14,14 @@ import { ApiService } from '../../services/api.service';
 })
 export class HomeComponent implements OnInit{
 
-  title = 'Lifomation';
-  features = [
-    { title: 'Secure Storage', description: 'Keep your documents safe and secure.', icon: 'assets/secure-icon.png' },
-    { title: 'Easy Access', description: 'Access your documents from anywhere.', icon: 'assets/access-icon.png' },
-    { title: 'Organized', description: 'Keep your documents well-organized.', icon: 'assets/organized-icon.png' },
-    { title: 'Advanced Search', description: 'Find documents quickly and easily.', icon: 'assets/search-icon.png' },
-    { title: 'Secure Sharing', description: 'Share documents securely.', icon: 'assets/share-icon.png' }
-  ];
+    title = 'Lifomation';
+    features = [
+      { title: 'Secure Storage', description: 'Keep your documents safe and secure.', icon: '../../..//public/secure-icon.png' },
+      { title: 'Easy Access', description: 'Access your documents from anywhere.', icon: '../../..//public/access-icon.png' },
+      { title: 'Organized', description: 'Keep your documents well-organized.', icon: '../../..//public/organized-icon.png' },
+      { title: 'Advanced Search', description: 'Find documents quickly and easily.', icon: '../../..//public/advanced-search.png' },
+      { title: 'Secure Sharing', description: 'Share documents securely.', icon: '../../..//public/share-icon.png' }
+    ];
 
   steps = [
     { title: 'Sign Up', description: 'Create an account using your email and set up your profile.' },
@@ -56,9 +56,9 @@ export class HomeComponent implements OnInit{
   ];
 
   blogPosts = [
-    { title: 'How to Keep Your Documents Secure', image: 'assets/blog1.jpg', excerpt: 'Learn the best practices for keeping your documents secure in the digital age.' },
-    { title: 'The Benefits of Digital Document Management', image: 'assets/blog2.jpg', excerpt: 'Discover the advantages of managing your documents digitally.' },
-    { title: 'Top Features of Lifomation', image: 'assets/blog3.jpg', excerpt: 'Explore the top features that make Lifomation the best choice for document management.' }
+    { title: 'How to Keep Your Documents Secure', image: '../../..//public/blogging.png', excerpt: 'Learn the best practices for keeping your documents secure in the digital age.' },
+    { title: 'The Benefits of Digital Document Management', image: '../../..//public/blogging.png', excerpt: 'Discover the advantages of managing your documents digitally.' },
+    { title: 'Top Features of Lifomation', image: '../../..//public/blogging.png', excerpt: 'Explore the top features that make Lifomation the best choice for document management.' }
   ];
 
   faqs = [

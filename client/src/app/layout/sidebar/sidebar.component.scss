@@ -1,0 +1,90 @@
+$sidebar-width: 250px;
+$background-color: #007cf7;
+$hover-color: #09a7f080;
+$font-color: #ecf0f1;
+$active-color: #5eb7f3a0;
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: $sidebar-width;
+  height: 100%;
+  background-color: $background-color;
+  color: $font-color;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    
+    i {
+      font-size: 36px;
+      margin-right: 10px;
+    }
+
+    span {
+      font-size: 24px;
+      font-weight: bold;
+    }
+  }
+
+  .menu {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    
+    .sidebar-item {
+      width: 100%;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+
+      i {
+        margin-right: 10px;
+        font-size: 24px;
+      }
+
+      &:hover {
+        background-color: $hover-color;
+      }
+
+      &.active {
+        background-color: $active-color;
+      }
+    }
+  }
+
+  .storage-info {
+    margin-top: auto;
+    padding: 20px;
+    text-align: center;
+    color: $font-color;
+
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    a {
+      color: $font-color;
+      text-decoration: none;
+      font-size: 14px;
+      margin-top: 10px;
+      display: block;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: $active-color;
+      }
+    }
+  }
+}
