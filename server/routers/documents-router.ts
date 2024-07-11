@@ -6,7 +6,9 @@ import { Repository } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
+import axios from 'axios';
 
+const tikaServerUrl = 'http://localhost:9998/tika'; 
 const upload = multer({ dest: "uploads/" });
 
 export const DocumentsRouter = Router();
@@ -46,20 +48,41 @@ DocumentsRouter.post(
   async (req: Request, res: Response) => {
     try {
       const file = req.file;
-      const document = {
-        document: file,
-      } as any;
 
-      // Save document
-      const newDocument = await documentRepository.save(document);
+      // Prepare data for POST request to Tika server
+      const formData = new FormData();
+      formData.append('file', file.buffer, file.originalname);
 
-      // Return the new document
-      res.status(201).json({document: newDocument});
+      // Send the file to Tika server for processing
+      const tikaResponse = await axios.post(tikaServerUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (tikaResponse.status === 200) {
+        const extractedData = tikaResponse.data; // This could be text or metadata
+
+        // Save the document with extracted data (optional)
+        const document = {
+          document: file,
+          extractedData, // Add the extracted data to the document object
+        };
+
+        const newDocument = await documentRepository.save(document);
+
+        // Return the new document with extracted data
+        res.status(201).json({ document: newDocument });
+      } else {
+        throw new Error('Error processing document with Tika');
+      }
     } catch (err: any) {
-      res.status(500).json({ message: err.message });
+      console.error(err);
+      res.status(500).json({ message: 'Failed to process document' });
     }
   }
 );
+
 
 DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
   try {
