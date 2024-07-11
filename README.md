@@ -188,7 +188,7 @@ Thank you for using Lifomation! If you encounter any issues or have suggestions 
 
 ## Learn More
 
-For additional information and updates, please visit our Notion page: [Lifomation](https://yashankxy.notion.site/Lifomation-f3fff6a1973d4b35aa7f4a23f72f2b9b?pvs=4) 
+For additional information and updates, please visit our Notion page: [Lifomation](https://yashankxy.notion.site/Lifomation-f3fff6a1973d4b35aa7f4a23f72f2b9b?pvs=4)
 ---
 
 *Keep your documents safe and accessible with Lifomation.*
