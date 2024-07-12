@@ -6,6 +6,7 @@ import { Repository } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
+import moment from 'moment';
 
 const upload = multer({ dest: "uploads/" });
 
@@ -97,9 +98,8 @@ DocumentsRouter.patch("/lastOpened/:id", async (req: Request, res: Response) => 
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
-
-    document.lastOpened = new Date();
-    console.log(document.lastOpened);
+    // document.lastOpened = new Date(req.body.time);
+  
     await documentRepository.save(document);
 
     // Return the new document

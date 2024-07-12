@@ -30,7 +30,6 @@ export class RecentComponent implements OnInit{
     this.apiService.getRecentDocuments().subscribe({
       next: (res) => {
         this.documents = res.documents;
-        console.log(this.documents);
         
       },
       error: (err) => {

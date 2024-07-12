@@ -51,8 +51,7 @@ getFile(documentId: number): Observable<Blob> {
 }
 
 updateLastOpened(documentId: number): Observable<any> {
-  console.log('updateLastOpened');
-  return this.http.patch(this.endpoint + `/api/documents/lastOpened/${documentId}`, {});
+  return this.http.patch(this.endpoint + `/api/documents/lastOpened/${documentId}`, {time: new Date().toISOString()});
 }
 
 //   deleteMessage(messageId: number): Observable<Message> {
