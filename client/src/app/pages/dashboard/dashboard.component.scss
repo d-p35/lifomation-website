@@ -1,5 +1,5 @@
 $sidebar-width: 250px;
-$header-height: 60px;
+$header-height: 0px;
 
 .dashboard {
   display: flex;
@@ -117,8 +117,6 @@ $header-height: 60px;
 .main-content {
   padding: 20px;
   background-color: #f4f5f7;
-  height: calc(100vh - $header-height);
-  overflow-y: auto;
 
   .files-section,
   .suggestions-section,
@@ -133,7 +131,7 @@ $header-height: 60px;
       align-items: center;
 
       h2 {
-        margin: 0;
+        margin-bottom: 20px;
       }
 
       .add-new {

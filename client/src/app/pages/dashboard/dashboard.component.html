@@ -1,21 +1,15 @@
-<header-component></header-component>
-<div *ngIf="auth.user$ | async as user">
+
   <div class="dashboard">
     <div class="main-container">
-      <sidebar-component></sidebar-component>
       <main class="main-content">
-        <div class="search-bar">
-          <input type="text" placeholder="Search in Lifomation">
-        </div>
         <section class="files-section">
           <div class="section-header">
             <h2>All files</h2>
-            <button class="add-new">+ Add new</button>
           </div>
           <div class="files-grid">
             <div class="file-card" *ngFor="let file of files" (click)="OnFolderClick()">
               <div class="file-icon">
-                <img [src]="file.icon" alt="File Icon">
+                <i class="pi {{ file.icon}}" style="color: slateblue"></i>
               </div>
               <div class="file-info">
                 <h3>{{ file.title }}</h3>
@@ -63,4 +57,4 @@
       </main>
     </div>
   </div>
-</div>
+
