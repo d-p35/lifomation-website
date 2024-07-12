@@ -1,24 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-// Import the AuthService type from the SDK
-import { AuthService, User } from '@auth0/auth0-angular';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '@auth0/auth0-angular';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { UploadComponent } from '../../components/upload/upload.component';
+
+
 @Component({
   selector: 'header-component',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [AutoCompleteModule, FormsModule, CommonModule, RouterModule,UploadComponent],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-    isDarkMode = false;
-    // Inject the authentication service into your component through the constructor
-    constructor(public auth: AuthService) {}
-    
-    ngOnInit(): void {
-    }
-    toggleTheme() {
-      this.isDarkMode = !this.isDarkMode;
-      document.body.classList.toggle('dark-theme', this.isDarkMode);
-    }
+  items: any[] | undefined;
+
+  constructor(public auth : AuthService) {}
+  selectedItem: any;
+
+  suggestions: any[] =[];
+
+  search(event: any) {
+      this.suggestions = [...Array(10).keys()].map(item => event.query + '-' + item);
+  }
 }

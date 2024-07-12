@@ -4,11 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { ImageModule } from 'primeng/image';
+
 
 @Component({
   selector: 'app-doc-view',
   standalone: true,
-  imports: [NgIf, NgxExtendedPdfViewerModule],
+  imports: [NgIf, NgxExtendedPdfViewerModule, ImageModule],
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })

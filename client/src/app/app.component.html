@@ -1,1 +1,3 @@
+<sidebar-component *ngIf="auth.user$ | async as user"></sidebar-component>
+<header-component *ngIf="auth.user$ | async as user"></header-component>
 <router-outlet></router-outlet>
