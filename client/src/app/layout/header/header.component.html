@@ -1,25 +1,26 @@
 <header>
-    <div class="container">
-      <div class="logo">
-        <div class="logo-icon">
-          <img src="../../..//public/logo.png" alt="Logo" class="logo-img" />
-        </div>
-        <div class="logo-name">
-          <h3>Lifomation</h3>
-        </div>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">
+        <img src="../../..//public/logo.png" alt="Logo" class="logo-img" />
       </div>
-      <p-autoComplete
-        [(ngModel)]="selectedItem"
-        [suggestions]="suggestions"
-        (completeMethod)="search($event)"
-        placeholder="Search for files"
-        size="50"
-      ></p-autoComplete>
-      <app-upload></app-upload>
-      <div *ngIf="auth.user$ | async as user" class="user-menu">
-        <span class="welcome">Hi, {{ user.name || user.email }}</span>
-        <button class="btn logout-btn" (click)="auth.logout()">Log out</button>
+      <div class="logo-name">
+        <h3>Lifomation</h3>
       </div>
     </div>
-  </header>
-  
+    <p-autoComplete
+      [(ngModel)]="selectedItem"
+      [suggestions]="suggestions"
+      (completeMethod)="search($event)"
+      (onSelect)="onSuggestionSelect($event)"
+      field="label"
+      placeholder="Search for files"
+      size="50"
+    ></p-autoComplete>
+    <app-upload></app-upload>
+    <div *ngIf="auth.user$ | async as user" class="user-menu">
+      <span class="welcome">Hi, {{ user.name || user.email }}</span>
+      <button class="btn logout-btn" (click)="auth.logout()">Log out</button>
+    </div>
+  </div>
+</header>

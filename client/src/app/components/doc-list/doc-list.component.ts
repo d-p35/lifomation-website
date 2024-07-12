@@ -8,9 +8,9 @@ import { NgFor } from '@angular/common';
   standalone: true,
   imports: [NgFor],
   templateUrl: './doc-list.component.html',
-  styleUrl: './doc-list.component.scss'
+  styleUrl: './doc-list.component.scss',
 })
-export class DocListComponent implements OnInit{
+export class DocListComponent implements OnInit {
   @Input() documents: any[] = [];
 
   constructor(private router: Router, private apiService: ApiService) {}
@@ -26,17 +26,16 @@ export class DocListComponent implements OnInit{
       },
       error: (err) => {
         console.error(err);
-      }
+      },
     });
   }
 
   addDocument(document: any) {
     this.documents.push(document);
   }
-    
 
   viewDocument(id: number) {
-    const doc = this.documents.find(doc => doc.id === id);
+    const doc = this.documents.find((doc) => doc.id === id);
     if (!doc) {
       return;
     }
@@ -44,16 +43,13 @@ export class DocListComponent implements OnInit{
   }
 
   deleteDocument(id: number) {
-   this.apiService.deleteDocument(id).subscribe({
+    this.apiService.deleteDocument(id).subscribe({
       next: (res) => {
-        this.documents = this.documents.filter(doc => doc.id !== id);
+        this.documents = this.documents.filter((doc) => doc.id !== id);
       },
       error: (err) => {
         console.error(err);
-      }
+      },
     });
-  
-   
   }
-  
 }
