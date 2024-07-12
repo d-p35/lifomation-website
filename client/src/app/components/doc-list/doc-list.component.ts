@@ -10,10 +10,10 @@ import { DataService } from '../../services/data.service';
   standalone: true,
   imports: [NgFor, DocCardComponent],
   templateUrl: './doc-list.component.html',
-  styleUrl: './doc-list.component.scss'
+  styleUrl: './doc-list.component.scss',
 })
-export class DocListComponent implements OnInit{
-  documents: any[] = [];
+export class DocListComponent implements OnInit {
+  @Input() documents: any[] = [];
 
   constructor(private router: Router, private apiService: ApiService,  private dataService: DataService) {}
 
@@ -33,8 +33,30 @@ export class DocListComponent implements OnInit{
       },
       error: (err) => {
         console.error(err);
-      }
+      },
     });
   }
 
+  addDocument(document: any) {
+    this.documents.push(document);
+  }
+
+  viewDocument(id: number) {
+    const doc = this.documents.find((doc) => doc.id === id);
+    if (!doc) {
+      return;
+    }
+    this.router.navigate(['/documents', id]);
+  }
+
+  deleteDocument(id: number) {
+    this.apiService.deleteDocument(id).subscribe({
+      next: (res) => {
+        this.documents = this.documents.filter((doc) => doc.id !== id);
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
 }
