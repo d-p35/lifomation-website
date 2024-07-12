@@ -3,20 +3,34 @@ import { CommonModule, NgFor } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
+import { ApiService } from '../../services/api.service';
+import { DocCardComponent } from '../../doc-card/doc-card.component';
+import { DataService } from '../../services/data.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NgFor, CommonModule, SidebarComponent],
+  imports: [NgFor, CommonModule, SidebarComponent, DocCardComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
   // Inject the authentication service into your component through the constructor
-  constructor(public auth: AuthService, private router: Router) {}
+  constructor(public auth: AuthService, private router: Router, private apiService: ApiService,  private dataService: DataService) {}
+
+  documents = [];
+
+  ngOnInit() {
+    this.fetchDocuments();
+    this.dataService.notifyObservable$.subscribe(res => {
+      if (res && res.refresh) {
+        this.fetchDocuments();
+      }
+    });
+  }
 
   files = [
     {
-      icon: 'pi-file-pdf',
+      icon: 'pi-users',
       title: 'Family',
       date: 'Sep 25, 2022',
       sharedUsers: 80,
@@ -31,21 +45,21 @@ export class DashboardComponent implements OnInit {
       
     },
     {
-      icon: 'pi-credit-card',
+      icon: 'pi-heart',
       title: 'Health',
       date: 'Sep 25, 2022',
       sharedUsers: 3,
       insideFiles: 256,
     },
     {
-      icon: 'pi-user',
+      icon: 'pi-book',
       title: 'Education',
       date: 'Sep 25, 2022',
       sharedUsers: 52,
       insideFiles: 1225,
     },
     {
-      icon: 'pi-user',
+      icon: 'pi-building',
       title: 'Government Utilities',
       date: 'Sep 25, 2022',
       sharedUsers: 22,
@@ -96,7 +110,17 @@ export class DashboardComponent implements OnInit {
     { icon: '../../..//public/pdf-icon.png' },
   ];
 
-  ngOnInit(): void {}
+  fetchDocuments() {
+    this.apiService.getRecentDocuments().subscribe({
+      next: (res) => {
+        this.documents = res.documents;
+        if (this.documents.length > 3) this.documents = this.documents.slice(0, 3);
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  }
 
   OnFolderClick() {
     this.router.navigate(['/documents']);

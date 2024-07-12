@@ -11,11 +11,7 @@ import { UploadComponent } from '../../components/upload/upload.component';
   styleUrl: './documents.component.scss',
 })
 export class DocumentsComponent {
-  @ViewChild(DocListComponent) docListComponent!: DocListComponent;
-
-  onDocumentUploaded(newDocument: any) {
-    this.docListComponent.addDocument(newDocument);
-  }
+  
 
   // documents: string[] = [];
 

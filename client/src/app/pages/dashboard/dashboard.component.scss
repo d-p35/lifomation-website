@@ -159,6 +159,8 @@ $header-height: 0px;
         border-radius: 4px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         width: calc(33.333% - 20px);
+        transition: background-color 0.3s ease;
+        
 
         .file-icon {
           img {
@@ -196,6 +198,7 @@ $header-height: 0px;
       .file-card:hover {
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         cursor: pointer;
+        background-color: #f1f1f1;
       }
     }
   }
