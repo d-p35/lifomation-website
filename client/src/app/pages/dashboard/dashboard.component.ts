@@ -45,14 +45,14 @@ export class DashboardComponent implements OnInit {
       insideFiles: 1225,
     },
     {
-      icon: 'assets/file-icon.png',
+      icon: 'pi-user',
       title: 'Government Utilities',
       date: 'Sep 25, 2022',
       sharedUsers: 22,
       insideFiles: 2265,
     },
     {
-      icon: 'assets/file-icon.png',
+      icon: 'pi-credit-card',
       title: 'Finance & Insurance',
       date: 'Sep 25, 2022',
       sharedUsers: 12,
