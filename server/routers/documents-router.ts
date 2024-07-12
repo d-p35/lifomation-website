@@ -6,6 +6,7 @@ import { Repository } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
+import moment from 'moment';
 
 const upload = multer({ dest: "uploads/" });
 
@@ -19,6 +20,32 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const allDocuments = await documentRepository.find();
     const count = await documentRepository.count();
     res.status(200).json({ count, documents: allDocuments });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
+  try {
+    const allDocuments = await documentRepository.find({
+      order: { lastOpened: "DESC" },
+    });
+    const count = await documentRepository.count();
+    res.status(200).json({ count, documents: allDocuments });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    res.status(200).json({ document });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -60,6 +87,29 @@ DocumentsRouter.post(
     }
   }
 );
+
+DocumentsRouter.patch("/lastOpened/:id", async (req: Request, res: Response) => {
+  try {
+    // Update lastOpened
+    const id: number = parseInt(req.params.id);
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+    // document.lastOpened = new Date(req.body.time);
+  
+    await documentRepository.save(document);
+
+    // Return the new document
+    res.status(200).json({ document
+    });
+
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
   try {

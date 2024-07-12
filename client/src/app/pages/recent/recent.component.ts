@@ -1,21 +1,21 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { NgFor } from '@angular/common';
 import { DocCardComponent } from '../../doc-card/doc-card.component';
+import { CommonModule } from '@angular/common';
 import { DataService } from '../../services/data.service';
 
 @Component({
-  selector: 'app-doc-list',
+  selector: 'app-recent',
   standalone: true,
-  imports: [NgFor, DocCardComponent],
-  templateUrl: './doc-list.component.html',
-  styleUrl: './doc-list.component.scss'
+  imports: [DocCardComponent, CommonModule],
+  templateUrl: './recent.component.html',
+  styleUrl: './recent.component.scss'
 })
-export class DocListComponent implements OnInit{
+export class RecentComponent implements OnInit{
   documents: any[] = [];
 
-  constructor(private router: Router, private apiService: ApiService,  private dataService: DataService) {}
+  constructor(private router: Router, private apiService: ApiService, private dataService: DataService) {}
 
   ngOnInit() {
     this.fetchDocuments();
@@ -27,9 +27,10 @@ export class DocListComponent implements OnInit{
   }
 
   fetchDocuments() {
-    this.apiService.getDocuments().subscribe({
+    this.apiService.getRecentDocuments().subscribe({
       next: (res) => {
         this.documents = res.documents;
+        
       },
       error: (err) => {
         console.error(err);
@@ -38,3 +39,5 @@ export class DocListComponent implements OnInit{
   }
 
 }
+
+

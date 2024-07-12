@@ -7,8 +7,8 @@
     <a routerLink="/dashboard"
       ><li [class.active]="isRouteActive('/dashboard')"class="sidebar-item"><i class="material-icons">home</i> Home</li></a
     >
-    <a routerLink="/"
-      ><li class="sidebar-item">
+    <a routerLink="/documents"
+      ><li [class.active]="isRouteActive('/documents')"class="sidebar-item">
         <i class="material-icons">folder</i> My Drive
       </li></a
     >
@@ -17,8 +17,8 @@
         <i class="material-icons">people</i> Shared with me
       </li></a
     >
-    <a routerLink="/"
-      ><li class="sidebar-item">
+    <a routerLink="/recent"
+      ><li [class.active]="isRouteActive('/recent')" class="sidebar-item">
         <i class="material-icons">access_time</i> Recent
       </li></a
     >

@@ -1,5 +1,5 @@
 import { Entity } from "typeorm";
-import { PrimaryGeneratedColumn, Column } from "typeorm";
+import { PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
 interface DocumentAttributes {
   id: number;
@@ -7,6 +7,8 @@ interface DocumentAttributes {
     mimetype: string;
     path: string;
   };
+  uploadedAt: Date;
+  lastOpened: Date;
 }
 
 @Entity()
@@ -19,4 +21,10 @@ export class Document implements DocumentAttributes {
     mimetype: string;
     path: string;
   };
+  
+  @CreateDateColumn()
+  uploadedAt: Date;
+
+  @CreateDateColumn()
+  lastOpened: Date;
 }
