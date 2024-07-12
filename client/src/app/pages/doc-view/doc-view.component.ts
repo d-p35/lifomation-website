@@ -38,6 +38,15 @@ export class DocViewComponent {
         console.error(err);
       },
     });
+
+    this.apiService.updateLastOpened(i).subscribe({
+      next: () => {
+        console.log('Last opened updated');
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
     
   }
 }

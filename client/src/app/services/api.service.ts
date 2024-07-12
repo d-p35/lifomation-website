@@ -38,6 +38,9 @@ uploadDocument(formData: FormData): Observable<any> {
 getDocuments(): Observable<any> {
   return this.http.get(this.endpoint + '/api/documents');
 }
+getRecentDocuments(): Observable<any> {
+  return this.http.get(this.endpoint + '/api/documents/recent');
+}
 
 deleteDocument(documentId: number): Observable<any> {
   return this.http.delete(this.endpoint + `/api/documents/${documentId}`);
@@ -45,6 +48,11 @@ deleteDocument(documentId: number): Observable<any> {
 
 getFile(documentId: number): Observable<Blob> {
   return this.http.get(this.endpoint + `/api/documents/${documentId}/file`, { responseType: 'blob' });
+}
+
+updateLastOpened(documentId: number): Observable<any> {
+  console.log('updateLastOpened');
+  return this.http.patch(this.endpoint + `/api/documents/lastOpened/${documentId}`, {});
 }
 
 //   deleteMessage(messageId: number): Observable<Message> {

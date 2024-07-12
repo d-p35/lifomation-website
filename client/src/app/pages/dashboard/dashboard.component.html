@@ -24,7 +24,7 @@
         </section>
         <section class="suggestions-section">
           <h2>Suggestions</h2>
-          <div class="suggestions-list">
+          <!-- <div class="suggestions-list">
             <div class="suggestion-item" *ngFor="let suggestion of suggestions">
               <div class="file-icon">
                 <img [src]="suggestion.icon" alt="File Icon">
@@ -36,7 +36,8 @@
                 <p>Last Modified: {{ suggestion.lastModified }}</p>
               </div>
             </div>
-          </div>
+          </div> -->
+          <app-doc-card *ngFor="let doc of documents" [document]="doc"></app-doc-card>
         </section>
         <!-- <section class="suggestions-section">
           <h2>Recently Uploaded</h2>

@@ -10,6 +10,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { AuthGuard } from '@auth0/auth0-angular';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RecentComponent } from './pages/recent/recent.component';
 export const routes: Routes = [
   // Add your routes here
   { path: '', component: HomeComponent },
@@ -29,8 +30,9 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'sidebar',
-    component: SidebarComponent,
+    path: 'recent',
+    component: RecentComponent,
+    canActivate: [AuthGuard],
   },
 ];
 @NgModule({
