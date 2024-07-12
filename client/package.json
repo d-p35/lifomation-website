@@ -19,7 +19,6 @@
     "@angular/platform-browser-dynamic": "^18.0.0",
     "@angular/router": "^18.0.0",
     "@auth0/auth0-angular": "^2.2.3",
-    "ngx-extended-pdf-viewer": "^21.0.0-alpha.2",
     "primeng": "^17.18.3",
     "ngx-extended-pdf-viewer": "^21.0.0-alpha.2",
     "rxjs": "~7.8.0",
