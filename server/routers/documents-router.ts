@@ -8,6 +8,16 @@ import multer from "multer";
 import path from "path";
 import axios from 'axios';
 import * as fs from 'fs'; // Import the 'fs' module instead of 'fs/promises'
+require('dotenv').config();
+
+const { Pool } = require('pg');
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+});
 
 const tikaServerUrl = 'http://localhost:9998/tika/form'; 
 const upload = multer({ dest: "uploads/" });
@@ -60,35 +70,47 @@ async (req: Request, res: Response) => {
       // Prepare data for PUT request to Tika server
       const tikaResponse = await axios({
         method: "PUT",
-        url: "http://localhost:9998/unpack/all",
+        // url: "http://localhost:9998/unpack/all", // endpoint for images and text extraction
+        url: "http://localhost:9998/tika", // endpoint for text extraction only
         data: parsingData, // Stream the file data directly
-        responseType: "stream", // Receive response as a stream for writing
+        responseType: "text", // Receive response as a stream for writing
         headers: {
-          "X-Tika-PDFExtractInlineImages": "true",
-          "X-Tika-PDFExtractUniqueInlineImagesOnly": "true",
+          // "X-Tika-PDFExtractInlineImages": "true",
+          // "X-Tika-PDFExtractUniqueInlineImagesOnly": "true",
           "Content-Type": "application/octet-stream",
         },
       });
 
       if (tikaResponse.status === 200) {
-        const outputFilename = __dirname + "/output.zip";
-        const writeStream = fs.createWriteStream(outputFilename);
+        // let extractedText = '';
+        // tikaResponse.data.on('data', (chunk: Buffer) => {
+        //   extractedText += chunk.toString(); // Convert Buffer to string and accumulate
+        // });
+        // tikaResponse.data.on('end', async () => {
+        //   const document = new Document(); // Create a new Document instance
+        //   document.document = {
+        //     mimetype: file.mimetype,
+        //     path: file.path,
+        //     textExracted: extractedText, // Store the extracted text
+        //   };
+        //   // Save document
+        //   const newDocument = await documentRepository.save(document);
+        //   res.status(201).json({ document: newDocument });
+        // });
+        const extractedText = tikaResponse.data; // Get the extracted text directly
 
-        tikaResponse.data.pipe(writeStream); // Pipe the response stream to the output file
+        // Create a new Document instance
+        const document = new Document();
+        document.document = {
+          mimetype: file.mimetype,
+          path: file.path,
+          textExracted: extractedText, // Store the extracted text
+        };
 
-        writeStream.on("finish", () => {
-          console.log("Tika-server response data saved at", outputFilename);
-          // Save the document with extracted data (optional)
-          // ... your logic to access extracted data and save the document ...
+        // Save the document
+        const newDocument = await documentRepository.save(document);
+        res.status(201).json({ document: newDocument });
 
-          // Return a success response (assuming you saved the document)
-          res.status(201).json({ message: "Document processed and saved" });
-        });
-
-        writeStream.on("error", (err) => {
-          console.error("Error saving Tika-server response:", err);
-          res.status(500).json({ message: "Failed to process document" });
-        });
       } else {
         throw new Error("Error processing document with Tika");
       }

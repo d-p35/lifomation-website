@@ -6,6 +6,7 @@ interface DocumentAttributes {
   document: {
     mimetype: string;
     path: string;
+    textExracted: string;
   };
 }
 
@@ -18,5 +19,6 @@ export class Document implements DocumentAttributes {
   document: {
     mimetype: string;
     path: string;
+    textExracted: string;
   };
 }
