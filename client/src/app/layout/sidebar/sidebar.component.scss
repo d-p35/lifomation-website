@@ -39,7 +39,10 @@ $active-color: #5eb7f3a0;
     list-style: none;
     padding: 0;
     width: 100%;
-    
+    a{
+      text-decoration: none;
+      color: inherit;
+    }
     .sidebar-item {
       width: 100%;
       padding: 15px 20px;
@@ -47,11 +50,12 @@ $active-color: #5eb7f3a0;
       align-items: center;
       cursor: pointer;
       transition: background-color 0.3s ease, color 0.3s ease;
-
       i {
         margin-right: 10px;
         font-size: 24px;
       }
+
+     
 
       &:hover {
         background-color: $hover-color;

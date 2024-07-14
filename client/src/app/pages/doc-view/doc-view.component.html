@@ -1,14 +1,18 @@
 <div *ngIf="!loading">
-    <h2>Document View</h2>
-    <div *ngIf="documentType !== 'pdf'">
-      <img [src]="documentUrl" alt="Document Image" width="1000px" height="600px">
+   
+    <div class="document-view-container">
+      <h2>Document View</h2>
+      <div *ngIf="documentType !== 'pdf'" >
+      <p-image [src]="documentUrl" alt="Document Image" width="700px" height="700px" [preview]="true" />
     </div>
     <div *ngIf="documentType === 'pdf'">
-      <embed [src]="documentUrl" type="application/pdf" width="1000px" height="600px">
+      <embed [src]="documentUrl" type="application/pdf" width="700px" height="700px">
     </div>
+  </div>
   </div>
   
   <div *ngIf="loading">
     <p>Loading document...</p>
   </div>
+
   

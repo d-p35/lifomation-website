@@ -1,16 +1,16 @@
 .document-list-container {
   text-align: center;
   margin: 50px auto;
-  width: 50%;
+  margin-left: 25%;
+  width: 60%;
   border: 1px solid #ccc;
+  background-color: #f4f5f7;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
 
   h2 {
     margin-bottom: 20px;
-    color: #333;
   }
 
   ul {
@@ -45,24 +45,6 @@
         }
       }
 
-      .delete-button {
-        background-color: #ff4d4d;
-        border: none;
-        color: white;
-        padding: 10px 15px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 14px;
-        margin-left: 10px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-
-        &:hover {
-          background-color: #ff1a1a;
-        }
-      }
     }
   }
 }

@@ -4,11 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { ImageModule } from 'primeng/image';
+
 
 @Component({
   selector: 'app-doc-view',
   standalone: true,
-  imports: [NgIf, NgxExtendedPdfViewerModule],
+  imports: [NgIf, NgxExtendedPdfViewerModule, ImageModule],
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })
@@ -31,6 +33,14 @@ export class DocViewComponent {
         const objectUrl = URL.createObjectURL(blob);
         this.documentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
         this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+
+    this.apiService.updateLastOpened(i).subscribe({
+      next: () => {
       },
       error: (err) => {
         console.error(err);

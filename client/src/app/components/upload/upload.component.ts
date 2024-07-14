@@ -1,19 +1,35 @@
 import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { ApiService } from '../../services/api.service';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { FileUploadModule } from 'primeng/fileupload';
+import {MessageService} from 'primeng/api'
+import { ToastModule } from 'primeng/toast';
+import { DataService } from '../../services/data.service';
 
 @Component({
   selector: 'app-upload',
   standalone: true,
-  imports: [],
+  imports: [DialogModule,
+    ButtonModule,
+    InputTextModule,
+    FileUploadModule, ToastModule],
   templateUrl: './upload.component.html',
-  styleUrl: './upload.component.scss',
+  styleUrls: ['./upload.component.scss', '../../layout/header/header.component.scss'],
+  
 })
 export class UploadComponent {
   selectedFile: File | null = null;
-  @Output() documentUploaded = new EventEmitter<any>();
+  visible: boolean = false;
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  constructor( private apiService: ApiService) {}
+  constructor( private apiService: ApiService, private messageService: MessageService, private dataService: DataService) {}
+
+
+  showDialog() {
+    this.visible = true;
+  }
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0] || null;
@@ -26,11 +42,13 @@ export class UploadComponent {
       formData.append('document', this.selectedFile);
       this.apiService.uploadDocument(formData).subscribe({
         next: (res) => {
-          this.documentUploaded.emit(res.document);
           this.clearFileInput();
+          this.messageService.add({severity: 'success', summary: 'Success', detail: 'Document successfully uploaded'});
+          this.dataService.notifyOther({ refresh: true });
         },
         error: (err) => {
           console.error(err);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Document upload failed'});
         }
       });
 
@@ -41,6 +59,7 @@ export class UploadComponent {
   clearFileInput() {
     this.fileInput.nativeElement.value = '';
     this.selectedFile = null;
+    this.visible = false;
   }
 
 }

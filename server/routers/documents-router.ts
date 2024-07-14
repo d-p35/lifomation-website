@@ -10,20 +10,11 @@ import axios from 'axios';
 import * as fs from 'fs'; // Import the 'fs' module instead of 'fs/promises'
 import extract from "extract-zip"; // Add this import
 import { v4 as uuidv4 } from "uuid"; // To generate unique IDs
+import moment from 'moment';
+
 require('dotenv').config();
 
-const { Pool } = require('pg');
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
-
-const tikaServerUrl = 'http://localhost:9998/tika/form'; 
 const upload = multer({ dest: "uploads/" });
-
 export const DocumentsRouter = Router();
 
 const documentRepository: Repository<Document> =
@@ -34,6 +25,32 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const allDocuments = await documentRepository.find();
     const count = await documentRepository.count();
     res.status(200).json({ count, documents: allDocuments });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
+  try {
+    const allDocuments = await documentRepository.find({
+      order: { lastOpened: "DESC" },
+    });
+    const count = await documentRepository.count();
+    res.status(200).json({ count, documents: allDocuments });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    res.status(200).json({ document });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -148,6 +165,29 @@ DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: R
   }
 });
 
+
+DocumentsRouter.patch("/lastOpened/:id", async (req: Request, res: Response) => {
+  try {
+    // Update lastOpened
+    const id: number = parseInt(req.params.id);
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+    // document.lastOpened = new Date(req.body.time);
+  
+    await documentRepository.save(document);
+
+    // Return the new document
+    res.status(200).json({ document
+    });
+
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
   try {
