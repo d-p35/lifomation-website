@@ -6,6 +6,7 @@ interface DocumentAttributes {
   document: {
     mimetype: string;
     path: string;
+    textExracted: string;
   };
   uploadedAt: Date;
   lastOpened: Date;
@@ -20,6 +21,7 @@ export class Document implements DocumentAttributes {
   document: {
     mimetype: string;
     path: string;
+    textExracted: string;
   };
   
   @CreateDateColumn()
