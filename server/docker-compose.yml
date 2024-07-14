@@ -10,3 +10,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
+  tika:
+    image: logicalspark/docker-tikaserver
+    container_name: tika-server
+    ports:
+      - "9998:9998"
