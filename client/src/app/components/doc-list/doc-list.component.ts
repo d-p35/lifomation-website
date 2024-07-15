@@ -1,103 +1,72 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { DataService } from '../../services/data.service';
+import { NgFor } from '@angular/common';
 import { TableModule } from 'primeng/table';
-import { MessageService } from 'primeng/api';
-
-interface Document {
-  id: number;
-  uploadedAt: string;
-  lastOpened: string;
-  document: {
-    originalname: string;
-    size: number;
-    mimetype: string;
-  };
-  uploadedAtLocal?: string;
-  lastOpenedLocal?: string;
-  fileSize?: string;
-}
+import { LazyLoadEvent } from 'primeng/api';
 
 @Component({
   selector: 'app-doc-list',
   standalone: true,
-  imports: [TableModule],
+  imports: [NgFor, TableModule],
   templateUrl: './doc-list.component.html',
   styleUrls: ['./doc-list.component.scss'],
 })
 export class DocListComponent implements OnInit {
-  @Input() documents: Document[] = [];
-  @Input() document: any;
-  uploadedAtLocal!: string;
-  lastOpenedLocal!: string;
+  @Input() documents: any[] = [];
+  totalRecords: number = 0;
+  rows: number = 10;
+  currentPage = 0;
+  itemsPerPage = 10; // Number of documents per page
 
-  constructor(
-    private router: Router,
-    private apiService: ApiService,
-    private messageService: MessageService,
-    private dataService: DataService
-  ) {}
+  constructor(private router: Router, private apiService: ApiService) {}
 
   ngOnInit() {
     this.fetchDocuments();
-    this.dataService.notifyObservable$.subscribe((res) => {
-      if (res && res.refresh) {
-        this.fetchDocuments();
-      }
-    });
-    this.uploadedAtLocal = this.convertToUserTimezone(
-      new Date(this.document.uploadedAt)
-    );
-    this.lastOpenedLocal = this.convertToUserTimezone(
-      new Date(this.document.lastOpened)
-    );
   }
 
   fetchDocuments() {
-    this.apiService.getDocuments().subscribe({
+    this.apiService
+      .getDocuments(this.currentPage, this.itemsPerPage)
+      .subscribe({
+        next: (res) => {
+          this.documents = res.documents.map((doc: any) => ({
+            ...doc,
+            uploadedAtLocal: this.convertToUserTimezone(
+              new Date(doc.uploadedAt)
+            ),
+            lastOpenedLocal: this.convertToUserTimezone(
+              new Date(doc.lastOpened)
+            ),
+            fileSize: this.getFileSize(doc.document.size),
+          }));
+          this.totalRecords = res.totalRecords; // Adjust according to your API response
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
+  }
+
+  loadDocuments(event: any) {
+    const page = event.first
+      ? Math.floor(event.first / (event.rows ?? this.rows))
+      : 0;
+    const rows =
+      event.rows !== null && event.rows !== undefined ? event.rows : this.rows;
+
+    this.apiService.getDocuments(page, rows).subscribe({
       next: (res) => {
-        this.documents = res.documents.map((doc: Document) => ({
+        this.documents = res.documents.map((doc: any) => ({
           ...doc,
           uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
           lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
           fileSize: this.getFileSize(doc.document.size),
         }));
-        console.log(this.documents);
+        this.totalRecords = res.totalRecords; // Adjust according to your API response
       },
       error: (err) => {
         console.error(err);
-      },
-    });
-  }
-
-  addDocument(document: Document) {
-    this.documents.push(document);
-  }
-
-  viewDocument(id: number) {
-    this.router.navigate(['/documents', id]);
-  }
-
-  deleteDocument(id: number, event: Event) {
-    event.stopPropagation();
-    this.apiService.deleteDocument(id).subscribe({
-      next: (res) => {
-        this.documents = this.documents.filter((doc) => doc.id !== id);
-        this.dataService.notifyOther({ refresh: true });
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Success',
-          detail: 'Document successfully deleted',
-        });
-      },
-      error: (err) => {
-        console.error(err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to delete document',
-        });
       },
     });
   }
@@ -116,5 +85,21 @@ export class DocListComponent implements OnInit {
       return `${gb.toFixed(2)} GB`;
     }
     return `${mb.toFixed(2)} MB`;
+  }
+
+  viewDocument(id: number) {
+    this.router.navigate(['/documents', id]);
+  }
+
+  deleteDocument(id: number, event: Event) {
+    event.stopPropagation();
+    this.apiService.deleteDocument(id).subscribe({
+      next: () => {
+        this.documents = this.documents.filter((doc) => doc.id !== id);
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
   }
 }

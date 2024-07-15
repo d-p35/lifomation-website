@@ -22,9 +22,15 @@ const documentRepository: Repository<Document> =
 
 DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
-    const allDocuments = await documentRepository.find();
-    const count = await documentRepository.count();
-    res.status(200).json({ count, documents: allDocuments });
+    const page = parseInt(req.query.page as string) || 0;
+    const rows = parseInt(req.query.rows as string) || 10;
+
+    const [documents, count] = await documentRepository.findAndCount({
+      skip: page * rows,
+      take: rows,
+    });
+
+    res.status(200).json({ count, documents });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

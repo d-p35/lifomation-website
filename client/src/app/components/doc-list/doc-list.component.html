@@ -1,25 +1,46 @@
 <div class="document-list-container">
   <h2>Documents</h2>
-  <p-table [value]="documents" [style]="{ 'min-width': '50rem' }">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Document Name</th>
-        <th>Uploaded</th>
-        <th>Last Opened</th>
-        <th>Size</th>
-        <th>Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-doc>
-      <tr (click)="viewDocument(doc.id)">
-        <td>{{ doc.document.originalname }}</td>
-        <td>{{ doc.uploadedAtLocal }}</td>
-        <td>{{ doc.lastOpenedLocal }}</td>
-        <td>{{ doc.fileSize }}</td>
-        <td>
-          <button type="button" class="delete-button" (click)="deleteDocument(doc.id, $event)">Delete</button>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+  <div class="table-container">
+    <p-table
+      [value]="documents"
+      [lazy]="true"
+      (onLazyLoad)="loadDocuments($event)"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      scrollable="true"
+      scrollHeight="400px"
+      [virtualScroll]="true"
+      [style]="{ 'min-width': '50rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Name</th>
+          <th>Uploaded At</th>
+          <th>Last Opened</th>
+          <th>Size</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-doc>
+        <tr>
+          <td (click)="viewDocument(doc.id)" style="cursor: pointer">
+            {{ doc.document.originalname }}
+          </td>
+          <td>{{ doc.uploadedAtLocal }}</td>
+          <td>{{ doc.lastOpenedLocal }}</td>
+          <td>{{ doc.fileSize }}</td>
+          <td>
+            <button
+              type="button"
+              class="delete-button"
+              (click)="deleteDocument(doc.id, $event)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>
