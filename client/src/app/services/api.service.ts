@@ -3,21 +3,35 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment'
 import { AuthService } from '@auth0/auth0-angular';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   endpoint = environment.apiEndpoint;
-
+  userId: string | undefined;
 
   constructor(private http: HttpClient, private auth: AuthService) {
     // Existing constructor code
   }
   get isAuthenticated$() {
-    return this.auth.isAuthenticated$;
+    // return this.auth.isAuthenticated$;
+    return this.auth.user$.subscribe(user => {
+      console.log('user', user);
+      if (user) {
+        // Extract the user_id from the user profile
+        this.userId = user.sub;
+        console.log('User ID:', this.userId);
+      }
+    });
   }
-
+  // @d-p35: This function returns the user id
+  getUserId(): Observable<string> {
+    return this.auth.user$.pipe(
+      map(user => user?.sub ?? 'Unknown UID')
+    );
+  }
   /**
    * HttpClient has methods for all the CRUD actions: get, post, put, patch, delete, and head.
    * First parameter is the URL, and the second parameter is the body.

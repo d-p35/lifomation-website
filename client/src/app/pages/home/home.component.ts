@@ -158,14 +158,28 @@ export class HomeComponent implements OnInit {
   ];
 
   constructor(private apiService: ApiService, private router: Router) {} // Step 2: Inject Router
+  userId: string | undefined;
 
   ngOnInit(): void {
-    this.apiService.isAuthenticated$.subscribe((isAuthenticated) => {
-      if (isAuthenticated) {
-        this.router.navigate(['/dashboard']);
+    // this.apiService.isAuthenticated$.subscribe((isAuthenticated) => {
+    //   if (isAuthenticated) {
+    //     console.log('User is authenticated');
+    //     // print user id
+    //     this.router.navigate(['/dashboard']);
+    //   }
+    // });
+
+    // @d-p35: Prints the user id
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId) {
+        console.log('Usersssss ID:', userId);
+      } else {
+        console.error('User ID not found');
       }
     });
+
   }
+
   initThreeJS() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
