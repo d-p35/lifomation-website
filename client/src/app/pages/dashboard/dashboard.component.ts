@@ -111,15 +111,24 @@ export class DashboardComponent implements OnInit {
   ];
 
   fetchDocuments() {
-    this.apiService.getRecentDocuments().subscribe({
-      next: (res) => {
-        this.documents = res.documents;
-        if (this.documents.length > 3) this.documents = this.documents.slice(0, 3);
-      },
-      error: (err) => {
-        console.error(err);
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId && userId !== 'Unknown UID') {
+        this.apiService.getRecentDocuments(userId).subscribe({
+          next: (res) => {
+            this.documents = res.documents;
+            if (this.documents.length > 3) this.documents = this.documents.slice(0, 3);
+          },
+          error: (err) => {
+            console.error(err);
+          }
+        });
       }
-    });
+
+      else {
+        console.error('User ID not found');
+      }}
+    );
+    
   }
 
   OnFolderClick() {
