@@ -1,4 +1,4 @@
-import { Entity } from "typeorm";
+import { Entity, UpdateDateColumn } from "typeorm";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
 interface DocumentAttributes {
@@ -10,6 +10,7 @@ interface DocumentAttributes {
   };
   uploadedAt: Date;
   lastOpened: Date;
+  views: number;
 }
 
 @Entity()
@@ -27,6 +28,9 @@ export class Document implements DocumentAttributes {
   @CreateDateColumn()
   uploadedAt: Date;
 
-  @CreateDateColumn()
+  @UpdateDateColumn()
   lastOpened: Date;
+
+  @Column({default: 0})
+  views: number;
 }

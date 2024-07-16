@@ -108,7 +108,7 @@ DocumentsRouter.post(
         );
 
         const OCRtext = text;
-        console.log("OCRtext", OCRtext);
+
         const document = {
           document: file,
         } as any;
@@ -239,10 +239,10 @@ DocumentsRouter.patch(
       if (!document) {
         return res.status(404).json({ message: "Document not found" });
       }
-      // document.lastOpened = new Date(req.body.time);
-
+      document.views = document.views + 1;
       await documentRepository.save(document);
 
+      
       // Return the new document
       res.status(200).json({ document });
     } catch (err: any) {
