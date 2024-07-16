@@ -249,8 +249,6 @@ DocumentsRouter.patch(
   "/lastOpened/:id",
   async (req: Request, res: Response) => {
     try {
-
-      console.log("RUningsdfsdffsdfsdfdsffsfdsf");
       // Update lastOpened
       const id: number = parseInt(req.params.id);
       const document = await documentRepository.findOne({ where: { id: id } });

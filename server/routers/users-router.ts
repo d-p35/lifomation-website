@@ -20,7 +20,6 @@ UsersRouter.post('/', async (req: Request, res: Response) => {
         id : req.body.userId,
         documents : []
       }
-      console.log(newUser);
       const results = await userRepo.save(newUser);
       res.status(201).json(results);
     } catch (err : any) {
