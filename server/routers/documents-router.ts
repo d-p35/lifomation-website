@@ -109,6 +109,8 @@ DocumentsRouter.post(
 
         const OCRtext = text;
 
+        // console.log("OCRtext", OCRtext);
+
         const document = {
           document: file,
         } as any;
@@ -202,7 +204,7 @@ DocumentsRouter.post(
               await fs.promises.writeFile(metadataFilePath, metadataText);
               await fs.promises.writeFile(textdataFilePath, extractedText);
 
-              console.log("OCRText", OCRText);
+              // console.log("OCRText", OCRText);
 
               const document = {
                 document: file,
