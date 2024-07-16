@@ -72,3 +72,14 @@
     }
   }
 }
+
+.document-icon {
+  width: 50px; /* Adjust icon width */
+  height: 50px; /* Adjust icon height */
+}
+
+.icon {
+  width: 50%;
+  height: 50%;
+  object-fit: contain;
+}

@@ -87,6 +87,15 @@ export class DocListComponent implements OnInit {
     return `${mb.toFixed(2)} MB`;
   }
 
+  getIcon(mimetype: string): string {
+    if (mimetype.includes('image')) {
+      return '../../..//public/doc-icon.png';
+    } else if (mimetype.includes('pdf')) {
+      return '../../..//public/pdf-icon.png';
+    }
+    return '';
+  }
+
   viewDocument(id: number) {
     this.router.navigate(['/documents', id]);
   }
