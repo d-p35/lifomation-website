@@ -4,6 +4,7 @@ import { ApiService } from '../../services/api.service';
 import { NgFor } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { LazyLoadEvent } from 'primeng/api';
+import { DataService } from '../../services/data.service';
 
 @Component({
   selector: 'app-doc-list',
@@ -19,10 +20,15 @@ export class DocListComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10; // Number of documents per page
 
-  constructor(private router: Router, private apiService: ApiService) {}
+  constructor(private router: Router, private apiService: ApiService, private dataService: DataService) {}
 
   ngOnInit() {
     this.fetchDocuments();
+    this.dataService.notifyObservable$.subscribe(res => {
+      if (res && res.refresh) {
+        this.fetchDocuments();
+      }
+    });
   }
 
   fetchDocuments() {
