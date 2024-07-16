@@ -43,6 +43,10 @@ export class ApiService {
   //     });
   //   }
 
+  createUser(userId: string): Observable<any> {
+    return this.http.post(this.endpoint + '/api/users', {userId});
+  }
+
   uploadDocument(formData: FormData): Observable<any> {
     return this.http.post(this.endpoint + '/api/documents', formData);
   }

@@ -1,18 +1,17 @@
-import { Entity } from 'typeorm';
-import { PrimaryGeneratedColumn, Column } from 'typeorm';
-
+import { Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { PrimaryGeneratedColumn, Column } from "typeorm";
+import { Document } from "./document";
 
 interface UserAttributes {
-    id: number;
-    username: string;}
+  id: string;
+  documents: Document[];
+}
 
 @Entity()
 export class User implements UserAttributes {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryColumn()
+  id: string;
 
-    @Column()
-    username: string;
+  @OneToMany(() => Document, (document) => document.owner)
+  documents: Document[];
 }
-
-

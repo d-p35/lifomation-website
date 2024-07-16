@@ -1,5 +1,6 @@
-import { Entity, UpdateDateColumn } from "typeorm";
+import { Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+import { User } from "./user";
 
 interface DocumentAttributes {
   id: number;
@@ -11,6 +12,8 @@ interface DocumentAttributes {
   uploadedAt: Date;
   lastOpened: Date;
   views: number;
+  owner: User;
+  ownerId: string;
 }
 
 @Entity()
@@ -33,4 +36,14 @@ export class Document implements DocumentAttributes {
 
   @Column({default: 0})
   views: number;
+
+  @Column()
+  ownerId: string;
+
+  @ManyToOne(() => User, (user) => user.documents)
+  @JoinColumn({ name: "ownerId" })
+  owner: User;
+
+  
+
 }

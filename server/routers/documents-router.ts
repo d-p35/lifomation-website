@@ -21,6 +21,8 @@ export const DocumentsRouter = Router();
 const documentRepository: Repository<Document> =
   dataSource.getRepository(Document);
 
+
+
 DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 0;
@@ -92,6 +94,12 @@ DocumentsRouter.post(
         return res.status(400).json({ message: "No file uploaded" });
       }
 
+      const ownerId = req.body.userId;
+
+      if (!ownerId) {
+        return res.status(400).json({ message: "User is not logged in" });
+      }
+      
       //if image file
       if (file.mimetype !== "application/pdf") {
         const path = req.file?.path; // Path to the uploaded file
@@ -113,6 +121,7 @@ DocumentsRouter.post(
 
         const document = {
           document: file,
+          ownerId: ownerId,
         } as any;
 
         // Save the document
@@ -208,6 +217,7 @@ DocumentsRouter.post(
 
               const document = {
                 document: file,
+                ownerId: ownerId,
               } as any;
 
               // Save the document

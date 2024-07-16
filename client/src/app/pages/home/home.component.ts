@@ -171,13 +171,14 @@ export class HomeComponent implements OnInit {
 
     // @d-p35: Prints the user id
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
-      if (userId) {
-        console.log('Usersssss ID:', userId);
+      if (userId && userId !== 'Unknown UID') {
+        this.apiService.createUser(userId).subscribe((response) => {
+          this.router.navigate(['/dashboard']);
+        });
       } else {
         console.error('User ID not found');
       }
     });
-
   }
 
   initThreeJS() {
