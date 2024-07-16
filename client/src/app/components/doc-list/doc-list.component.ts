@@ -32,8 +32,10 @@ export class DocListComponent implements OnInit {
   }
 
   fetchDocuments() {
-    this.apiService
-      .getDocuments(this.currentPage, this.itemsPerPage)
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId && userId !== 'Unknown UID') {
+      this.apiService
+      .getDocuments(this.currentPage, this.itemsPerPage, userId)
       .subscribe({
         next: (res) => {
           this.documents = res.documents.map((doc: any) => ({
@@ -52,7 +54,13 @@ export class DocListComponent implements OnInit {
           console.error(err);
         },
       });
+      } else {
+        console.error('User ID not found');
+      }
+    });
   }
+    
+  
 
   loadDocuments(event: any) {
     const page = event.first

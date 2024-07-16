@@ -51,13 +51,13 @@ export class ApiService {
     return this.http.post(this.endpoint + '/api/documents', formData);
   }
 
-  getDocuments(page: number = 0, rows: number = 10): Observable<any> {
+  getDocuments(page: number = 0, rows: number = 10, userId: String=""): Observable<any> {
     return this.http.get(
-      `${this.endpoint}/api/documents?page=${page}&rows=${rows}`
+      `${this.endpoint}/api/documents?page=${page}&rows=${rows}&userId=${userId}`
     );
   }
-  getRecentDocuments(): Observable<any> {
-    return this.http.get(this.endpoint + '/api/documents/recent');
+  getRecentDocuments(userId: String): Observable<any> {
+    return this.http.get(this.endpoint + `/api/documents/recent?userId=${userId}`);
   }
 
   deleteDocument(documentId: number): Observable<any> {

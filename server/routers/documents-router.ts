@@ -27,10 +27,13 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 0;
     const rows = parseInt(req.query.rows as string) || 10;
+    const ownerId = req.body.userId;
 
     const [documents, count] = await documentRepository.findAndCount({
       skip: page * rows,
       take: rows,
+      order: { uploadedAt: "DESC" },
+      where: { ownerId: ownerId },
     });
 
     res.status(200).json({ count, documents });
@@ -41,9 +44,11 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
 
 DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
   try {
+    const ownerId = req.body.userId;
     const allDocuments = await documentRepository.find({
       order: { lastOpened: "DESC" },
       take: 10,
+      where: { ownerId: ownerId },
     });
     const count = await documentRepository.count();
     res.status(200).json({ count, documents: allDocuments });
@@ -55,7 +60,7 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
 DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
-    const document = await documentRepository.findOne({ where: { id: id } });
+    const document = await documentRepository.findOne({ where: { id: id} });
 
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
@@ -244,6 +249,8 @@ DocumentsRouter.patch(
   "/lastOpened/:id",
   async (req: Request, res: Response) => {
     try {
+
+      console.log("RUningsdfsdffsdfsdfdsffsfdsf");
       // Update lastOpened
       const id: number = parseInt(req.params.id);
       const document = await documentRepository.findOne({ where: { id: id } });

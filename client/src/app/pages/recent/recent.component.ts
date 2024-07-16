@@ -26,16 +26,24 @@ export class RecentComponent implements OnInit{
     });
   }
 
-  fetchDocuments() {
-    this.apiService.getRecentDocuments().subscribe({
-      next: (res) => {
-        this.documents = res.documents;
-        
-      },
-      error: (err) => {
-        console.error(err);
+ fetchDocuments() {
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId && userId !== 'Unknown UID') {
+        this.apiService.getRecentDocuments(userId).subscribe({
+          next: (res) => {
+            this.documents = res.documents;
+          },
+          error: (err) => {
+            console.error(err);
+          }
+        });
       }
-    });
+
+      else {
+        console.error('User ID not found');
+      }}
+    );
+    
   }
 
 }
