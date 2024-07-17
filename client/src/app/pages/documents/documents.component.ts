@@ -11,12 +11,8 @@ import { UploadComponent } from '../../components/upload/upload.component';
   styleUrl: './documents.component.scss',
 })
 export class DocumentsComponent {
-  
-
   // documents: string[] = [];
-
   // constructor(private router: Router) {}
-
   // viewDocument(index: number) {
   //   this.router.navigate(['/view', index]);
   // }

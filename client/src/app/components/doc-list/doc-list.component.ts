@@ -20,11 +20,15 @@ export class DocListComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10; // Number of documents per page
 
-  constructor(private router: Router, private apiService: ApiService, private dataService: DataService) {}
+  constructor(
+    private router: Router,
+    private apiService: ApiService,
+    private dataService: DataService,
+  ) {}
 
   ngOnInit() {
     this.fetchDocuments();
-    this.dataService.notifyObservable$.subscribe(res => {
+    this.dataService.notifyObservable$.subscribe((res) => {
       if (res && res.refresh) {
         this.fetchDocuments();
       }
@@ -34,33 +38,31 @@ export class DocListComponent implements OnInit {
   fetchDocuments() {
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-      this.apiService
-      .getDocuments(this.currentPage, this.itemsPerPage, userId)
-      .subscribe({
-        next: (res) => {
-          this.documents = res.documents.map((doc: any) => ({
-            ...doc,
-            uploadedAtLocal: this.convertToUserTimezone(
-              new Date(doc.uploadedAt)
-            ),
-            lastOpenedLocal: this.convertToUserTimezone(
-              new Date(doc.lastOpened)
-            ),
-            fileSize: this.getFileSize(doc.document.size),
-          }));
-          this.totalRecords = res.totalRecords; // Adjust according to your API response
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+        this.apiService
+          .getDocuments(this.currentPage, this.itemsPerPage, userId)
+          .subscribe({
+            next: (res) => {
+              this.documents = res.documents.map((doc: any) => ({
+                ...doc,
+                uploadedAtLocal: this.convertToUserTimezone(
+                  new Date(doc.uploadedAt),
+                ),
+                lastOpenedLocal: this.convertToUserTimezone(
+                  new Date(doc.lastOpened),
+                ),
+                fileSize: this.getFileSize(doc.document.size),
+              }));
+              this.totalRecords = res.totalRecords; // Adjust according to your API response
+            },
+            error: (err) => {
+              console.error(err);
+            },
+          });
       } else {
         console.error('User ID not found');
       }
     });
   }
-    
-  
 
   loadDocuments(event: any) {
     const page = event.first
@@ -87,7 +89,7 @@ export class DocListComponent implements OnInit {
 
   convertToUserTimezone(date: Date): string {
     const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000
+      date.getTime() - date.getTimezoneOffset() * 60000,
     );
     return localDate.toLocaleString();
   }

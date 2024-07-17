@@ -40,7 +40,7 @@ export class UploadComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private messageService: MessageService,
-    private dataService: DataService
+    private dataService: DataService,
   ) {}
 
   ngOnInit(): void {
@@ -65,7 +65,7 @@ export class UploadComponent implements OnInit {
     if (this.selectedFile) {
       const formData = new FormData();
       formData.append('document', this.selectedFile);
-      if (this.userId)formData.append('userId', this.userId || '');
+      if (this.userId) formData.append('userId', this.userId || '');
       this.apiService.uploadDocument(formData).subscribe({
         next: (res) => {
           this.clearFileInput();

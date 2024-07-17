@@ -6,7 +6,6 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { ImageModule } from 'primeng/image';
 
-
 @Component({
   selector: 'app-doc-view',
   standalone: true,
@@ -19,7 +18,12 @@ export class DocViewComponent {
   documentType: string | null = null;
   loading = true;
 
-  constructor(private apiService: ApiService, private route: ActivatedRoute, private sanitizer: DomSanitizer, private cdr: ChangeDetectorRef ) {}
+  constructor(
+    private apiService: ApiService,
+    private route: ActivatedRoute,
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit() {
     let index = this.route.snapshot.paramMap.get('id');
@@ -31,7 +35,8 @@ export class DocViewComponent {
       next: (blob: Blob) => {
         this.documentType = blob.type === 'application/pdf' ? 'pdf' : null;
         const objectUrl = URL.createObjectURL(blob);
-        this.documentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
+        this.documentUrl =
+          this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
         this.loading = false;
       },
       error: (err) => {
@@ -40,12 +45,10 @@ export class DocViewComponent {
     });
 
     this.apiService.updateLastOpened(i).subscribe({
-      next: () => {
-      },
+      next: () => {},
       error: (err) => {
         console.error(err);
       },
     });
-    
   }
 }

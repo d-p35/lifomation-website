@@ -1,91 +1,90 @@
 .document-card {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    border-radius: 4px;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    background-color: #f9f9f9;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  
-    &:hover {
-      background-color: #f1f1f1;
-    }
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #f1f1f1;
   }
-  
-  .document-icon {
-    width: 50px; /* Adjust icon width */
-    height: 50px; /* Adjust icon height */
+}
+
+.document-icon {
+  width: 50px; /* Adjust icon width */
+  height: 50px; /* Adjust icon height */
+}
+
+.document-icon .icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.document-info {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem; /* Adjust spacing between icon and info */
+  flex-grow: 1;
+}
+
+.document-title {
+  font-weight: bold;
+  font-size: 1rem;
+  margin-right: auto; /* Push other info to the right */
+}
+
+.document-details {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+  color: #666;
+  text-align: right; /* Align details to the right */
+  margin-right: 5%;
+  margin-top: 15px;
+}
+
+.document-actions {
+  margin-left: auto; /* Push actions to the right */
+}
+
+.delete-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background-color: #ff4d4d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #e60000;
   }
-  
-  .document-icon .icon {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-  
-  .document-info {
-    display: flex;
-    align-items: center;
-    margin-left: 1rem; /* Adjust spacing between icon and info */
-    flex-grow: 1;
-  }
-  
-  .document-title {
-    font-weight: bold;
-    font-size: 1rem;
-    margin-right: auto; /* Push other info to the right */
-  }
-  
-  .document-details {
-    display: flex;
+}
+
+@media (max-width: 768px) {
+  .document-card {
     flex-direction: column;
-    font-size: 0.8rem;
-    color: #666;
-    text-align: right; /* Align details to the right */
-    margin-right: 5%;
-    margin-top: 15px;
   }
-  
+
+  .document-info {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+
+  .document-details {
+    text-align: center; /* Center align details on smaller screens */
+  }
+
   .document-actions {
-    margin-left: auto; /* Push actions to the right */
+    margin-left: 0;
+    margin-top: 1rem;
+    text-align: center;
   }
-  
-  .delete-button {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    background-color: #ff4d4d;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  
-    &:hover {
-      background-color: #e60000;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .document-card {
-      flex-direction: column;
-    }
-  
-    .document-info {
-      margin-left: 0;
-      margin-top: 1rem;
-    }
-  
-    .document-details {
-      text-align: center; /* Center align details on smaller screens */
-    }
-  
-    .document-actions {
-      margin-left: 0;
-      margin-top: 1rem;
-      text-align: center;
-    }
-  }
-  
+}

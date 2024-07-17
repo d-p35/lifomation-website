@@ -1,113 +1,118 @@
 /* header.component.scss */
 header {
-    background-color: #ffffff;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 15px 30px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    position:relative;
-    top: 0;
-    // z-index: 1000;
-    transition: background-color 0.3s ease;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 15px 30px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  top: 0;
+  // z-index: 1000;
+  transition: background-color 0.3s ease;
 
-    .container {
-        display: flex;
-        justify-content: space-between;
+  .container {
+    display: flex;
+    justify-content: space-between;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    img {
+      width: 100%;
     }
-    .logo{
-        display: flex;
-        align-items:center;
-        gap: 10px;
+    width: 50px; /* Adjust the width as needed */
+    height: auto; /* This will maintain the aspect ratio */
+  }
+  .logo-name {
+    margin-top: 12px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #006dd3;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    &:hover {
+      color: #6da1ed;
     }
-    .logo-icon {
-        img {
-            width: 100%;
-        }
-        width: 50px; /* Adjust the width as needed */
-        height: auto; /* This will maintain the aspect ratio */
+  }
+
+  .nav {
+    display: flex;
+    gap: 20px;
+    padding-top: 8px;
+
+    .nav-link {
+      text-decoration: none;
+      color: #5f6368;
+      font-weight: 500;
+      transition:
+        color 0.3s ease,
+        transform 0.3s ease;
+
+      &:hover {
+        color: #202124;
+        transform: translateY(-2px);
+      }
     }
-    .logo-name {
-        margin-top: 12px;
-        font-size: 24px;
-        font-weight: 700;
-        color: #006dd3;
-        cursor: pointer;
-        transition: color 0.3s ease;
+  }
+
+  .user-menu,
+  .auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    .welcome {
+      font-size: 16px;
+      color: #5f6368;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #202124;
+      }
+    }
+
+    .btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition:
+        background-color 0.3s ease,
+        transform 0.3s ease;
+
+      &.logout-btn {
+        background-color: #006dd3;
+        color: #ffffff;
+
         &:hover {
-            color: #6da1ed;
+          background-color: rgb(6, 177, 244);
+          transform: translateY(-2px);
         }
+      }
+
+      &.login-btn {
+        background-color: #006dd3;
+        color: #ffffff;
+
+        &:hover {
+          background-color: rgb(6, 177, 244);
+          transform: translateY(-2px);
+        }
+      }
+
+      &.signup-btn {
+        background-color: #4285f4;
+        color: #ffffff;
+
+        &:hover {
+          background-color: #3367d6;
+          transform: translateY(-2px);
+        }
+      }
     }
-
-    .nav {
-        display: flex;
-        gap: 20px;
-        padding-top: 8px;
-
-        .nav-link {
-            text-decoration: none;
-            color: #5f6368;
-            font-weight: 500;
-            transition: color 0.3s ease, transform 0.3s ease;
-
-            &:hover {
-                color: #202124;
-                transform: translateY(-2px);
-            }
-        }
-    }
-
-    .user-menu, .auth-buttons {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-
-        .welcome {
-            font-size: 16px;
-            color: #5f6368;
-            transition: color 0.3s ease;
-
-            &:hover {
-                color: #202124;
-            }
-        }
-
-        .btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-
-            &.logout-btn {
-                background-color: #006dd3;
-                color: #ffffff;
-
-                &:hover {
-                    background-color: rgb(6, 177, 244);
-                    transform: translateY(-2px);
-                }
-            }
-
-            &.login-btn {
-                background-color: #006dd3;
-                color: #ffffff;
-
-                &:hover {
-                    background-color: rgb(6, 177, 244);
-                    transform: translateY(-2px);
-                }
-            }
-
-            &.signup-btn {
-                background-color: #4285f4;
-                color: #ffffff;
-
-                &:hover {
-                    background-color: #3367d6;
-                    transform: translateY(-2px);
-                }
-            }
-        }
-    }
+  }
 }

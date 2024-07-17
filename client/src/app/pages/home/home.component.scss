@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   background-color: #f0f2f5;
   color: #333;
   margin: 0;
@@ -44,7 +44,14 @@ body {
     }
   }
 }
-.features, .steps, .testimonials, .pricing, .blog, .call-to-action, .trusted-by, .faq {
+.features,
+.steps,
+.testimonials,
+.pricing,
+.blog,
+.call-to-action,
+.trusted-by,
+.faq {
   background: white;
   padding: 60px 20px;
   margin: 20px 0;
@@ -55,37 +62,55 @@ body {
     margin-bottom: 40px;
   }
 
-  .feature-grid, .steps-list, .testimonial-grid, .pricing-grid, .blog-grid {
+  .feature-grid,
+  .steps-list,
+  .testimonial-grid,
+  .pricing-grid,
+  .blog-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
   }
 
-  .feature, .step, .testimonial, .pricing-plan, .blog-post {
+  .feature,
+  .step,
+  .testimonial,
+  .pricing-plan,
+  .blog-post {
     background: #f9f9f9;
     border-radius: 10px;
     padding: 20px;
     width: 300px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-    .feature-icon img, .blog-image {
+    .feature-icon img,
+    .blog-image {
       width: 70px;
       height: auto;
       margin-bottom: 20px;
     }
 
-    .feature-title, .step-title, .testimonial-author, .plan-title, .blog-title {
+    .feature-title,
+    .step-title,
+    .testimonial-author,
+    .plan-title,
+    .blog-title {
       font-size: 1.5em;
       margin-bottom: 10px;
     }
 
-    .feature-description, .step-description, .testimonial-text, .plan-price, .blog-excerpt {
+    .feature-description,
+    .step-description,
+    .testimonial-text,
+    .plan-price,
+    .blog-excerpt {
       font-size: 1em;
       margin-bottom: 20px;
     }
 
-    .plan-button, .blog-button {
+    .plan-button,
+    .blog-button {
       background: #0073e6;
       color: white;
       padding: 10px 20px;

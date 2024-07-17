@@ -157,7 +157,10 @@ export class HomeComponent implements OnInit {
     },
   ];
 
-  constructor(private apiService: ApiService, private router: Router) {} // Step 2: Inject Router
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+  ) {} // Step 2: Inject Router
   userId: string | undefined;
 
   ngOnInit(): void {
@@ -187,7 +190,7 @@ export class HomeComponent implements OnInit {
       75,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      1000,
     );
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
@@ -215,7 +218,7 @@ export class HomeComponent implements OnInit {
 
     // Create mesh array
     const meshes = geometries.map(
-      (geometry, index) => new THREE.Mesh(geometry, materials[index])
+      (geometry, index) => new THREE.Mesh(geometry, materials[index]),
     );
 
     // Position meshes randomly
@@ -223,7 +226,7 @@ export class HomeComponent implements OnInit {
       mesh.position.set(
         Math.random() * 20 - 10,
         Math.random() * 20 - 10,
-        Math.random() * 20 - 10
+        Math.random() * 20 - 10,
       );
       scene.add(mesh);
     });

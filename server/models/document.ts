@@ -27,14 +27,14 @@ export class Document implements DocumentAttributes {
     path: string;
     textExracted: string;
   };
-  
+
   @CreateDateColumn()
   uploadedAt: Date;
 
   @UpdateDateColumn()
   lastOpened: Date;
 
-  @Column({default: 0})
+  @Column({ default: 0 })
   views: number;
 
   @Column()
@@ -43,7 +43,4 @@ export class Document implements DocumentAttributes {
   @ManyToOne(() => User, (user) => user.documents)
   @JoinColumn({ name: "ownerId" })
   owner: User;
-
-  
-
 }
