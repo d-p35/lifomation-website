@@ -1,8 +1,9 @@
-$sidebar-width: 250px;
-$background-color: #007cf7;
-$hover-color: #09a7f080;
-$font-color: #ecf0f1;
-$active-color: #5eb7f3a0;
+$sidebar-width: 240px;
+$background-color: #ffffff;
+$hover-color: #f1f3f4;
+$font-color: #202124;
+$active-color: #e8f0fe;
+$border-radius: 8px;
 
 .sidebar {
   position: fixed;
@@ -14,19 +15,23 @@ $active-color: #5eb7f3a0;
   color: $font-color;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: start;
   padding-top: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px rgba(60, 64, 67, 0.15);
+  border-radius: $border-radius;
   z-index: 1000;
 
   .logo {
     display: flex;
     align-items: center;
     margin-bottom: 30px;
+    padding-left: 20px;
+    gap: 10px;
 
     i {
       font-size: 36px;
       margin-right: 10px;
+      color: #5f6368;
     }
 
     span {
@@ -35,34 +40,59 @@ $active-color: #5eb7f3a0;
     }
   }
 
+  .logo-icon {
+      img {
+          width: 100%;
+      }
+      width: 50px; /* Adjust the width as needed */
+      height: auto; /* This will maintain the aspect ratio */
+  }
+
+  .logo-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #006dd3;
+      cursor: pointer;
+      padding-top: 13px;
+      transition: color 0.3s ease;
+      &:hover {
+          color: #6da1ed;
+      }
+    }
+
   .menu {
     list-style: none;
-    padding: 0;
+    // padding: 0;
+    padding-left: 5px;
     width: 100%;
     a {
       text-decoration: none;
       color: inherit;
+      display: block;
     }
+
     .sidebar-item {
       width: 100%;
       padding: 15px 20px;
       display: flex;
       align-items: center;
       cursor: pointer;
-      transition:
-        background-color 0.3s ease,
-        color 0.3s ease;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      border-radius: 0 $border-radius $border-radius 0;
       i {
-        margin-right: 10px;
-        font-size: 24px;
+        margin-right: 16px;
+        font-size: 20px;
+        color: #5f6368;
       }
 
       &:hover {
         background-color: $hover-color;
+        border-radius: 20px;
       }
 
       &.active {
         background-color: $active-color;
+        border-radius: 20px;
       }
     }
   }
@@ -87,7 +117,7 @@ $active-color: #5eb7f3a0;
       transition: color 0.3s ease;
 
       &:hover {
-        color: $active-color;
+        color: #1a73e8;
       }
     }
   }

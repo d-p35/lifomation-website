@@ -23,7 +23,7 @@ import { ApiService } from '../../services/api.service';
 export class HeaderComponent {
   items: any[] | undefined;
   @Input() documents: any[] = [];
-
+  dropdownOpen = false;
   constructor(
     public auth: AuthService,
     private apiService: ApiService,
@@ -33,6 +33,11 @@ export class HeaderComponent {
   ngOnInit() {
     this.fetchDocumentsNames();
   }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+  
 
   fetchDocumentsNames() {
     this.apiService.getDocuments().subscribe({
