@@ -11,7 +11,7 @@ import { HeaderComponent } from './layout/header/header.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,HeaderComponent , CommonModule, SidebarComponent],
+  imports: [RouterOutlet, HeaderComponent, CommonModule, SidebarComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
@@ -19,6 +19,6 @@ export class AppComponent {
   constructor(
     public apiService: ApiService,
     private router: Router,
-    public auth: AuthService
+    public auth: AuthService,
   ) {}
 }

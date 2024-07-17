@@ -25,16 +25,22 @@ export class DocCardComponent implements OnInit {
     private router: Router,
     private apiService: ApiService,
     private messageService: MessageService,
-    private dataService: DataService
+    private dataService: DataService,
   ) {}
 
   ngOnInit(): void {
-    this.uploadedAtLocal = this.convertToUserTimezone(new Date(this.document.uploadedAt));
-    this.lastOpenedLocal = this.convertToUserTimezone(new Date(this.document.lastOpened));
+    this.uploadedAtLocal = this.convertToUserTimezone(
+      new Date(this.document.uploadedAt),
+    );
+    this.lastOpenedLocal = this.convertToUserTimezone(
+      new Date(this.document.lastOpened),
+    );
   }
 
   convertToUserTimezone(date: Date): string {
-    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000,
+    );
     return localDate.toLocaleString();
   }
 
@@ -69,12 +75,20 @@ export class DocCardComponent implements OnInit {
     this.apiService.deleteDocument(id).subscribe({
       next: (res) => {
         this.dataService.notifyOther({ refresh: true });
-        this.messageService.add({ severity: 'warn', summary: 'Success', detail: 'Document successfully deleted' });
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Success',
+          detail: 'Document successfully deleted',
+        });
       },
       error: (err) => {
         console.error(err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete document' });
-      }
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to delete document',
+        });
+      },
     });
   }
 }

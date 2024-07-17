@@ -23,7 +23,7 @@ $active-color: #5eb7f3a0;
     display: flex;
     align-items: center;
     margin-bottom: 30px;
-    
+
     i {
       font-size: 36px;
       margin-right: 10px;
@@ -39,7 +39,7 @@ $active-color: #5eb7f3a0;
     list-style: none;
     padding: 0;
     width: 100%;
-    a{
+    a {
       text-decoration: none;
       color: inherit;
     }
@@ -49,13 +49,13 @@ $active-color: #5eb7f3a0;
       display: flex;
       align-items: center;
       cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
       i {
         margin-right: 10px;
         font-size: 24px;
       }
-
-     
 
       &:hover {
         background-color: $hover-color;

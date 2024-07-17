@@ -1,5 +1,5 @@
 <div class="document-list-container">
-  <h2>Documents</h2>
+  <h2>Welcome</h2>
   <div class="table-container">
     <p-table
       [value]="documents"
@@ -26,7 +26,11 @@
       <ng-template pTemplate="body" let-doc>
         <tr>
           <td>
-            <img [src]="getIcon(doc.document.mimetype)" alt="Document Icon" class="icon" />
+            <img
+              [src]="getIcon(doc.document.mimetype)"
+              alt="Document Icon"
+              class="icon"
+            />
           </td>
           <td (click)="viewDocument(doc.id)" style="cursor: pointer">
             {{ doc.document.originalname }}

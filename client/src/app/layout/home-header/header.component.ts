@@ -8,19 +8,17 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'home-header-component',
   standalone: true,
-  imports: [CommonModule, RouterModule, AutoCompleteModule,  FormsModule],
+  imports: [CommonModule, RouterModule, AutoCompleteModule, FormsModule],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
 })
 export class HomeHeaderComponent {
-    isDarkMode = false;
-    // Inject the authentication service into your component through the constructor
-    constructor(public auth: AuthService) {}
+  isDarkMode = false;
+  // Inject the authentication service into your component through the constructor
+  constructor(public auth: AuthService) {}
 
-   
-    
-    toggleTheme() {
-      this.isDarkMode = !this.isDarkMode;
-      document.body.classList.toggle('dark-theme', this.isDarkMode);
-    }
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    document.body.classList.toggle('dark-theme', this.isDarkMode);
+  }
 }

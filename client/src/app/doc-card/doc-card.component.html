@@ -1,9 +1,12 @@
 <!-- doc-card.component.html -->
 
-
 <div class="document-card" (click)="viewDocument(document.id)">
   <div class="document-icon">
-    <img [src]="getIcon(document.document.mimetype)" alt="Document Icon" class="icon" />
+    <img
+      [src]="getIcon(document.document.mimetype)"
+      alt="Document Icon"
+      class="icon"
+    />
   </div>
   <div class="document-info">
     <div class="document-title">
@@ -16,6 +19,12 @@
     </div>
   </div>
   <div class="document-actions">
-    <button type="button" class="delete-button" (click)="deleteDocument(document.id, $event)">Delete</button>
+    <button
+      type="button"
+      class="delete-button"
+      (click)="deleteDocument(document.id, $event)"
+    >
+      Delete
+    </button>
   </div>
 </div>

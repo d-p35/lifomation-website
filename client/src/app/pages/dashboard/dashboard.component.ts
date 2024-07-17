@@ -15,13 +15,18 @@ import { DataService } from '../../services/data.service';
 })
 export class DashboardComponent implements OnInit {
   // Inject the authentication service into your component through the constructor
-  constructor(public auth: AuthService, private router: Router, private apiService: ApiService,  private dataService: DataService) {}
+  constructor(
+    public auth: AuthService,
+    private router: Router,
+    private apiService: ApiService,
+    private dataService: DataService,
+  ) {}
 
   documents = [];
 
   ngOnInit() {
     this.fetchDocuments();
-    this.dataService.notifyObservable$.subscribe(res => {
+    this.dataService.notifyObservable$.subscribe((res) => {
       if (res && res.refresh) {
         this.fetchDocuments();
       }
@@ -42,7 +47,6 @@ export class DashboardComponent implements OnInit {
       date: 'Sep 25, 2022',
       sharedUsers: 5,
       insideFiles: 499,
-      
     },
     {
       icon: 'pi-heart',
@@ -116,19 +120,17 @@ export class DashboardComponent implements OnInit {
         this.apiService.getRecentDocuments(userId).subscribe({
           next: (res) => {
             this.documents = res.documents;
-            if (this.documents.length > 3) this.documents = this.documents.slice(0, 3);
+            if (this.documents.length > 3)
+              this.documents = this.documents.slice(0, 3);
           },
           error: (err) => {
             console.error(err);
-          }
+          },
         });
-      }
-
-      else {
+      } else {
         console.error('User ID not found');
-      }}
-    );
-    
+      }
+    });
   }
 
   OnFolderClick() {

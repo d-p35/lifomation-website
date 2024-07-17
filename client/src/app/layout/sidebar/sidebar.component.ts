@@ -13,21 +13,31 @@ import { Sidebar } from 'primeng/sidebar';
 @Component({
   selector: 'sidebar-component',
   standalone: true,
-  imports: [CommonModule, RouterModule, SidebarModule, ButtonModule, RippleModule, AvatarModule, StyleClassModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    SidebarModule,
+    ButtonModule,
+    RippleModule,
+    AvatarModule,
+    StyleClassModule,
+  ],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+  styleUrls: ['./sidebar.component.scss'],
 })
-export class SidebarComponent implements OnInit{
+export class SidebarComponent implements OnInit {
   isActive: boolean = false;
   activeRoute: string = '';
-  constructor(public auth: AuthService, private router: Router) {}
+  constructor(
+    public auth: AuthService,
+    private router: Router,
+  ) {}
 
   toggleSidebar() {
     this.isActive = !this.isActive;
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   isRouteActive(route: string): boolean {
     return this.router.url === route;

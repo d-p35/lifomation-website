@@ -10,7 +10,9 @@ $header-height: 0px;
   padding: 20px;
   position: fixed;
   top: $header-height; /* Positioning the sidebar below the header */
-  height: calc(100% - $header-height); /* Adjust height to account for the header */
+  height: calc(
+    100% - $header-height
+  ); /* Adjust height to account for the header */
   width: $sidebar-width;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -160,7 +162,6 @@ $header-height: 0px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         width: calc(33.333% - 20px);
         transition: background-color 0.3s ease;
-        
 
         .file-icon {
           img {

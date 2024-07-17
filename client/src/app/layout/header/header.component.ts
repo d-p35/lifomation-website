@@ -27,7 +27,7 @@ export class HeaderComponent {
   constructor(
     public auth: AuthService,
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -63,7 +63,7 @@ export class HeaderComponent {
           .filter(
             (item) =>
               item.document.originalname &&
-              item.document.originalname.toLowerCase().includes(query)
+              item.document.originalname.toLowerCase().includes(query),
           )
           .map((item) => ({
             label: item.document.originalname,

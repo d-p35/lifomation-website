@@ -12,7 +12,10 @@ export class ApiService {
   endpoint = environment.apiEndpoint;
   userId: string | undefined;
 
-  constructor(private http: HttpClient, private auth: AuthService) {
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService,
+  ) {
     // Existing constructor code
   }
   get isAuthenticated$() {
@@ -44,20 +47,26 @@ export class ApiService {
   //   }
 
   createUser(userId: string): Observable<any> {
-    return this.http.post(this.endpoint + '/api/users', {userId});
+    return this.http.post(this.endpoint + '/api/users', { userId });
   }
 
   uploadDocument(formData: FormData): Observable<any> {
     return this.http.post(this.endpoint + '/api/documents', formData);
   }
 
-  getDocuments(page: number = 0, rows: number = 10, userId: String=""): Observable<any> {
+  getDocuments(
+    page: number = 0,
+    rows: number = 10,
+    userId: String = '',
+  ): Observable<any> {
     return this.http.get(
-      `${this.endpoint}/api/documents?page=${page}&rows=${rows}&userId=${userId}`
+      `${this.endpoint}/api/documents?page=${page}&rows=${rows}&userId=${userId}`,
     );
   }
   getRecentDocuments(userId: String): Observable<any> {
-    return this.http.get(this.endpoint + `/api/documents/recent?userId=${userId}`);
+    return this.http.get(
+      this.endpoint + `/api/documents/recent?userId=${userId}`,
+    );
   }
 
   deleteDocument(documentId: number): Observable<any> {
@@ -73,7 +82,7 @@ export class ApiService {
   updateLastOpened(documentId: number): Observable<any> {
     return this.http.patch(
       this.endpoint + `/api/documents/lastOpened/${documentId}`,
-      { time: new Date().toISOString() }
+      { time: new Date().toISOString() },
     );
   }
 

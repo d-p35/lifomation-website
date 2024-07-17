@@ -1,30 +1,33 @@
-
-  <div class="dashboard">
-    <div class="main-container">
-      <main class="main-content">
-        <section class="files-section">
-          <div class="section-header">
-            <h2>All files</h2>
-          </div>
-          <div class="files-grid">
-            <div class="file-card" *ngFor="let file of files" (click)="OnFolderClick()">
-              <div class="file-icon">
-                <i class="pi {{ file.icon}}" style="color: slateblue"></i>
-              </div>
-              <div class="file-info">
-                <h3>{{ file.title }}</h3>
-                <p>{{ file.date }}</p>
-              </div>
-              <div class="file-meta">
-                <p>Shared Users: {{ file.sharedUsers }}</p>
-                <p>Inside Files: {{ file.insideFiles }}</p>
-              </div>
+<div class="dashboard">
+  <div class="main-container">
+    <main class="main-content">
+      <section class="files-section">
+        <div class="section-header">
+          <h2>All files</h2>
+        </div>
+        <div class="files-grid">
+          <div
+            class="file-card"
+            *ngFor="let file of files"
+            (click)="OnFolderClick()"
+          >
+            <div class="file-icon">
+              <i class="pi {{ file.icon }}" style="color: slateblue"></i>
+            </div>
+            <div class="file-info">
+              <h3>{{ file.title }}</h3>
+              <p>{{ file.date }}</p>
+            </div>
+            <div class="file-meta">
+              <p>Shared Users: {{ file.sharedUsers }}</p>
+              <p>Inside Files: {{ file.insideFiles }}</p>
             </div>
           </div>
-        </section>
-        <section class="suggestions-section">
-          <h2>Suggestions</h2>
-          <!-- <div class="suggestions-list">
+        </div>
+      </section>
+      <section class="suggestions-section">
+        <h2>Suggestions</h2>
+        <!-- <div class="suggestions-list">
             <div class="suggestion-item" *ngFor="let suggestion of suggestions">
               <div class="file-icon">
                 <img [src]="suggestion.icon" alt="File Icon">
@@ -37,9 +40,12 @@
               </div>
             </div>
           </div> -->
-          <app-doc-card *ngFor="let doc of documents" [document]="doc"></app-doc-card>
-        </section>
-        <!-- <section class="suggestions-section">
+        <app-doc-card
+          *ngFor="let doc of documents"
+          [document]="doc"
+        ></app-doc-card>
+      </section>
+      <!-- <section class="suggestions-section">
           <h2>Recently Uploaded</h2>
           <div class="suggestions-list">
             <div class="suggestion-item" *ngFor="let suggestion of suggestions">
@@ -55,7 +61,6 @@
             </div>
           </div>
         </section> -->
-      </main>
-    </div>
+    </main>
   </div>
-
+</div>

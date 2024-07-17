@@ -21,8 +21,6 @@ export const DocumentsRouter = Router();
 const documentRepository: Repository<Document> =
   dataSource.getRepository(Document);
 
-
-
 DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 0;
@@ -60,7 +58,7 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
 DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
-    const document = await documentRepository.findOne({ where: { id: id} });
+    const document = await documentRepository.findOne({ where: { id: id } });
 
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
@@ -104,7 +102,7 @@ DocumentsRouter.post(
       if (!ownerId) {
         return res.status(400).json({ message: "User is not logged in" });
       }
-      
+
       //if image file
       if (file.mimetype !== "application/pdf") {
         const path = req.file?.path; // Path to the uploaded file
@@ -117,7 +115,7 @@ DocumentsRouter.post(
         } = await tesseract.recognize(
           path,
           "eng", // Language code, e.g., 'eng' for English
-          {}
+          {},
         );
 
         const OCRtext = text;
@@ -139,7 +137,7 @@ DocumentsRouter.post(
         const documentFolder = path.join(
           __dirname,
           "../uploads",
-          uniqueFolderName
+          uniqueFolderName,
         );
         const imagesFolder = path.join(documentFolder, "images");
         const metadataFilePath = path.join(documentFolder, "metadata.txt");
@@ -190,7 +188,7 @@ DocumentsRouter.post(
                   if (file === "__METADATA__") {
                     const metadata = await fs.promises.readFile(
                       filePath,
-                      "utf-8"
+                      "utf-8",
                     );
                     metadataText += metadata;
                   } else if (file === "__TEXT__") {
@@ -242,7 +240,7 @@ DocumentsRouter.post(
         await parsingData.close();
       }
     }
-  }
+  },
 );
 
 DocumentsRouter.patch(
@@ -259,13 +257,12 @@ DocumentsRouter.patch(
       document.views = document.views + 1;
       await documentRepository.save(document);
 
-      
       // Return the new document
       res.status(200).json({ document });
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
-  }
+  },
 );
 
 DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
