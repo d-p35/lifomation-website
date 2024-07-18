@@ -115,12 +115,12 @@ DocumentsRouter.post(
         } = await tesseract.recognize(
           path,
           "eng", // Language code, e.g., 'eng' for English
-          {},
+          {}
         );
 
         const OCRtext = text;
 
-        // console.log("OCRtext", OCRtext);
+        console.log("OCRtext", OCRtext);
 
         const document = {
           document: file,
@@ -137,7 +137,7 @@ DocumentsRouter.post(
         const documentFolder = path.join(
           __dirname,
           "../uploads",
-          uniqueFolderName,
+          uniqueFolderName
         );
         const imagesFolder = path.join(documentFolder, "images");
         const metadataFilePath = path.join(documentFolder, "metadata.txt");
@@ -188,7 +188,7 @@ DocumentsRouter.post(
                   if (file === "__METADATA__") {
                     const metadata = await fs.promises.readFile(
                       filePath,
-                      "utf-8",
+                      "utf-8"
                     );
                     metadataText += metadata;
                   } else if (file === "__TEXT__") {
@@ -216,7 +216,7 @@ DocumentsRouter.post(
               await fs.promises.writeFile(metadataFilePath, metadataText);
               await fs.promises.writeFile(textdataFilePath, extractedText);
 
-              // console.log("OCRText", OCRText);
+              console.log("OCRText", OCRText);
 
               const document = {
                 document: file,
@@ -240,7 +240,7 @@ DocumentsRouter.post(
         await parsingData.close();
       }
     }
-  },
+  }
 );
 
 DocumentsRouter.patch(
@@ -262,7 +262,7 @@ DocumentsRouter.patch(
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
-  },
+  }
 );
 
 DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {

@@ -23,7 +23,7 @@ export class DocListComponent implements OnInit {
   constructor(
     private router: Router,
     private apiService: ApiService,
-    private dataService: DataService,
+    private dataService: DataService
   ) {}
 
   ngOnInit() {
@@ -45,10 +45,10 @@ export class DocListComponent implements OnInit {
               this.documents = res.documents.map((doc: any) => ({
                 ...doc,
                 uploadedAtLocal: this.convertToUserTimezone(
-                  new Date(doc.uploadedAt),
+                  new Date(doc.uploadedAt)
                 ),
                 lastOpenedLocal: this.convertToUserTimezone(
-                  new Date(doc.lastOpened),
+                  new Date(doc.lastOpened)
                 ),
                 fileSize: this.getFileSize(doc.document.size),
               }));
@@ -65,31 +65,39 @@ export class DocListComponent implements OnInit {
   }
 
   loadDocuments(event: any) {
-    const page = event.first
+    this.currentPage = event.first
       ? Math.floor(event.first / (event.rows ?? this.rows))
       : 0;
-    const rows =
+    this.itemsPerPage =
       event.rows !== null && event.rows !== undefined ? event.rows : this.rows;
-
-    this.apiService.getDocuments(page, rows).subscribe({
-      next: (res) => {
-        this.documents = res.documents.map((doc: any) => ({
-          ...doc,
-          uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
-          lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
-          fileSize: this.getFileSize(doc.document.size),
-        }));
-        this.totalRecords = res.totalRecords; // Adjust according to your API response
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    if (this.currentPage < 0) {
+      this.currentPage = 0;
+    }
+    this.apiService
+      .getDocuments(this.currentPage, this.itemsPerPage)
+      .subscribe({
+        next: (res) => {
+          this.documents = res.documents.map((doc: any) => ({
+            ...doc,
+            uploadedAtLocal: this.convertToUserTimezone(
+              new Date(doc.uploadedAt)
+            ),
+            lastOpenedLocal: this.convertToUserTimezone(
+              new Date(doc.lastOpened)
+            ),
+            fileSize: this.getFileSize(doc.document.size),
+          }));
+          this.totalRecords = res.totalRecords; // Adjust according to your API response
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
   convertToUserTimezone(date: Date): string {
     const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000,
+      date.getTime() - date.getTimezoneOffset() * 60000
     );
     return localDate.toLocaleString();
   }
