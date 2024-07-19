@@ -10,6 +10,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
 
   tika:
     image: logicalspark/docker-tikaserver
@@ -21,9 +23,8 @@ services:
     image: getmeili/meilisearch:v1.9
     container_name: meilisearch
     environment:
-      MEILI_ENV: ${MEILLI_ENV}
+      MEILI_ENV: ${MEILI_ENV}
     ports:
       - "7700:7700"
-    # volumes:
-    #   - ./meili_data:/meili_data
-
+    volumes:
+      - ./meili_data:/meili_data

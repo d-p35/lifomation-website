@@ -7,6 +7,7 @@ import { User } from "./models/user";
 import { UsersRouter } from "./routers/users-router";
 import { DocumentsRouter } from "./routers/documents-router";
 import MeiliSearch from "meilisearch";
+import synonyms from "./synonyms.json";
 
 const app = express();
 
@@ -28,16 +29,21 @@ dataSource
     const index = client.index("documents");
 
     index.updateFilterableAttributes(["ownerId"]).then(() => {
-    app.use("/api/users", UsersRouter);
-    app.use("/api/documents", DocumentsRouter);
+      console.log("Filterable attributes updated.");
+      index.updateSynonyms(synonyms).then(() => {
 
-    // Start the server
-    app.listen(port, () => {
-      console.log(`Server started on port ${port}`);
+        console.log("Synonyms updated.");
+        app.use("/api/users", UsersRouter);
+        app.use("/api/documents", DocumentsRouter);
+
+        // Start the server
+        app.listen(port, () => {
+          console.log(`Server started on port ${port}`);
+        });
+      });
     });
   })
-})
-  
+
   .catch((error: any) => {
     console.error("Error connecting to the database:", error);
   });

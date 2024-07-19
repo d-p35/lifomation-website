@@ -22,6 +22,7 @@ export async function processImageFile(
   } = await tesseract.recognize(filePath, "eng");
 
   // const classificationResult = await classifyText(OCRtext);
+  console.log(OCRtext);
 
   const document = new Document();
   document.document = file;

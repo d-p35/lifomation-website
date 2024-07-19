@@ -17,4 +17,7 @@ Thumbs.db
 # Editor Configurations
 .vscode/
 
+# Data
 /uploads
+/meili_data
+/postgres_data
