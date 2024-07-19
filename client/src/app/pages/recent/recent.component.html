@@ -3,8 +3,10 @@
     <main class="main-content">
       <section class="recent-files-section">
         <h2>Recent</h2>
-        <div class="recent-files-grid">
-          <app-doc-card *ngFor="let doc of documents" [document]="doc"></app-doc-card>
+        <div class="">
+          <ul>
+            <app-doc-card *ngFor="let doc of documents" [document]="doc"></app-doc-card>
+          </ul>
         </div>
       </section>
     </main>
