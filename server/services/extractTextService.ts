@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import extract from "extract-zip";
 import { Response } from "express";
 import { classifyText } from "./watsonTextClassificationService";
+import { geminiTextClassification } from "./geminiTextClassificationService";
 
 export async function processImageFile(
   file: Express.Multer.File,
@@ -16,7 +17,8 @@ export async function processImageFile(
     data: { text: OCRtext },
   } = await tesseract.recognize(filePath, "eng");
 
-  const classificationResult = await classifyText(OCRtext);
+  //   const classificationResult = await classifyText(OCRtext);
+  const classificationResult = await geminiTextClassification(OCRtext);
 
   const document = {
     document: file,
@@ -130,7 +132,9 @@ async function handleTikaResponse(
       await fs.promises.writeFile(metadataFilePath, metadataText);
       await fs.promises.writeFile(textdataFilePath, extractedText);
       const combinedText = extractedText + OCRText;
-      const classificationResult = await classifyText(combinedText);
-
+      //   console.log("Combined text:", combinedText);
+      //   const classificationResult = await classifyText(combinedText);
+      const classificationResult = await geminiTextClassification(combinedText);
+      // console.log("Classification result:", classificationResult);
     });
 }
