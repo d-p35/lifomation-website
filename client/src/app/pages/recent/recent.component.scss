@@ -1,47 +1,44 @@
-.document-list-container {
-  text-align: center;
-  margin: 50px auto;
-  margin-left: 25%;
-  background-color: #f4f5f7;
-  width: 60%;
-  border: 1px solid #ccc;
+$sidebar-width: 250px;
+$header-height: 0px;
+
+.dashboard {
+  display: flex;
+}
+
+.main-container {
+  margin-left: $sidebar-width;
+  width: calc(100% - $sidebar-width);
+  margin-top: $header-height; /* Adjust margin to account for the header */
+}
+
+.main-content {
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #f4f5f7;
+  border-radius: 20px;
 
-  h2 {
-    margin-bottom: 20px;
-  }
+  .recent-files-section {
+    h2 {
+      margin: 0 0 20px;
+    }
 
-  ul {
-    list-style-type: none;
-    padding: 0;
-
-    li.document-card {
+    .recent-files-grid {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-      transition: background-color 0.3s ease;
-      word-wrap: break-word;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      flex-wrap: wrap;
+      gap: 10px;
 
-      &:hover {
-        background-color: #f1f1f1;
-      }
-
-      .document-details {
-        flex-grow: 1;
-        cursor: pointer;
+      app-doc-card {
+        width: 80px;
+        height: 80px;
+        background-color: #fff;
+        border-radius: 4px;
         display: flex;
         align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-        .document-name {
-          font-size: 16px;
-          color: #333;
+        img {
+          width: 100%;
+          height: auto;
         }
       }
     }
