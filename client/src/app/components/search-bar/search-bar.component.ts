@@ -67,7 +67,10 @@ export class SearchBarComponent implements OnInit {
     if (!doc) {
       return;
     }
-    this.router.navigate(['/documents', id]);
+    this.router.navigate(['/'], { skipLocationChange: true })
+    .then(() => { this.router.navigate(['/documents', id]); }
+    );
+
   }
 
   onSuggestionSelect(event: any) {
