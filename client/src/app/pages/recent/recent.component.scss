@@ -1,5 +1,5 @@
 $sidebar-width: 250px;
-$header-height: 0px;
+$header-height: 00px;
 
 .dashboard {
   display: flex;
@@ -8,38 +8,66 @@ $header-height: 0px;
 .main-container {
   margin-left: $sidebar-width;
   width: calc(100% - $sidebar-width);
-  margin-top: $header-height; /* Adjust margin to account for the header */
+  margin-top: $header-height;
+  padding: 20px;
+  border-radius: 20px;
+  background-color: #f4f5f7;
 }
 
 .main-content {
   padding: 20px;
   background-color: #f4f5f7;
   border-radius: 20px;
+}
+.recent-files-section{
+  margin-bottom: 20px;
+}
 
-  .recent-files-section {
+.recent-files-section {
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
     h2 {
-      margin: 0 0 20px;
+      margin-bottom: 20px;
     }
 
-    .recent-files-grid {
+    .add-new {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+
+  .recent-files-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .recent-file-item {
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 10px;
+      margin-bottom: 10px;
+      // box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+
+      &:hover {
+        background-color: #f1f1f1;
+      }
 
       app-doc-card {
-        width: 80px;
-        height: 80px;
-        background-color: #fff;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-        img {
-          width: 100%;
-          height: auto;
-        }
+        flex-grow: 1;
       }
     }
   }

@@ -1,13 +1,19 @@
 <div class="dashboard">
   <div class="main-container">
     <main class="main-content">
+
+      
       <section class="recent-files-section">
-        <h2>Recent</h2>
-        <div class="">
-          <ul>
-            <app-doc-card *ngFor="let doc of documents" [document]="doc"></app-doc-card>
-          </ul>
+        <div class="section-header">
+          <h2>Recent Files</h2>
         </div>
+
+
+        <ul class="recent-files-list">
+          <li class="recent-file-item" *ngFor="let doc of documents">
+            <app-doc-card [document]="doc"></app-doc-card>
+          </li>
+        </ul>
       </section>
     </main>
   </div>
