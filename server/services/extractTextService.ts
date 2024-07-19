@@ -6,6 +6,11 @@ import { v4 as uuidv4 } from "uuid";
 import extract from "extract-zip";
 import { Response } from "express";
 import { classifyText } from "./textClassificationService";
+import { Document } from "../models/document";
+import MeiliSearch from "meilisearch";
+
+const client = new MeiliSearch({ host: "http://localhost:7700" });
+const index = client.index("documents");
 
 export async function processImageFile(
   file: Express.Multer.File,
@@ -16,14 +21,16 @@ export async function processImageFile(
     data: { text: OCRtext },
   } = await tesseract.recognize(filePath, "eng");
 
-  const classificationResult = await classifyText(OCRtext);
+  // const classificationResult = await classifyText(OCRtext);
 
-  const document = {
-    document: file,
-    ownerId: ownerId,
-  } as any;
+  const document = new Document();
+  document.document = file;
+  document.ownerId = ownerId;
 
-  return document;
+  // const doc = await client.getIndexes({ limit: 3 })
+  // console.log(doc);
+
+  return { document, text: OCRtext };
 }
 
 // Function to handle PDF file processing
@@ -46,7 +53,7 @@ export async function processPdfFile(
   const tikaResponse = await sendToTika(parsingData);
 
   if (tikaResponse.status === 200) {
-    await handleTikaResponse(
+    const combinedText = await handleTikaResponse(
       tikaResponse,
       documentFolder,
       imagesFolder,
@@ -54,12 +61,13 @@ export async function processPdfFile(
       textdataFilePath
     );
 
-    const document = {
-      document: file,
-      ownerId: ownerId,
-    } as any;
+    const document = new Document();
+    document.document = file;
+    document.ownerId = ownerId;
 
-    return document;
+    // await index.addDocuments([{ id: document.id, text: combinedText, ownerId }]);
+    console.log(combinedText);
+    return { document, text: combinedText };
   } else {
     throw new Error("Error processing document with Tika");
   }
@@ -94,43 +102,51 @@ async function handleTikaResponse(
   imagesFolder: string,
   metadataFilePath: string,
   textdataFilePath: string
-) {
+): Promise<string> {
   const tempDir = path.join(documentFolder, "temp");
   await createDirectories([tempDir]);
 
-  tikaResponse.data
-    .pipe(fs.createWriteStream(path.join(tempDir, "tika-output.zip")))
-    .on("finish", async () => {
-      await extract(path.join(tempDir, "tika-output.zip"), { dir: tempDir });
+  const combinedText = await new Promise<string>(async (resolve, reject) => {
+    tikaResponse.data
+      .pipe(fs.createWriteStream(path.join(tempDir, "tika-output.zip")))
+      .on("finish", async () => {
+        await extract(path.join(tempDir, "tika-output.zip"), { dir: tempDir });
 
-      const files = await fs.promises.readdir(tempDir);
-      let extractedText = "";
-      let metadataText = "";
-      let OCRText = "";
+        const files = await fs.promises.readdir(tempDir);
+        let extractedText = "";
+        let metadataText = "";
+        let OCRText = "";
 
-      for (const file of files) {
-        const filePath = path.join(tempDir, file);
-        const stat = await fs.promises.stat(filePath);
+        for (const file of files) {
+          const filePath = path.join(tempDir, file);
+          const stat = await fs.promises.stat(filePath);
 
-        if (stat.isFile()) {
-          const ext = path.extname(file).toLowerCase();
-          if (file === "__METADATA__") {
-            metadataText += await fs.promises.readFile(filePath, "utf-8");
-          } else if (file === "__TEXT__") {
-            extractedText += await fs.promises.readFile(filePath, "utf-8");
-          } else if ([".jpg", ".png", ".jpeg"].includes(ext)) {
-            const newImagePath = path.join(imagesFolder, file);
-            await fs.promises.rename(filePath, newImagePath);
-            OCRText += (await tesseract.recognize(newImagePath, "eng")).data
-              .text;
+          if (stat.isFile()) {
+            const ext = path.extname(file).toLowerCase();
+            if (file === "__METADATA__") {
+              metadataText += await fs.promises.readFile(filePath, "utf-8");
+            } else if (file === "__TEXT__") {
+              extractedText += await fs.promises.readFile(filePath, "utf-8");
+            } else if ([".jpg", ".png", ".jpeg"].includes(ext)) {
+              const newImagePath = path.join(imagesFolder, file);
+              await fs.promises.rename(filePath, newImagePath);
+              OCRText += (await tesseract.recognize(newImagePath, "eng")).data
+                .text;
+            }
           }
         }
-      }
 
-      await fs.promises.writeFile(metadataFilePath, metadataText);
-      await fs.promises.writeFile(textdataFilePath, extractedText);
-      const combinedText = extractedText + OCRText;
-      const classificationResult = await classifyText(combinedText);
+        await fs.promises.writeFile(metadataFilePath, metadataText);
+        await fs.promises.writeFile(textdataFilePath, extractedText);
+        const combinedText = extractedText + OCRText;
+        // const classificationResult = await classifyText(combinedText);
 
-    });
+        resolve(combinedText);
+      })
+      .on("error", (err: Error) => {
+        reject(err);
+      });
+  });
+
+  return combinedText;
 }

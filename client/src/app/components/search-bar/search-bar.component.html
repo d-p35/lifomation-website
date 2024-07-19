@@ -1,0 +1,9 @@
+<p-autoComplete
+[(ngModel)]="selectedItem"
+[suggestions]="suggestions"
+(completeMethod)="search($event)"
+(onSelect)="onSuggestionSelect($event)"
+field="title"
+placeholder="Search for files"
+size="50"
+></p-autoComplete>

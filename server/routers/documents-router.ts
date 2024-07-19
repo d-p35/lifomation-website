@@ -14,10 +14,14 @@ import moment from "moment";
 import tesseract from "tesseract.js";
 import { processImageFile } from "../services/extractTextService";
 import { processPdfFile } from "../services/extractTextService";
+import { MeiliSearch } from "meilisearch";
 
 require("dotenv").config();
 
 const upload = multer({ dest: "uploads/" });
+const client = new MeiliSearch({ host: 'http://localhost:7700' });
+const index = client.index('documents');
+
 export const DocumentsRouter = Router();
 
 const documentRepository: Repository<Document> =
@@ -41,6 +45,30 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+
+DocumentsRouter.get("/search", async (req: Request, res: Response) => {
+  try {
+    const query = req.query.q as string;
+    const userId = req.query.userId as string;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    console.log(`Searching for ${query} by user ${userId}`);
+
+    const searchResults = await index.search(query, {
+      filter: `ownerId = "${userId}"`
+    });
+
+    res.status(200).json(searchResults.hits);
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: "Search failed" });
+  }
+});
+
 
 DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
   try {
@@ -105,9 +133,13 @@ DocumentsRouter.post(
       const processFunction =
         file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
       try {
-        const newDocument = await processFunction(file, ownerId, res);
+        let {document, text} = await processFunction(file, ownerId, res);
+        const newDocument = await documentRepository.save(document);
+        console.log(text);
+        const success = await index.addDocuments([{ id: newDocument.id, title:newDocument.document.originalname, text: text, ownerId }], {primaryKey: 'id'});
+        console.log(success);
+
         res.status(201).json({ document: newDocument });
-        await documentRepository.save(newDocument);
       } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Failed to save document" });
