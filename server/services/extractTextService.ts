@@ -5,7 +5,7 @@ import tesseract from "tesseract.js";
 import { v4 as uuidv4 } from "uuid";
 import extract from "extract-zip";
 import { Response } from "express";
-import { classifyText } from "./textClassificationService";
+import { classifyText } from "./watsonTextClassificationService";
 
 export async function processImageFile(
   file: Express.Multer.File,
