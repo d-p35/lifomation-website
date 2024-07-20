@@ -28,39 +28,14 @@
       <section class="suggestions-section">
         <h2>Suggestions</h2>
        <div class="suggestions-list">
-            <div class="suggestion-item" *ngFor="let suggestion of suggestions">
-              <div class="file-icon">
-                <img [src]="suggestion.icon" alt="File Icon">
-              </div>
-              <div class="file-info">
-                <h3>{{ suggestion.title }}</h3>
-                <p>Shared Users: {{ suggestion.sharedUsers }}</p>
-                <p>File Size: {{ suggestion.size }}</p>
-                <p>Last Modified: {{ suggestion.lastModified }}</p>
-              </div>
-            </div>
-          </div> 
-        <app-doc-card
-          *ngFor="let doc of documents"
-          [document]="doc"
-        ></app-doc-card>
-      </section>
-      <!-- <section class="suggestions-section">
-          <h2>Recently Uploaded</h2>
-          <div class="suggestions-list">
-            <div class="suggestion-item" *ngFor="let suggestion of suggestions">
-              <div class="file-icon">
-                <img [src]="suggestion.icon" alt="File Icon">
-              </div>
-              <div class="file-info">
-                <h3>{{ suggestion.title }}</h3>
-                <p>Shared Users: {{ suggestion.sharedUsers }}</p>
-                <p>File Size: {{ suggestion.size }}</p>
-                <p>Last Modified: {{ suggestion.lastModified }}</p>
-              </div>
-            </div>
+          <div class="file-info">
+            <app-doc-card
+              *ngFor="let doc of documents"
+              [document]="doc"
+            ></app-doc-card>
           </div>
-        </section> -->
+        </div> 
+      </section>
     </main>
   </div>
 </div>
