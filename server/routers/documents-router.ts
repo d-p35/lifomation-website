@@ -16,6 +16,7 @@ import { processImageFile } from "../services/extractTextService";
 import { processPdfFile } from "../services/extractTextService";
 import { MeiliSearch } from "meilisearch";
 
+
 require("dotenv").config();
 
 const upload = multer({ dest: "uploads/" });
@@ -187,10 +188,18 @@ DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
+    const filePath = path.join(__dirname, "../uploads", document.document.filename);
 
     index.deleteDocument(document.id);
     // Delete document
     await documentRepository.delete(document.id);
+
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error deleting file: ", err);
+        return res.status(500).json({ message: "Error deleting file" });
+      }
+    });
 
     // Return the new document
     res.status(204).json();
