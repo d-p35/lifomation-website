@@ -97,6 +97,13 @@ export class ApiService {
     );
   }
 
+  changeCategory(documentId: number, category: string): Observable<any> {
+    return this.http.patch(
+      this.endpoint + `/api/documents/category/${documentId}`,
+      { category }
+    );
+  }
+
   //   deleteMessage(messageId: number): Observable<Message> {
   //     return this.http.delete<Message>(
   //       this.endpoint + `/api/messages/${messageId}`,

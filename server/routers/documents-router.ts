@@ -139,8 +139,7 @@ DocumentsRouter.post(
         if (classificationResult.length === 0) {
           return res.status(500).json({ message: "Failed to classify document" });
         }
-        console.log("Classification result:", classificationResult);
-        document.category= classificationResult[0];
+        document.category= classificationResult[0].split(',').map((category: string) => category.trim()).join(',');
         const newDocument = await documentRepository.save(document);
         const success = await index.addDocuments([{ id: newDocument.id, title:newDocument.document.originalname, text: text, ownerId, category: classificationResult }], {primaryKey: 'id'});
 
@@ -155,6 +154,26 @@ DocumentsRouter.post(
     }
   }
 );
+
+DocumentsRouter.patch("/category/:id", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const category = req.body.category;
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    document.category = category;
+    const updatedDocument = await documentRepository.save(document);
+    index.updateDocuments([{ id: updatedDocument.id, category: category }], {primaryKey: 'id'});
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 DocumentsRouter.patch(
   "/lastOpened/:id",
