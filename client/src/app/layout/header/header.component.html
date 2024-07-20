@@ -1,15 +1,7 @@
 <header>
   <div class="container">
     <div class="search-container">
-      <p-autoComplete
-        [(ngModel)]="selectedItem"
-        [suggestions]="suggestions"
-        (completeMethod)="search($event)"
-        (onSelect)="onSuggestionSelect($event)"
-        field="label"
-        placeholder="Search for files"
-        size="50"
-      ></p-autoComplete>
+     <app-search-bar></app-search-bar>
     </div>
   </div>
   <div class="container-2">

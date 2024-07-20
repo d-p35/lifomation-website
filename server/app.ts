@@ -6,6 +6,8 @@ import { dataSource } from "./db/database";
 import { User } from "./models/user";
 import { UsersRouter } from "./routers/users-router";
 import { DocumentsRouter } from "./routers/documents-router";
+import MeiliSearch from "meilisearch";
+import synonyms from "./synonyms.json";
 
 const app = express();
 
@@ -23,15 +25,26 @@ dataSource
   .then(() => {
     console.log("Database connection established.");
 
-    // Dummy route
-    app.use("/api/users", UsersRouter);
-    app.use("/api/documents", DocumentsRouter);
+    const client = new MeiliSearch({ host: "http://localhost:7700" });
+    const index = client.index("documents");
 
-    // Start the server
-    app.listen(port, () => {
-      console.log(`Server started on port ${port}`);
+    index.updateFilterableAttributes(["ownerId"]).then(() => {
+      console.log("Filterable attributes updated.");
+      index.updateSynonyms(synonyms).then(() => {
+        console.log("Synonyms updated.");
+        index.updateSearchableAttributes(["title", "text", "category"]).then(() => {
+        app.use("/api/users", UsersRouter);
+        app.use("/api/documents", DocumentsRouter);
+
+        // Start the server
+        app.listen(port, () => {
+          console.log(`Server started on port ${port}`);
+        });
+      });
+      });
     });
   })
+
   .catch((error: any) => {
     console.error("Error connecting to the database:", error);
   });

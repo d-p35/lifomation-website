@@ -6,6 +6,7 @@ import { AuthService } from '@auth0/auth0-angular';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { UploadComponent } from '../../components/upload/upload.component';
 import { ApiService } from '../../services/api.service';
+import { SearchBarComponent } from '../../components/search-bar/search-bar.component';
 
 @Component({
   selector: 'header-component',
@@ -16,6 +17,7 @@ import { ApiService } from '../../services/api.service';
     CommonModule,
     RouterModule,
     UploadComponent,
+    SearchBarComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',

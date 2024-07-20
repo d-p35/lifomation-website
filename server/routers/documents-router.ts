@@ -14,10 +14,15 @@ import moment from "moment";
 import tesseract from "tesseract.js";
 import { processImageFile } from "../services/extractTextService";
 import { processPdfFile } from "../services/extractTextService";
+import { MeiliSearch } from "meilisearch";
+
 
 require("dotenv").config();
 
 const upload = multer({ dest: "uploads/" });
+const client = new MeiliSearch({ host: 'http://localhost:7700' });
+const index = client.index('documents');
+
 export const DocumentsRouter = Router();
 
 const documentRepository: Repository<Document> =
@@ -41,6 +46,30 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+
+DocumentsRouter.get("/search", async (req: Request, res: Response) => {
+  try {
+    const query = req.query.q as string;
+    const userId = req.query.userId as string;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    console.log(`Searching for ${query} by user ${userId}`);
+
+    const searchResults = await index.search(query, {
+      filter: `ownerId = "${userId}"`
+    });
+
+    res.status(200).json(searchResults.hits);
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: "Search failed" });
+  }
+});
+
 
 DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
   try {
@@ -105,9 +134,16 @@ DocumentsRouter.post(
       const processFunction =
         file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
       try {
-        const newDocument = await processFunction(file, ownerId, res);
+        let {document, text, classificationResult} = await processFunction(file, ownerId, res);
+
+        if (classificationResult.length === 0) {
+          return res.status(500).json({ message: "Failed to classify document" });
+        }
+        document.category= classificationResult[0].split(',').map((category: string) => category.trim()).join(',');
+        const newDocument = await documentRepository.save(document);
+        const success = await index.addDocuments([{ id: newDocument.id, title:newDocument.document.originalname, text: text, ownerId, category: classificationResult }], {primaryKey: 'id'});
+
         res.status(201).json({ document: newDocument });
-        await documentRepository.save(newDocument);
       } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Failed to save document" });
@@ -118,6 +154,26 @@ DocumentsRouter.post(
     }
   }
 );
+
+DocumentsRouter.patch("/category/:id", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const category = req.body.category;
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    document.category = category;
+    const updatedDocument = await documentRepository.save(document);
+    index.updateDocuments([{ id: updatedDocument.id, category: category }], {primaryKey: 'id'});
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 DocumentsRouter.patch(
   "/lastOpened/:id",
@@ -151,8 +207,18 @@ DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
+    const filePath = path.join(__dirname, "../uploads", document.document.filename);
+
+    index.deleteDocument(document.id);
     // Delete document
     await documentRepository.delete(document.id);
+
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error deleting file: ", err);
+        return res.status(500).json({ message: "Error deleting file" });
+      }
+    });
 
     // Return the new document
     res.status(204).json();

@@ -11,7 +11,7 @@ UsersRouter.post("/", async (req: Request, res: Response) => {
   try {
     const user = await userRepo.findOne({ where: { id: req.body.userId } });
     if (user) {
-      return res.status(409).json({ message: "User already exists" });
+      return res.status(200).json({ message: "User already exists" });
     }
 
     const newUser: User = {

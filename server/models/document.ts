@@ -4,16 +4,13 @@ import { User } from "./user";
 
 interface DocumentAttributes {
   id: number;
-  document: {
-    mimetype: string;
-    path: string;
-    textExracted: string;
-  };
+  document: Express.Multer.File;
   uploadedAt: Date;
   lastOpened: Date;
   views: number;
   owner: User;
   ownerId: string;
+  category: string;
 }
 
 @Entity()
@@ -22,11 +19,7 @@ export class Document implements DocumentAttributes {
   id: number;
 
   @Column("json")
-  document: {
-    mimetype: string;
-    path: string;
-    textExracted: string;
-  };
+  document: Express.Multer.File;
 
   @CreateDateColumn()
   uploadedAt: Date;
@@ -36,6 +29,9 @@ export class Document implements DocumentAttributes {
 
   @Column({ default: 0 })
   views: number;
+
+  @Column()
+  category: string;
 
   @Column()
   ownerId: string;
