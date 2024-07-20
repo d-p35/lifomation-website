@@ -10,6 +10,7 @@ interface DocumentAttributes {
   views: number;
   owner: User;
   ownerId: string;
+  category: string;
 }
 
 @Entity()
@@ -28,6 +29,9 @@ export class Document implements DocumentAttributes {
 
   @Column({ default: 0 })
   views: number;
+
+  @Column()
+  category: string;
 
   @Column()
   ownerId: string;

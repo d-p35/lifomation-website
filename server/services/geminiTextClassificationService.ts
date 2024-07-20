@@ -21,7 +21,7 @@ export const geminiTextClassification = async (
     });
 
     const prompt =
-      "Which category does this text belong to? Your options are Health, Education and Career, Government and Utilities, Finance, Family and Relationships, Warranties and Memberships, Social and Leisure, Personal. Only return three words, which should be the categories.\n\n" +
+      "Which category does this text belong to? Your options are Health, Education and Career, Government and Utilities, Finance, Family and Relationships, Warranties and Memberships, Social and Leisure, Personal. Only return three words, which should be the categories ranked from most relevant to least.\n\n" +
       input;
 
     try {

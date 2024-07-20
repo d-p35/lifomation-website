@@ -31,8 +31,8 @@ dataSource
     index.updateFilterableAttributes(["ownerId"]).then(() => {
       console.log("Filterable attributes updated.");
       index.updateSynonyms(synonyms).then(() => {
-
         console.log("Synonyms updated.");
+        index.updateSearchableAttributes(["title", "text", "category"]).then(() => {
         app.use("/api/users", UsersRouter);
         app.use("/api/documents", DocumentsRouter);
 
@@ -40,6 +40,7 @@ dataSource
         app.listen(port, () => {
           console.log(`Server started on port ${port}`);
         });
+      });
       });
     });
   })

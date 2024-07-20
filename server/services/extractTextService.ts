@@ -5,10 +5,11 @@ import tesseract from "tesseract.js";
 import { v4 as uuidv4 } from "uuid";
 import extract from "extract-zip";
 import { Response } from "express";
-import { classifyText } from "./textClassificationService";
-import { geminiTextClassification } from "./geminiTextClassificationService";
 import { Document } from "../models/document";
 import MeiliSearch from "meilisearch";
+
+import { classifyText } from "./watsonTextClassificationService";
+import { geminiTextClassification } from "./geminiTextClassificationService";
 const client = new MeiliSearch({ host: "http://localhost:7700" });
 const index = client.index("documents");
 
@@ -21,7 +22,8 @@ export async function processImageFile(
     data: { text: OCRtext },
   } = await tesseract.recognize(filePath, "eng");
 
-  const classificationResult = await classifyText(OCRtext);
+  //   const classificationResult = await classifyText(OCRtext);
+  const classificationResult = await geminiTextClassification(OCRtext);
 
   const document = new Document();
   document.document = file;
@@ -30,7 +32,7 @@ export async function processImageFile(
   // const doc = await client.getIndexes({ limit: 3 })
   // console.log(doc);
 
-  return { document, text: OCRtext };
+  return { document, text: OCRtext, classificationResult };
 }
 
 // Function to handle PDF file processing
@@ -66,8 +68,9 @@ export async function processPdfFile(
     document.ownerId = ownerId;
 
     // await index.addDocuments([{ id: document.id, text: combinedText, ownerId }]);
-    console.log(combinedText);
-    return { document, text: combinedText };
+    const classificationResult = await geminiTextClassification(combinedText);
+    
+    return { document, text: combinedText, classificationResult };
   } else {
     throw new Error("Error processing document with Tika");
   }
@@ -136,10 +139,17 @@ async function handleTikaResponse(
           }
         }
 
-      await fs.promises.writeFile(metadataFilePath, metadataText);
-      await fs.promises.writeFile(textdataFilePath, extractedText);
-      const combinedText = extractedText + OCRText;
-      const classificationResult = await classifyText(combinedText);
+        await fs.promises.writeFile(metadataFilePath, metadataText);
+        await fs.promises.writeFile(textdataFilePath, extractedText);
+        const combinedText = extractedText + OCRText;
+        // const classificationResult = await classifyText(combinedText);
+       
+        resolve(combinedText);
+      })
+      .on("error", (err: Error) => {
+        reject(err);
+      });
+  });
 
-    });
+  return combinedText;
 }

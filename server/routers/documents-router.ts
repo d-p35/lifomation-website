@@ -133,11 +133,15 @@ DocumentsRouter.post(
       const processFunction =
         file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
       try {
-        let {document, text} = await processFunction(file, ownerId, res);
+        let {document, text, classificationResult} = await processFunction(file, ownerId, res);
+
+        if (classificationResult.length === 0) {
+          return res.status(500).json({ message: "Failed to classify document" });
+        }
+        console.log("Classification result:", classificationResult);
+        document.category= classificationResult[0];
         const newDocument = await documentRepository.save(document);
-        console.log(text);
-        const success = await index.addDocuments([{ id: newDocument.id, title:newDocument.document.originalname, text: text, ownerId }], {primaryKey: 'id'});
-        console.log(success);
+        const success = await index.addDocuments([{ id: newDocument.id, title:newDocument.document.originalname, text: text, ownerId, category: classificationResult }], {primaryKey: 'id'});
 
         res.status(201).json({ document: newDocument });
       } catch (error) {
@@ -183,6 +187,8 @@ DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
+
+    index.deleteDocument(document.id);
     // Delete document
     await documentRepository.delete(document.id);
 
