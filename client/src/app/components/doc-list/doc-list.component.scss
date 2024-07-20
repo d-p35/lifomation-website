@@ -1,12 +1,10 @@
 .document-list-container {
-  text-align: center;
-  margin: 50px auto;
-  width: 60%;
-  border: 1px solid #ccc;
+  width: 80%;
   background-color: #f4f5f7;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding-top: 5px;
+  border-radius: 20px;
+  width: 100%;
+  transition: background-color 0.3s ease;
   overflow-x: auto;
 
   h2 {
@@ -16,6 +14,8 @@
   .table-container {
     width: 100%;
     overflow-x: auto;
+    border-radius: 20px;
+    table-layout: fixed; // Ensures the table uses the available space
 
     .p-datatable-wrapper {
       max-height: 400px;
@@ -33,6 +33,9 @@
       border-bottom: 1px solid #ccc;
       text-align: left;
       word-wrap: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     th {
@@ -45,16 +48,21 @@
 
     .delete-button {
       padding: 0.5rem 1rem;
-      font-size: 0.9rem;
+      font-size: 14px;
+      font-weight: 500;
       background-color: #ff4d4d;
       color: #fff;
       border: none;
+      margin-right:10px;
       border-radius: 4px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-
+      transition:
+        background-color 0.3s ease,
+        transform 0.3s ease;
+    
       &:hover {
         background-color: #e60000;
+        transform: translateY(-2px);
       }
     }
 
@@ -70,6 +78,11 @@
         text-align: center;
       }
     }
+  }
+  .document-list-container:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    background-color: #f1f1f1;
   }
 }
 
