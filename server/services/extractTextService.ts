@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from "uuid";
 import extract from "extract-zip";
 import { Response } from "express";
 import { classifyText } from "./textClassificationService";
+import { geminiTextClassification } from "./geminiTextClassificationService";
 import { Document } from "../models/document";
 import MeiliSearch from "meilisearch";
-
 const client = new MeiliSearch({ host: "http://localhost:7700" });
 const index = client.index("documents");
 
@@ -21,8 +21,7 @@ export async function processImageFile(
     data: { text: OCRtext },
   } = await tesseract.recognize(filePath, "eng");
 
-  // const classificationResult = await classifyText(OCRtext);
-  console.log(OCRtext);
+  const classificationResult = await classifyText(OCRtext);
 
   const document = new Document();
   document.document = file;
@@ -137,17 +136,10 @@ async function handleTikaResponse(
           }
         }
 
-        await fs.promises.writeFile(metadataFilePath, metadataText);
-        await fs.promises.writeFile(textdataFilePath, extractedText);
-        const combinedText = extractedText + OCRText;
-        // const classificationResult = await classifyText(combinedText);
+      await fs.promises.writeFile(metadataFilePath, metadataText);
+      await fs.promises.writeFile(textdataFilePath, extractedText);
+      const combinedText = extractedText + OCRText;
+      const classificationResult = await classifyText(combinedText);
 
-        resolve(combinedText);
-      })
-      .on("error", (err: Error) => {
-        reject(err);
-      });
-  });
-
-  return combinedText;
+    });
 }

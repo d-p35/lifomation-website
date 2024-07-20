@@ -3,6 +3,8 @@
     <div class="search-container">
      <app-search-bar></app-search-bar>
     </div>
+  </div>
+  <div class="container-2">
     <app-upload></app-upload>
     <div *ngIf="auth.user$ | async as user" class="user-menu">
       <span class="welcome">Hi, {{ user.name || user.email }}</span>

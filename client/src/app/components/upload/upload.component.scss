@@ -6,6 +6,7 @@
 
   input[type="file"] {
     margin-bottom: 1rem;
+    margin-right: 30px;
   }
 
   ::ng-deep .p-fileupload-buttonbar {
@@ -32,7 +33,7 @@
     transform 0.3s ease;
   background-color: #006dd3;
   color: #ffffff;
-
+  margin-right: 30px;
   &:hover {
     background-color: rgb(6, 177, 244);
     transform: translateY(-2px);
