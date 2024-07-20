@@ -1,74 +1,189 @@
 $sidebar-width: 250px;
-$header-height: 00px;
+$header-height: 0px;
+.header {
+  height: $header-height;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1;
+
+  .search-bar {
+    width: 300px;
+    display: flex;
+    align-items: center;
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  }
+
+  .user-profile {
+    display: flex;
+    align-items: center;
+
+    .avatar {
+      margin-right: 10px;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      background-color: #ccc;
+    }
+  }
+}
+.sidebar {
+  background-color: #ffffff;
+  padding: 20px;
+  position: fixed;
+  top: $header-height; /* Positioning the sidebar below the header */
+  height: calc(
+    100% - $header-height
+  ); /* Adjust height to account for the header */
+  width: $sidebar-width;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+
+    img {
+      width: 100%;
+    }
+
+    span {
+      font-size: 24px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+  }
+
+  nav {
+    flex-grow: 1;
+    margin: 20px 0;
+
+    .sidebar-item {
+      padding: 10px 5px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      color: #333;
+
+      &:hover {
+        color: #007bff;
+        background-color: #d3d3d3;
+      }
+    }
+  }
+
+  .storage {
+    margin-top: auto;
+    p {
+      font-size: 14px;
+      color: #666;
+    }
+    a {
+      font-size: 14px;
+      color: #007bff;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
 
 .dashboard {
-  display: flex;
+  // display: flex;
+  background-color: #f8fafd;
+  // border-radius: 20px;
 }
 
 .main-container {
-  margin-left: $sidebar-width;
-  width: calc(100% - $sidebar-width);
-  margin-top: $header-height;
-  padding: 20px;
-  border-radius: 20px;
   background-color: #f4f5f7;
+  border-radius: 20px;
+  margin-left: $sidebar-width;
+  // width: calc(100% - $sidebar-width);
+  margin-top: $header-height; /* Adjust margin to account for the header */
+  // display: flex;
 }
 
 .main-content {
   padding: 20px;
   background-color: #f4f5f7;
   border-radius: 20px;
-}
-.recent-files-section{
-  margin-bottom: 20px;
-}
 
-.recent-files-section {
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .recent-files-section {
+    margin-bottom: 20px;
+  }
 
+
+  
+  .recent-files-section {
     h2 {
-      margin-bottom: 20px;
+      margin: 0 0 20px;
     }
 
-    .add-new {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    .recent-files-list {
+      .suggestion-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+        margin-right: 20px;
 
-      &:hover {
-        background-color: #0056b3;
+        .file-icon {
+          margin-right: 10px;
+
+          img {
+            width: 40px;
+            height: 40px;
+          }
+        }
+
+        .file-info {
+          h3 {
+            margin: 0;
+            font-size: 16px;
+          }
+
+          p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #666;
+          }
+        }
+      }
+    }
+    .file-info {
+      h3 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        color: #666;
       }
     }
   }
 
-  .recent-files-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
 
-    .recent-file-item {
-      background-color: #fff;
-      border-radius: 20px;
-      padding: 10px;
-      margin-bottom: 10px;
-      // box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      &:hover {
-        background-color: #f1f1f1;
-      }
-
-      app-doc-card {
-        flex-grow: 1;
-      }
-    }
-  }
 }
+
+

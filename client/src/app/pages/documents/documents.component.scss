@@ -113,8 +113,6 @@ $header-height: 0px;
   margin-left: $sidebar-width;
   width: calc(100% - $sidebar-width);
   margin-top: $header-height; /* Adjust margin to account for the header */
-  // display: flex;
-
 }
 
 .main-content {

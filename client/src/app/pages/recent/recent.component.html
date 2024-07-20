@@ -2,19 +2,18 @@
   <div class="main-container">
     <main class="main-content">
 
-      
       <section class="recent-files-section">
-        <div class="section-header">
-          <h2>Recent Files</h2>
+        <h2>Recent Files</h2>
+        <div class="recent-files-list">
+          <div class="file-info">
+            <app-doc-card
+              *ngFor="let doc of documents"
+              [document]="doc"
+            ></app-doc-card>
+          </div>
         </div>
-
-
-        <ul class="recent-files-list">
-          <li class="recent-file-item" *ngFor="let doc of documents">
-            <app-doc-card [document]="doc"></app-doc-card>
-          </li>
-        </ul>
       </section>
+
     </main>
   </div>
 </div>
