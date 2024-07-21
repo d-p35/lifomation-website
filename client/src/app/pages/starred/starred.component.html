@@ -1,0 +1,19 @@
+<div class="dashboard">
+  <div class="main-container">
+    <main class="main-content">
+
+      <section class="recent-files-section">
+        <h2>Starred Files</h2>
+        <div class="recent-files-list">
+          <div class="file-info">
+            <app-doc-card
+              *ngFor="let doc of documents"
+              [document]="doc"
+            ></app-doc-card>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>

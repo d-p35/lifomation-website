@@ -28,13 +28,13 @@
         <i class="material-icons">access_time</i> Recent
       </li></a
     >
-    <a routerLink="/">
-      <li class="sidebar-item">
+    <a routerLink="/starred">
+      <li [class.active]="isRouteActive('/starred')" class="sidebar-item">
         <i class="material-icons">star</i> Starred
       </li></a
     >
-    <a routerLink="/"
-      ><li class="sidebar-item">
+    <a routerLink="/trash"
+      ><li [class.active]="isRouteActive('/trash')" class="sidebar-item">
         <i class="material-icons">delete</i> Trash
       </li></a
     >
