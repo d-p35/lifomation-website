@@ -11,6 +11,8 @@ import { AuthGuard } from '@auth0/auth0-angular';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RecentComponent } from './pages/recent/recent.component';
+import { StarredComponent } from './pages/starred/starred.component';
+import { TrashComponent } from './pages/trash/trash.component';
 export const routes: Routes = [
   // Add your routes here
   { path: '', component: HomeComponent },
@@ -32,6 +34,16 @@ export const routes: Routes = [
   {
     path: 'recent',
     component: RecentComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'starred',
+    component: StarredComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'trash',
+    component: TrashComponent,
     canActivate: [AuthGuard],
   },
 ];
