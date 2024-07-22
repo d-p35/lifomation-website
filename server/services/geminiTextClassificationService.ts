@@ -12,7 +12,7 @@ export const geminiTextClassification = async (
       temperature: 0.5,
       topP: 0.95,
       topK: 40,
-      maxOutputTokens: 200,
+      // maxOutputTokens: 200,
       responseMimeType: "text/plain",
     };
     const genAI = new GoogleGenerativeAI(apiKey);
