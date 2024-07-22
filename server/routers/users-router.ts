@@ -17,7 +17,6 @@ UsersRouter.post("/", async (req: Request, res: Response) => {
     const newUser: User = {
       id: req.body.userId,
       documents: [],
-      permissions:[],
     };
     const results = await userRepo.save(newUser);
     res.status(201).json(results);
