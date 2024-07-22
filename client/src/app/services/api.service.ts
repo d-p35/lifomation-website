@@ -81,23 +81,23 @@ export class ApiService {
     );
   }
 
-  getDocument(documentId: number, userId: String): Observable<any> {
-    return this.http.get(this.endpoint + `/api/documents/${documentId}?userId=${userId}`);
+  getDocument(documentId: number): Observable<any> {
+    return this.http.get(this.endpoint + `/api/documents/${documentId}`);
   }
 
-  deleteDocument(documentId: number, userId: String): Observable<any> {
-    return this.http.delete(this.endpoint + `/api/documents/${documentId}?userId=${userId}`);
+  deleteDocument(documentId: number): Observable<any> {
+    return this.http.delete(this.endpoint + `/api/documents/${documentId}`);
   }
 
-  getFile(documentId: number, userId: String): Observable<Blob> {
-    return this.http.get(this.endpoint + `/api/documents/${documentId}/file?userId=${userId}`, {
+  getFile(documentId: number): Observable<Blob> {
+    return this.http.get(this.endpoint + `/api/documents/${documentId}/file`, {
       responseType: 'blob',
     });
   }
 
-  updateLastOpened(documentId: number, userId: String): Observable<any> {
+  updateLastOpened(documentId: number): Observable<any> {
     return this.http.patch(
-      this.endpoint + `/api/documents/lastOpened/${documentId}?userId=${userId}`,
+      this.endpoint + `/api/documents/lastOpened/${documentId}`,
       { time: new Date().toISOString() }
     );
   }
@@ -108,9 +108,9 @@ export class ApiService {
     );
   }
 
-  changeCategory(documentId: number, category: string, userId: String): Observable<any> {
+  changeCategory(documentId: number, category: string): Observable<any> {
     return this.http.patch(
-      this.endpoint + `/api/documents/category/${documentId}?userId=${userId}`,
+      this.endpoint + `/api/documents/category/${documentId}`,
       { category }
     );
   }
