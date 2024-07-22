@@ -74,6 +74,10 @@ export class ApiService {
     );
   }
 
+  getDocument(documentId: number): Observable<any> {
+    return this.http.get(this.endpoint + `/api/documents/${documentId}`);
+  }
+
   deleteDocument(documentId: number): Observable<any> {
     return this.http.delete(this.endpoint + `/api/documents/${documentId}`);
   }

@@ -1,6 +1,8 @@
 <div *ngIf="!loading">
   <div class="document-view-container">
     <h2>Document View</h2>
+    
+    <!-- Document Display -->
     <div *ngIf="documentType !== 'pdf'">
       <p-image
         [src]="documentUrl"
@@ -18,8 +20,26 @@
         height="700px"
       />
     </div>
+    
+    <!-- Key Information Display -->
+    <div class="key-info-container">
+      <h3>Key Information</h3>
+      <div *ngIf="keyInfo">
+        <div *ngFor="let key of keyInfoKeys()" class="key-info-item">
+          <strong>{{ key }}:</strong>
+          <span>{{ keyInfo[key] }}</span>
+          <button 
+            (click)="copyToClipboard(keyInfo[key], key)" 
+            class="copy-button"
+            [disabled]="copiedKey === key">
+            {{ copiedKey === key ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
 
 <div *ngIf="loading">
   <p>Loading document...</p>

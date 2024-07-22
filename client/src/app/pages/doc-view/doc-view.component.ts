@@ -1,4 +1,4 @@
-import { NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -9,7 +9,7 @@ import { ImageModule } from 'primeng/image';
 @Component({
   selector: 'app-doc-view',
   standalone: true,
-  imports: [NgIf, NgxExtendedPdfViewerModule, ImageModule],
+  imports: [NgIf, NgxExtendedPdfViewerModule, ImageModule, CommonModule],
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })
@@ -17,6 +17,9 @@ export class DocViewComponent {
   documentUrl: any = '';
   documentType: string | null = null;
   loading = true;
+  keyInfo: any = null;
+  document: any;
+  copiedKey: string | null = null;
 
   constructor(
     private apiService: ApiService,
@@ -37,7 +40,18 @@ export class DocViewComponent {
         const objectUrl = URL.createObjectURL(blob);
         this.documentUrl =
           this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
-        this.loading = false;
+
+          this.apiService.getDocument(i).subscribe({
+            next: (res: any) => {
+              console.log(res);
+              this.loading = false;
+              this.document = res.document;
+              this.keyInfo = res.document.keyInfo;
+            },
+            error: (err) => {
+              console.error(err);
+            },
+          });
       },
       error: (err) => {
         console.error(err);
@@ -50,5 +64,23 @@ export class DocViewComponent {
         console.error(err);
       },
     });
+  }
+
+
+  keyInfoKeys(): string[] {
+    return Object.keys(this.keyInfo);
+  }
+
+  copyToClipboard(text: string, key: string) {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        console.log('Text copied to clipboard!');
+        this.copiedKey = key;
+        setTimeout(() => {
+          this.copiedKey = null;
+        }, 2000);
+      },
+      (err) => console.error('Failed to copy text: ', err)
+    );
   }
 }

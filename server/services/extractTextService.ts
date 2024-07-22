@@ -23,16 +23,18 @@ export async function processImageFile(
   } = await tesseract.recognize(filePath, "eng");
 
   //   const classificationResult = await classifyText(OCRtext);
-  const classificationResult = await geminiTextClassification(OCRtext);
+  const {categories, keyInfo} = await geminiTextClassification(OCRtext);
 
   const document = new Document();
   document.document = file;
   document.ownerId = ownerId;
+  document.keyInfo = keyInfo;
+  document.category = categories.split(",").map((category: string) => category.trim()).join(",");
 
   // const doc = await client.getIndexes({ limit: 3 })
   // console.log(doc);
 
-  return { document, text: OCRtext, classificationResult };
+  return { document, text: OCRtext, classificationResult: categories };
 }
 
 // Function to handle PDF file processing
@@ -68,9 +70,11 @@ export async function processPdfFile(
     document.ownerId = ownerId;
 
     // await index.addDocuments([{ id: document.id, text: combinedText, ownerId }]);
-    const classificationResult = await geminiTextClassification(combinedText);
+     const {categories, keyInfo}  = await geminiTextClassification(combinedText);
+     document.keyInfo = keyInfo;
+    document.category = categories.split(",").map((category: string) => category.trim()).join(",");
     
-    return { document, text: combinedText, classificationResult };
+    return { document, text: combinedText, classificationResult: categories };
   } else {
     throw new Error("Error processing document with Tika");
   }

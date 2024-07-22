@@ -1,6 +1,7 @@
 import { Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 import { User } from "./user";
+import { AllowNull } from "sequelize-typescript";
 
 interface DocumentAttributes {
   id: number;
@@ -11,6 +12,7 @@ interface DocumentAttributes {
   owner: User;
   ownerId: string;
   category: string;
+  keyInfo: Record<string, any>;
 }
 
 @Entity()
@@ -32,6 +34,9 @@ export class Document implements DocumentAttributes {
 
   @Column()
   category: string;
+
+  @Column("json", {nullable: true})
+  keyInfo: Record<string, any>;
 
   @Column()
   ownerId: string;
