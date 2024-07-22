@@ -252,3 +252,23 @@ DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+
+DocumentsRouter.patch("/starred/:id", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const starred = req.body.starred;
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    document.starred = starred;
+    const updatedDocument = await documentRepository.save(document);
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});

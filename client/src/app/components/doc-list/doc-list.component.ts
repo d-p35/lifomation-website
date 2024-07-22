@@ -43,20 +43,26 @@ export class DocListComponent implements OnInit {
   }
 
   fetchDocumentsByPage(page: number, itemsPerPage: number, userId?: string) {
-    this.apiService.getDocuments(page, itemsPerPage, userId, this.folderName).subscribe({
-      next: (res) => {
-        this.documents = res.documents.map((doc: any) => ({
-          ...doc,
-          uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
-          lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
-          fileSize: this.getFileSize(doc.document.size),
-        }));
-        this.totalRecords = res.totalRecords;
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    this.apiService
+      .getDocuments(page, itemsPerPage, userId, this.folderName)
+      .subscribe({
+        next: (res) => {
+          this.documents = res.documents.map((doc: any) => ({
+            ...doc,
+            uploadedAtLocal: this.convertToUserTimezone(
+              new Date(doc.uploadedAt)
+            ),
+            lastOpenedLocal: this.convertToUserTimezone(
+              new Date(doc.lastOpened)
+            ),
+            fileSize: this.getFileSize(doc.document.size),
+          }));
+          this.totalRecords = res.totalRecords;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
   fetchDocuments() {
@@ -125,5 +131,13 @@ export class DocListComponent implements OnInit {
   starDocument(doc: any, event: Event) {
     event.stopPropagation();
     doc.starred = !doc.starred;
+    this.apiService.starDocument(doc.id, doc.starred).subscribe({
+      next: () => {
+        console.log('Document starred');
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
   }
 }
