@@ -36,7 +36,14 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      
+    
     }
+
+    .document-name{
+      font-weight: bold;
+    }
+    
 
     th {
       background-color: #f9f9f9;
@@ -49,7 +56,7 @@
     .delete-button {
       padding: 0.5rem 1rem;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: bold;
       background-color: #ff4d4d;
       color: #fff;
       border: none;

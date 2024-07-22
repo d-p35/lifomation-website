@@ -1,6 +1,6 @@
 <div *ngIf="!loading">
   <div class="document-view-container">
-    <h2>Document View</h2>
+    <h2>{{document.document.originalname}}</h2>
     
     <!-- Document Display -->
     <div *ngIf="documentType !== 'pdf'">

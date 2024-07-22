@@ -50,7 +50,7 @@ export class DocCardComponent implements OnInit {
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
-      return '../../..//public/doc-icon.png';
+      return '../../..//public/img-icon.png';
     } else if (mimetype.includes('pdf')) {
       return '../../..//public/pdf-icon.png';
     }

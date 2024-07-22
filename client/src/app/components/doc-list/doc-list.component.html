@@ -1,18 +1,13 @@
 <div class="document-list-container">
-  <!-- <h2>My Drive</h2> -->
-  <div class="table-container">
-    <p-table
-      [value]="documents"
-      [lazy]="true"
-      (onLazyLoad)="loadDocuments($event)"
-      [rows]="rows"
-      [totalRecords]="totalRecords"
-      scrollable="true"
-      scrollHeight="500px"
-      [virtualScroll]="true"
-      [style]="{ 'min-width': '50rem' }"
-    >
-      <ng-template pTemplate="header">
+  <div
+    class="table-container"
+    infiniteScroll
+    [infiniteScrollDistance]="2"
+    [infiniteScrollThrottle]="300"
+    (scrolled)="onScroll()"
+  >
+    <table>
+      <thead>
         <tr>
           <th>Icon</th>
           <th>Name</th>
@@ -21,20 +16,22 @@
           <th>Size</th>
           <th>Actions</th>
         </tr>
-      </ng-template>
+      </thead>
+      <tbody>
+        <tr *ngFor="let doc of documents">
+            <td>
+              <img
+                [src]="getIcon(doc.document.mimetype)"
+                alt="Document Icon"
+                class="icon"
+                (click)="viewDocument(doc.id)" style="cursor: pointer"
+              />
+            </td>
 
-      <ng-template pTemplate="body" let-doc>
-        <tr>
-          <td>
-            <img
-              [src]="getIcon(doc.document.mimetype)"
-              alt="Document Icon"
-              class="icon"
-            />
-          </td>
-          <td (click)="viewDocument(doc.id)" style="cursor: pointer">
-            {{ doc.document.originalname }}
-          </td>
+            <td (click)="viewDocument(doc.id)" style="cursor: pointer" class="document-name">
+              {{ doc.document.originalname }}
+            </td>
+         
           <td>{{ doc.uploadedAtLocal }}</td>
           <td>{{ doc.lastOpenedLocal }}</td>
           <td>{{ doc.fileSize }}</td>
@@ -43,12 +40,13 @@
               type="button"
               class="delete-button"
               (click)="deleteDocument(doc.id, $event)"
+              pButton
             >
               Delete
             </button>
           </td>
         </tr>
-      </ng-template>
-    </p-table>
+      </tbody>
+    </table>
   </div>
 </div>
