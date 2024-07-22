@@ -18,8 +18,8 @@
         <i class="material-icons">folder</i> My Drive
       </li></a
     >
-    <a routerLink="/"
-      ><li class="sidebar-item">
+    <a routerLink="/shared">
+      <li [class.active]="isRouteActive('/shared')" class="sidebar-item">
         <i class="material-icons">people</i> Shared with me
       </li></a
     >
