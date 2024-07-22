@@ -5,7 +5,7 @@ dotenv.config();
 
 export const geminiTextClassification = async (
   input: string
-): Promise<{ categories: string, keyInfo: Record<string, any> }> => {
+): Promise<{ categories: string; keyInfo: Record<string, any> }> => {
   const apiKey = process.env.GEMINI_API_KEY; // Replace with your API key
   if (apiKey) {
     const generationConfig = {
@@ -34,31 +34,33 @@ export const geminiTextClassification = async (
         history: [],
       });
       const res = await chatSession.sendMessage(prompt);
-      
 
       // Parse the response to extract the top 3 categories
       const responseText = await res.response.text();
       // console.log("responseText", responseText);
-      const startIndex = responseText.indexOf('{');
-      const endIndex = responseText.lastIndexOf('}') + 1;
+      const startIndex = responseText.indexOf("{");
+      const endIndex = responseText.lastIndexOf("}") + 1;
       const jsonText = responseText.substring(startIndex, endIndex);
       // console.log("jsonText", jsonText);
-      let result: { categories: string; keyInfo: Record<string, any> } = { categories: "", keyInfo: {} };
+      let result: { categories: string; keyInfo: Record<string, any> } = {
+        categories: "",
+        keyInfo: {},
+      };
 
       try {
         result = JSON.parse(jsonText);
       } catch (parseError) {
         console.error("Error parsing JSON response:", parseError);
-        return { categories: '', keyInfo: {} };
+        return { categories: "", keyInfo: {} };
       }
       // console.log("result", result);
       return result;
     } catch (error) {
       console.error("Error during text classification:", error);
-      return {categories: '', keyInfo: JSON};
+      return { categories: "", keyInfo: JSON };
     }
   } else {
     console.error("API key is undefined");
-    return {categories: '', keyInfo: JSON};
+    return { categories: "", keyInfo: JSON };
   }
 };
