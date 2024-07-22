@@ -122,14 +122,8 @@ export class DocListComponent implements OnInit {
     });
   }
 
-  starDocument(id: number, event: Event) {
-    this.apiService.starDocument(id, false).subscribe({
-      next: () => {
-        this.fetchDocuments();
-      },
-      error: (err: any) => {
-        console.error(err);
-      },
-    });
+  starDocument(doc: any, event: Event) {
+    event.stopPropagation();
+    doc.starred = !doc.starred;
   }
 }

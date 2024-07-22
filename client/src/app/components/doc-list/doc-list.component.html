@@ -18,7 +18,7 @@
           <th>Uploaded At</th>
           <th>Last Opened</th>
           <th>Size</th>
-          <th>Actions</th>
+          <th></th>
         </tr>
       </ng-template>
 
@@ -39,14 +39,11 @@
           <td>{{ doc.fileSize }}</td>
           <td>
             <i
-              class="fa-star"
-              [ngClass]="{
-                far: !doc.starred,
-                fas: doc.starred,
-                'text-warning': doc.starred
-              }"
+              class="star-icon"
+              [ngClass]="
+                doc.starred ? 'pi pi-star-fill text-warning' : 'pi pi-star'
+              "
               (click)="starDocument(doc, $event)"
-              style="cursor: pointer"
             ></i>
             <button
               type="button"
