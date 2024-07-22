@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Request, Response, NextFunction } from "express";
 import { dataSource } from "../db/database";
-import { Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { Document } from "../models/document";
 import { DocumentPermission } from "../models/documentPermission";
 import { processImageFile, processPdfFile } from "../services/extractTextService";
@@ -120,11 +120,17 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 0;
     const rows = parseInt(req.query.rows as string) || 10;
     const ownerId = req.body.userId;
+    const categoryName = req.query.categoryName as string;
+
+    let whereClause = { ownerId: ownerId } as any;
+    if (categoryName) {
+      whereClause.category = Like(`${categoryName},%`);
+    }
     const [documents, count] = await documentRepository.findAndCount({
       skip: page * rows,
       take: rows,
       order: { uploadedAt: "DESC" },
-      where: { ownerId: ownerId },
+      where: whereClause,
     });
 
     res.status(200).json({ count, documents });
