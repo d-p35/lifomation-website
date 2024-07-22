@@ -115,6 +115,13 @@ export class ApiService {
     );
   }
 
+  starDocument(documentId: number, starred: boolean): Observable<any> {
+    return this.http.patch(
+      this.endpoint + `/api/documents/starred/${documentId}`,
+      { starred }
+    );
+  }
+
   //   deleteMessage(messageId: number): Observable<Message> {
   //     return this.http.delete<Message>(
   //       this.endpoint + `/api/messages/${messageId}`,

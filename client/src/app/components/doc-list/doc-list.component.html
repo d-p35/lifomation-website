@@ -1,5 +1,4 @@
 <div class="document-list-container">
-  <!-- <h2>My Drive</h2> -->
   <div class="table-container">
     <p-table
       [value]="documents"
@@ -39,6 +38,16 @@
           <td>{{ doc.lastOpenedLocal }}</td>
           <td>{{ doc.fileSize }}</td>
           <td>
+            <i
+              class="fa-star"
+              [ngClass]="{
+                far: !doc.starred,
+                fas: doc.starred,
+                'text-warning': doc.starred
+              }"
+              (click)="starDocument(doc, $event)"
+              style="cursor: pointer"
+            ></i>
             <button
               type="button"
               class="delete-button"
