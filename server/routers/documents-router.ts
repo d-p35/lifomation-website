@@ -12,13 +12,10 @@ import * as fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 
 require("dotenv").config();
-
 const upload = multer({ dest: "uploads/" });
 const client = new MeiliSearch({ host: 'http://localhost:7700' });
 const index = client.index('documents');
-
 export const DocumentsRouter = Router();
-
 const documentRepository: Repository<Document> = dataSource.getRepository(Document);
 const documentPermissionRepository: Repository<DocumentPermission> = dataSource.getRepository(DocumentPermission);
 
@@ -28,13 +25,18 @@ const checkPermission = (accessLevel: string) => {
     const documentId = parseInt(req.params.id);
     const userId = req.body.userId;
 
+    console.log(`Checking permission for document ${documentId} and user ${userId}`);
+
     const document = await documentRepository.findOne({ where: { id: documentId }, relations: ["permissions"] });
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
 
     const permission = document.permissions.find(p => p.userId === userId);
+    console.log(`Found permission: ${JSON.stringify(permission)}`);
+
     if (!permission || (accessLevel === "edit" && permission.accessLevel === "read") || (accessLevel === "full" && permission.accessLevel !== "full")) {
+      console.log("Permission denied");
       return res.status(403).json({ message: "Permission denied" });
     }
 
@@ -97,7 +99,6 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 0;
     const rows = parseInt(req.query.rows as string) || 10;
     const ownerId = req.body.userId;
-
     const [documents, count] = await documentRepository.findAndCount({
       skip: page * rows,
       take: rows,
@@ -199,6 +200,17 @@ DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: R
         return res.status(500).json({ message: "Failed to classify document" });
       }
       const newDocument = await documentRepository.save(document);
+      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
+
+      // Add default permission for the owner
+      const defaultPermission = new DocumentPermission();
+      defaultPermission.documentId = newDocument.id;
+      defaultPermission.userId = ownerId;
+      defaultPermission.accessLevel = 'full'; // Full access for the owner
+
+      await documentPermissionRepository.save(defaultPermission);
+
+      // Add document to MeiliSearch index
       await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
 
       res.status(201).json({ document: newDocument });
