@@ -20,23 +20,42 @@ const documentRepository: Repository<Document> = dataSource.getRepository(Docume
 const documentPermissionRepository: Repository<DocumentPermission> = dataSource.getRepository(DocumentPermission);
 
 // Middleware to check permissions
-const checkPermission = (accessLevel: string) => {
+const checkPermission = (requiredAccessLevel: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const documentId = parseInt(req.params.id);
-    const userId = req.body.userId;
+    console.log("Middleware executed");
 
-    console.log(`Checking permission for document ${documentId} and user ${userId}`);
+    const documentId = parseInt(req.params.id);
+    const userId = req.body.userId || req.query.userId || req.headers['user-id'];
+
+    console.log(`Document ID: ${documentId}`);
+    console.log(`User ID: ${userId}`);
+
+    if (!userId) {
+      console.log("Permission denied: User ID is missing");
+      return res.status(400).json({ message: "User ID is required" });
+    }
 
     const document = await documentRepository.findOne({ where: { id: documentId }, relations: ["permissions"] });
+
+    console.log(`Document: ${JSON.stringify(document)}`);
+
     if (!document) {
+      console.log("Document not found");
       return res.status(404).json({ message: "Document not found" });
     }
 
     const permission = document.permissions.find(p => p.userId === userId);
     console.log(`Found permission: ${JSON.stringify(permission)}`);
 
-    if (!permission || (accessLevel === "edit" && permission.accessLevel === "read") || (accessLevel === "full" && permission.accessLevel !== "full")) {
-      console.log("Permission denied");
+    const accessLevels = ["read", "edit", "full"];
+    const userAccessLevelIndex = accessLevels.indexOf(permission?.accessLevel || "none");
+    const requiredAccessLevelIndex = accessLevels.indexOf(requiredAccessLevel);
+
+    console.log(`User access level index: ${userAccessLevelIndex}`);
+    console.log(`Required access level index: ${requiredAccessLevelIndex}`);
+
+    if (userAccessLevelIndex < requiredAccessLevelIndex) {
+      console.log("Permission denied: Insufficient access level");
       return res.status(403).json({ message: "Permission denied" });
     }
 
@@ -44,11 +63,13 @@ const checkPermission = (accessLevel: string) => {
   };
 };
 
+
+
 // Add a permission to a document
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId, accessLevel } = req.body;
+    const { userId, accessLevel } = req.body.userId;
 
     const document = await documentRepository.findOne({ where: { id: documentId } });
     if (!document) {
@@ -84,7 +105,7 @@ DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
 DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId } = req.body;
+    const { userId } = req.body.userId;
 
     await documentPermissionRepository.delete({ documentId: documentId, userId: userId });
 
@@ -164,7 +185,7 @@ DocumentsRouter.get("/:id", checkPermission("read"), async (req: Request, res: R
   }
 });
 
-DocumentsRouter.get("/:id/file", checkPermission("read"), async (req: Request, res: Response) => {
+DocumentsRouter.get("/:id/file", checkPermission("read" ), async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
     const document = await documentRepository.findOne({ where: { id: id } });
