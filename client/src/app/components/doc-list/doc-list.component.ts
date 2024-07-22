@@ -111,13 +111,20 @@ export class DocListComponent implements OnInit {
 
   deleteDocument(id: number, event: Event) {
     event.stopPropagation();
-    this.apiService.deleteDocument(id).subscribe({
-      next: () => {
-        this.documents = this.documents.filter((doc) => doc.id !== id);
-      },
-      error: (err) => {
-        console.error(err);
-      },
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId && userId !== 'Unknown UID') {
+        this.apiService.deleteDocument(id, userId).subscribe({
+          next: () => {
+            this.documents = this.documents.filter((doc) => doc.id !== id);
+          },
+          error: (err) => {
+            console.error(err);
+          },
+        });
+      }else{
+        console.error('User ID not found');
+      }
+      
     });
   }
 }
