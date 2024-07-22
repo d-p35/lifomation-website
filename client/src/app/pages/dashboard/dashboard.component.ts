@@ -19,7 +19,7 @@ export class DashboardComponent implements OnInit {
     public auth: AuthService,
     private router: Router,
     private apiService: ApiService,
-    private dataService: DataService,
+    private dataService: DataService
   ) {}
 
   documents = [];
@@ -36,7 +36,7 @@ export class DashboardComponent implements OnInit {
   files = [
     {
       icon: 'pi-users',
-      title: 'Family',
+      title: 'Family and Relationships',
       date: 'Sep 25, 2022',
       sharedUsers: 80,
       insideFiles: 3985,
@@ -57,21 +57,35 @@ export class DashboardComponent implements OnInit {
     },
     {
       icon: 'pi-book',
-      title: 'Education',
+      title: 'Education and Career',
       date: 'Sep 25, 2022',
       sharedUsers: 52,
       insideFiles: 1225,
     },
     {
       icon: 'pi-building',
-      title: 'Government Utilities',
+      title: 'Government and Utilities',
       date: 'Sep 25, 2022',
       sharedUsers: 22,
       insideFiles: 2265,
     },
     {
       icon: 'pi-credit-card',
-      title: 'Finance & Insurance',
+      title: 'Finance',
+      date: 'Sep 25, 2022',
+      sharedUsers: 12,
+      insideFiles: 597,
+    },
+    {
+      icon: 'pi-receipt',
+      title: 'Warranties and Memberships',
+      date: 'Sep 25, 2022',
+      sharedUsers: 12,
+      insideFiles: 597,
+    },
+    {
+      icon: 'pi-wave-pulse',
+      title: 'Social and Leisure',
       date: 'Sep 25, 2022',
       sharedUsers: 12,
       insideFiles: 597,
@@ -133,7 +147,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  OnFolderClick() {
-    this.router.navigate(['/documents']);
+  OnFolderClick(folderName: string) {
+    this.router.navigate(['/documents'], {
+      queryParams: { folder: folderName },
+    });
   }
 }
