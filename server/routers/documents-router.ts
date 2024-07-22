@@ -139,7 +139,6 @@ DocumentsRouter.post(
         if (classificationResult.length === 0) {
           return res.status(500).json({ message: "Failed to classify document" });
         }
-        document.category= classificationResult[0].split(',').map((category: string) => category.trim()).join(',');
         const newDocument = await documentRepository.save(document);
         const success = await index.addDocuments([{ id: newDocument.id, title:newDocument.document.originalname, text: text, ownerId, category: classificationResult }], {primaryKey: 'id'});
 
