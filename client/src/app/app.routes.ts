@@ -12,6 +12,7 @@ import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RecentComponent } from './pages/recent/recent.component';
 import { StarredComponent } from './pages/starred/starred.component';
+import { SharedComponent } from './pages/shared/shared.component';
 import { TrashComponent } from './pages/trash/trash.component';
 export const routes: Routes = [
   // Add your routes here
@@ -39,6 +40,11 @@ export const routes: Routes = [
   {
     path: 'starred',
     component: StarredComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'shared',
+    component: SharedComponent,
     canActivate: [AuthGuard],
   },
   {
