@@ -111,7 +111,7 @@ export class UploadComponent implements OnInit {
             summary: `Your document has been added to ${this.selectedCategory} category`,
             detail: `You can view it in the ${this.selectedCategory} folder.`,
           });
-          this.dataService.notifyOther({ refresh: true });
+          this.dataService.notifyOther({ refresh: true, document: document, type: 'upload' });
         },
         error: (err) => {
           console.error(err);
@@ -159,7 +159,7 @@ export class UploadComponent implements OnInit {
               life: 20000,
             });
           }, 3000);
-          this.dataService.notifyOther({ refresh: true });
+          this.dataService.notifyOther({ refresh: true, document : res.document, type: 'upload' });
 
           
         },

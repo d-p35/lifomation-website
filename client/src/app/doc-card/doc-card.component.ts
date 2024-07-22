@@ -74,7 +74,7 @@ export class DocCardComponent implements OnInit {
     event.stopPropagation();
     this.apiService.deleteDocument(id).subscribe({
       next: (res) => {
-        this.dataService.notifyOther({ refresh: true });
+        this.dataService.notifyOther({ refresh: true, document: this.document, type: 'delete' });
         this.messageService.add({
           severity: 'warn',
           summary: 'Success',
