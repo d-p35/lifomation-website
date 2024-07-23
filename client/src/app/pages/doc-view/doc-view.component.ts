@@ -5,11 +5,18 @@ import { ApiService } from '../../services/api.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { ImageModule } from 'primeng/image';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-doc-view',
   standalone: true,
-  imports: [NgIf, NgxExtendedPdfViewerModule, ImageModule, CommonModule],
+  imports: [
+    NgIf,
+    NgxExtendedPdfViewerModule,
+    ImageModule,
+    CommonModule,
+    FormsModule,
+  ],
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })
@@ -20,6 +27,8 @@ export class DocViewComponent {
   keyInfo: any = null;
   document: any;
   copiedKey: string | null = null;
+  editingKey: string | null = null;
+  editValue: string = '';
 
   constructor(
     private apiService: ApiService,
@@ -72,37 +81,43 @@ export class DocViewComponent {
     });
   }
 
-  keyInfoKeys(): string[] {
+  keyInfoKeys() {
     return Object.keys(this.keyInfo);
   }
 
-  copyToClipboard(text: string, key: string) {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        console.log('Text copied to clipboard!');
-        this.copiedKey = key;
-        setTimeout(() => {
-          this.copiedKey = null;
-        }, 2000);
-      },
-      (err) => console.error('Failed to copy text: ', err)
-    );
+  copyToClipboard(value: string, key: string) {
+    navigator.clipboard.writeText(value).then(() => {
+      this.copiedKey = key;
+      setTimeout(() => {
+        this.copiedKey = null;
+        this.cdr.detectChanges();
+      }, 2000);
+    });
   }
 
-  editKeyInfo(key: string) {
-    const value = this.keyInfo[key];
-    let newValue = prompt('Enter new value for ' + key, value);
-    console.log('key:', key, 'newValue:', newValue);
-    if (newValue !== null) {
-      this.apiService.editKeyInfo(this.document.id, key, newValue).subscribe({
-        next: () => {
-          this.keyInfo[key] = newValue;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+  startEdit(key: string) {
+    this.editingKey = key;
+    this.editValue = this.keyInfo[key];
+  }
+
+  saveEdit(key: string) {
+    if (this.editValue !== null) {
+      this.apiService
+        .editKeyInfo(this.document.id, key, this.editValue)
+        .subscribe({
+          next: () => {
+            this.keyInfo[key] = this.editValue;
+            this.editingKey = null;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error(err);
+          },
+        });
     }
+  }
+  cancelEdit() {
+    this.editingKey = null;
+    this.editValue = '';
   }
 }

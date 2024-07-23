@@ -27,16 +27,44 @@
       <div *ngIf="keyInfo">
         <div *ngFor="let key of keyInfoKeys()" class="key-info-item">
           <strong>{{ key }}:</strong>
-          <span>{{ keyInfo[key] }}</span>
+          <span *ngIf="!editingKey || editingKey !== key">{{
+            keyInfo[key]
+          }}</span>
+          <input *ngIf="editingKey === key" [(ngModel)]="editValue" />
+
           <button
+            *ngIf="!editingKey || editingKey !== key"
             (click)="copyToClipboard(keyInfo[key], key)"
             class="copy-button"
             [disabled]="copiedKey === key"
           >
             {{ copiedKey === key ? "Copied!" : "Copy" }}
           </button>
-          <button class="edit-button" (click)="editKeyInfo(key)">
-            <i class="pi pi-pencil"></i> <!-- PrimeNG pencil icon -->
+
+          <button
+            *ngIf="editingKey === key"
+            (click)="saveEdit(key)"
+            class="save-button"
+          >
+            <i class="pi pi-check"></i>
+            <!-- PrimeNG check icon -->
+          </button>
+          <button
+            *ngIf="editingKey === key"
+            (click)="cancelEdit()"
+            class="cancel-button"
+          >
+            <i class="pi pi-times"></i>
+            <!-- PrimeNG cross icon -->
+          </button>
+
+          <button
+            *ngIf="!editingKey || editingKey !== key"
+            class="edit-button"
+            (click)="startEdit(key)"
+          >
+            <i class="pi pi-pencil"></i>
+            <!-- PrimeNG pencil icon -->
           </button>
         </div>
       </div>
