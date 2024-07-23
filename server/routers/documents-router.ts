@@ -2,7 +2,7 @@ import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
-import { Repository, Like } from "typeorm";
+import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
@@ -162,43 +162,71 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   }
 });
 
-// Your existing router code
+
+// Route to get documents with cursor-based pagination
 DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
-    const page = parseInt(req.query.page as string) || 0;
     const rows = parseInt(req.query.rows as string) || 10;
-    const ownerId = req.query.userId;
+    const ownerId = req.query.userId as string;
     const categoryName = req.query.categoryName as string;
+    let  cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
+
 
     let whereClause = { ownerId: ownerId } as any;
     if (categoryName) {
       whereClause.category = Like(`${categoryName},%`);
     }
 
-    console.log(ownerId);
+    if (cursor) {
+      let cursorDate  = new Date(cursor)
+      whereClause.uploadedAt = LessThan(cursorDate); 
+    }
 
-    const [documents, count] = await documentRepository.findAndCount({
-      skip: page * rows,
-      take: rows,
-      order: { uploadedAt: "DESC" },
+    const documents = await documentRepository.find({
+      take: rows, // Fetch one extra row to check if there are more documents
+      order: { uploadedAt: "DESC"},
       where: whereClause,
     });
 
-    res.status(200).json({ count, documents });
+    let nextCursor: string | null = null;
+    if (documents.length == rows) {
+      const lastDocument = documents[rows-1];
+      nextCursor = lastDocument.uploadedAt.toISOString();
+    }
+
+    res.status(200).json({ nextCursor, documents });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
 
+
 DocumentsRouter.get("/star", async (req: Request, res: Response) => {
   try {
     const ownerId = req.body.userId;
-    const allDocuments = await documentRepository.find({
+    const cursor = req.query.cursor as string;
+    const rows = parseInt(req.query.rows as string) || 10;
+
+    let whereClause = { ownerId: ownerId, starred: true } as any;
+
+    if (cursor) {
+      let cursorDate = new Date(cursor);
+      whereClause.lastOpened = LessThan(cursorDate);
+    }
+
+    const documents = await documentRepository.find({
+      take: rows,
       order: { lastOpened: "DESC" },
-      where: { ownerId: ownerId, starred: true },
+      where: whereClause,
     });
-    const count = await documentRepository.count();
-    res.status(200).json({ count, documents: allDocuments });
+
+    let nextCursor: string | null = null;
+    if (documents.length == rows) {
+      const lastDocument = documents[rows - 1];
+      nextCursor = lastDocument.lastOpened.toISOString();
+    }
+
+    res.status(200).json({ nextCursor, documents });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -229,13 +257,33 @@ DocumentsRouter.get("/search", async (req: Request, res: Response) => {
 DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
   try {
     const ownerId = req.body.userId;
-    const allDocuments = await documentRepository.find({
+    const cursor = req.query.cursor as string;
+    const rows = parseInt(req.query.rows as string) || 10;
+
+    let whereClause = { ownerId: ownerId } as any;
+
+
+    if (cursor) {
+      let cursorDate = new Date(cursor);
+      console.log(`Cursor: ${cursor}`);
+      whereClause.lastOpened = LessThan(cursorDate);
+      
+    }
+
+    const documents = await documentRepository.find({
+      take: rows,
       order: { lastOpened: "DESC" },
-      take: 10,
-      where: { ownerId: ownerId },
+      where: whereClause,
     });
-    const count = await documentRepository.count();
-    res.status(200).json({ count, documents: allDocuments });
+
+    let nextCursor: string | null = null;
+    if (documents.length == rows) {
+      const lastDocument = documents[rows - 1];
+      nextCursor = lastDocument.lastOpened.toISOString();
+    }
+
+    res.status(200).json({ nextCursor, documents });
+
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -280,59 +328,50 @@ DocumentsRouter.get(
   }
 );
 
-DocumentsRouter.post(
-  "/",
-  upload.single("document"),
-  async (req: Request, res: Response) => {
-    try {
-      const file = req.file;
-      const ownerId = req.body.userId;
+DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+    const ownerId = req.body.userId;
 
-      if (!file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
-      if (!ownerId) {
-        return res.status(400).json({ message: "User is not logged in" });
-      }
-      const processFunction =
-        file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
-      try {
-        let { document, text, classificationResult } = await processFunction(
-          file,
-          ownerId,
-          res
-        );
-
-        if (classificationResult.length === 0) {
-          return res
-            .status(500)
-            .json({ message: "Failed to classify document" });
-        }
-        const newDocument = await documentRepository.save(document);
-        const success = await index.addDocuments(
-          [
-            {
-              id: newDocument.id,
-              title: newDocument.document.originalname,
-              text: text,
-              ownerId,
-              category: classificationResult,
-            },
-          ],
-          { primaryKey: "id" }
-        );
-
-        res.status(201).json({ document: newDocument });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to save document" });
-      }
-    } catch (err: any) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to process document" });
+    if (!file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
+    if (!ownerId) {
+      return res.status(400).json({ message: "User is not logged in" });
+    }
+
+    const processFunction = file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
+    try {
+      let { document, text, classificationResult } = await processFunction(file, ownerId, res);
+
+      if (classificationResult.length === 0) {
+        return res.status(500).json({ message: "Failed to classify document" });
+      }
+      const newDocument = await documentRepository.save(document);
+      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
+
+      // Add default permission for the owner
+      const defaultPermission = new DocumentPermission();
+      defaultPermission.documentId = newDocument.id;
+      defaultPermission.userId = ownerId;
+      defaultPermission.accessLevel = 'full'; // Full access for the owner
+
+      await documentPermissionRepository.save(defaultPermission);
+
+      // Add document to MeiliSearch index
+      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
+
+      res.status(201).json({ document: newDocument });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to save document" });
+
+    }
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to process document" });
   }
-);
+});
 
 DocumentsRouter.patch(
   "/category/:id",
