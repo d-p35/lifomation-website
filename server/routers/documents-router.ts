@@ -26,10 +26,8 @@ const index = client.index("documents");
 
 export const DocumentsRouter = Router();
 
-const documentRepository: Repository<Document> =
-  dataSource.getRepository(Document);
-const documentPermissionRepository: Repository<DocumentPermission> =
-  dataSource.getRepository(DocumentPermission);
+const documentRepository: Repository<Document> = dataSource.getRepository(Document);
+const documentPermissionRepository: Repository<DocumentPermission> = dataSource.getRepository(DocumentPermission);
   
 // Middleware to check permissions
 const checkPermission = (requiredAccessLevel: string) => {
@@ -49,7 +47,7 @@ const checkPermission = (requiredAccessLevel: string) => {
 
     const document = await documentRepository.findOne({ where: { id: documentId }, relations: ["permissions"] });
 
-    console.log(`Document: ${JSON.stringify(document)}`);
+    // console.log(`Document: ${JSON.stringify(document)}`);
 
     if (!document) {
       console.log("Document not found");
@@ -76,11 +74,21 @@ const checkPermission = (requiredAccessLevel: string) => {
 };
 
 
+//------------------------------------------------------------------------------------------------
+//-------------------------SharedComponent-------------------------------------------------------
+//------------------------------------------------------------------------------------------------
+
 // Add a permission to a document
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId, accessLevel } = req.body.userId;
+    const { userId, accessLevel } = req.body;
+    
+    // Validate request body
+    if (!userId || !accessLevel) {
+      console.log(req);
+      return res.status(400).json({ message: "userId and accessLevel are required" });
+    }
 
     const document = await documentRepository.findOne({ where: { id: documentId } });
     if (!document) {
@@ -116,7 +124,7 @@ DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
 DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId } = req.body.userId;
+    const { userId } = req.body;
 
     await documentPermissionRepository.delete({ documentId: documentId, userId: userId });
 
@@ -125,6 +133,74 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId as string;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    const permissions = await documentPermissionRepository.find({
+      where: { userId },
+      relations: ["document", "document.owner"],
+    });
+
+    const sharedDocuments = permissions.map((permission) => ({
+      documentId: permission.document.id,
+      title: permission.document.document.originalname,
+      sharedBy: permission.document.owner.id,
+      accessLevel: permission.accessLevel,
+    }));
+
+    res.json(sharedDocuments);
+  } catch (error) {
+    console.error('Error fetching shared documents:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+//------------------------------------------------------------------------------------------------
+//---------------------------------Starred-------------------------------------------------------
+//------------------------------------------------------------------------------------------------
+
+DocumentsRouter.get("/star", async (req: Request, res: Response) => {
+  try {
+    const ownerId = req.body.userId;
+    const allDocuments = await documentRepository.find({
+      order: { lastOpened: "DESC" },
+      where: { ownerId: ownerId, starred: true },
+    });
+    const count = await documentRepository.count();
+    res.status(200).json({ count, documents: allDocuments });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const starred = req.body.starred;
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    document.starred = starred;
+    const updatedDocument = await documentRepository.save(document);
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+//------------------------------------------------------------------------------------------------
+//---------------------------------Document-------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 
 // Your existing router code
 DocumentsRouter.get("/", async (req: Request, res: Response) => {
@@ -149,20 +225,6 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     });
 
     res.status(200).json({ count, documents });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-DocumentsRouter.get("/star", async (req: Request, res: Response) => {
-  try {
-    const ownerId = req.body.userId;
-    const allDocuments = await documentRepository.find({
-      order: { lastOpened: "DESC" },
-      where: { ownerId: ownerId, starred: true },
-    });
-    const count = await documentRepository.count();
-    res.status(200).json({ count, documents: allDocuments });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -357,24 +419,4 @@ DocumentsRouter.delete("/:id", checkPermission("full"), async (req: Request, res
   }
 });
 
-
-
-DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) => {
-  try {
-    const id: number = parseInt(req.params.id);
-    const starred = req.body.starred;
-    const document = await documentRepository.findOne({ where: { id: id } });
-
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-
-    document.starred = starred;
-    const updatedDocument = await documentRepository.save(document);
-
-    res.status(200).json({ document: updatedDocument });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
