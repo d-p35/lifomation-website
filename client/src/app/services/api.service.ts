@@ -70,23 +70,23 @@ export class ApiService {
     );
   }
 
-  getDocument(documentId: number): Observable<any> {
-    return this.http.get(this.endpoint + `/api/documents/${documentId}`);
+  getDocument(documentId: number, userId: String): Observable<any> {
+    return this.http.get(this.endpoint + `/api/documents/${documentId}?userId=${userId}`);
   }
 
-  deleteDocument(documentId: number): Observable<any> {
-    return this.http.delete(this.endpoint + `/api/documents/${documentId}`);
+  deleteDocument(documentId: number, userId: String): Observable<any> {
+    return this.http.delete(this.endpoint + `/api/documents/${documentId}?userId=${userId}`);
   }
 
-  getFile(documentId: number): Observable<Blob> {
-    return this.http.get(this.endpoint + `/api/documents/${documentId}/file`, {
+  getFile(documentId: number, userId: String): Observable<Blob> {
+    return this.http.get(this.endpoint + `/api/documents/${documentId}/file?userId=${userId}`, {
       responseType: 'blob',
     });
   }
 
-  updateLastOpened(documentId: number): Observable<any> {
+  updateLastOpened(documentId: number, userId: String): Observable<any> {
     return this.http.patch(
-      this.endpoint + `/api/documents/lastOpened/${documentId}`,
+      this.endpoint + `/api/documents/lastOpened/${documentId}?userId=${userId}`,
       { time: new Date().toISOString() }
     );
   }
@@ -97,9 +97,9 @@ export class ApiService {
     );
   }
 
-  changeCategory(documentId: number, category: string): Observable<any> {
+  changeCategory(documentId: number, category: string, userId: String): Observable<any> {
     return this.http.patch(
-      this.endpoint + `/api/documents/category/${documentId}`,
+      this.endpoint + `/api/documents/category/${documentId}?userId=${userId}`,
       { category }
     );
   }
@@ -115,6 +115,26 @@ export class ApiService {
     return this.http.get(
       this.endpoint + `/api/documents/star?userId=${userId}`
     );
+  }
+
+  // Get documents shared with the user
+  getSharedDocuments(userId: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/api/documents/shared?userId=${userId}`);
+  }
+
+  // Share a document with another user
+  shareDocument(documentId: number, userId: string, accessLevel: string): Observable<any> {
+    return this.http.post(`${this.endpoint}/api/documents/${documentId}/share`, { userId, accessLevel });
+  }
+
+  // Get permissions for a document
+  getDocumentPermissions(documentId: number): Observable<any> {
+    return this.http.get(`${this.endpoint}/api/documents/${documentId}/permissions`);
+  }
+
+  // Remove a permission from a document
+  removeDocumentPermission(documentId: number, userId: string): Observable<any> {
+    return this.http.delete(`${this.endpoint}/api/documents/${documentId}/share`, { body: { userId } });
   }
 
   //   deleteMessage(messageId: number): Observable<Message> {
