@@ -19,7 +19,7 @@ import { DocListComponent } from '../../components/doc-list/doc-list.component';
 export class DocumentsComponent implements OnInit {
   documents: any[] = [];
   folderName: string = 'My Documents';
-  currentPage: number = 0;
+  nextDocument: String|undefined;
   itemsPerPage: number = 10;
   totalRecords: number = 0;
   loadedAll: boolean = false;
@@ -39,11 +39,11 @@ export class DocumentsComponent implements OnInit {
       this.apiService.getUserId().subscribe((userId: string | undefined) => {
         if (userId && userId !== 'Unknown UID') {
           this.userId = userId;
-          this.currentPage = 0;
+          this.nextDocument = undefined;
           this.loadedAll = false;
           this.documents = [];
           this.totalRecords = 0;
-          this.fetchDocumentsByPage(this.currentPage, this.itemsPerPage, userId);
+          this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage, userId);
         } else {
           console.error('User ID not found');
         }
@@ -68,12 +68,12 @@ export class DocumentsComponent implements OnInit {
 
   onScroll() {
     if (!this.userId || this.loadedAll) return;
-    this.fetchDocumentsByPage(this.currentPage + 1, this.itemsPerPage, this.userId);
+    this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage, this.userId);
   }
 
 
-  fetchDocumentsByPage(page: number, itemsPerPage: number, userId: string) {
-    this.apiService.getDocuments(page, itemsPerPage, userId, this.folderName=='My Documents'? undefined: this.folderName).subscribe({
+  fetchDocumentsByPage(next: String|undefined, itemsPerPage: number, userId: string) {
+    this.apiService.getDocuments(next, itemsPerPage, userId, this.folderName=='My Documents'? undefined: this.folderName).subscribe({
       next: (res) => {
         this.documents = this.documents.concat(res.documents.map((doc: any) => ({
           ...doc,
@@ -82,10 +82,10 @@ export class DocumentsComponent implements OnInit {
           fileSize: this.getFileSize(doc.document.size),
         })));
         this.totalRecords = res.count;
-        if (this.documents.length >= this.totalRecords) {
+        this.nextDocument = res.nextCursor;
+        if (!this.nextDocument) {
           this.loadedAll = true;
         }
-        this.currentPage = page;
         this.loading = false;
       },
       error: (err) => {

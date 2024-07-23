@@ -5,12 +5,15 @@
       <section class="recent-files-section">
         <h2>Recent Files</h2>
         <div class="recent-files-list">
-          <div class="file-info">
-            <app-doc-card
-              *ngFor="let doc of documents"
-              [document]="doc"
-            ></app-doc-card>
-          </div>
+          <app-doc-list 
+          [documents]="documents" 
+          [loadedAll]="loadedAll" 
+          (scroll)="onScroll()"
+          *ngIf="!loading"
+        ></app-doc-list>
+        <div *ngIf="loading" class="progress">
+          <p-progressSpinner strokeWidth="1"></p-progressSpinner>
+        </div>
         </div>
       </section>
 
