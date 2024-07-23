@@ -117,14 +117,14 @@ export class ApiService {
 
   starDocument(documentId: number, starred: boolean): Observable<any> {
     return this.http.patch(
-      this.endpoint + `/api/documents/starred/${documentId}`,
+      this.endpoint + `/api/documents/starred/${documentId}/file`,
       { starred }
     );
   }
 
-  getStarredDocuments(userId: string): Observable<any> {
+  getStarredDocuments(userId: String): Observable<any> {
     return this.http.get(
-      `${this.endpoint}/api/documents/starred?userId=${userId}`
+      this.endpoint + `/api/documents/star?userId=${userId}`
     );
   }
 

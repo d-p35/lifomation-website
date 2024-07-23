@@ -132,9 +132,7 @@ export class DocListComponent implements OnInit {
     event.stopPropagation();
     doc.starred = !doc.starred;
     this.apiService.starDocument(doc.id, doc.starred).subscribe({
-      next: () => {
-        console.log('Document starred');
-      },
+      next: () => {},
       error: (err) => {
         console.error(err);
       },

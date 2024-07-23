@@ -53,6 +53,20 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
   }
 });
 
+DocumentsRouter.get("/star", async (req: Request, res: Response) => {
+  try {
+    const ownerId = req.body.userId;
+    const allDocuments = await documentRepository.find({
+      order: { lastOpened: "DESC" },
+      where: { ownerId: ownerId, starred: true },
+    });
+    const count = await documentRepository.count();
+    res.status(200).json({ count, documents: allDocuments });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 DocumentsRouter.get("/search", async (req: Request, res: Response) => {
   try {
     const query = req.query.q as string;
@@ -253,7 +267,9 @@ DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
   }
 });
 
-DocumentsRouter.patch("/starred/:id", async (req: Request, res: Response) => {
+
+
+DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
     const starred = req.body.starred;
@@ -272,15 +288,3 @@ DocumentsRouter.patch("/starred/:id", async (req: Request, res: Response) => {
   }
 });
 
-DocumentsRouter.get("/starred", async (req: Request, res: Response) => {
-  try {
-    const ownerId = req.body.userId;
-    const allDocuments = await documentRepository.find({
-      order: { lastOpened: "DESC" },
-      where: { ownerId: ownerId, starred: true },
-    });
-    res.status(200).json({ documents: allDocuments });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
