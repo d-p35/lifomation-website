@@ -1,18 +1,20 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { NgFor } from '@angular/common';
+import { CommonModule, NgFor } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { LazyLoadEvent, MessageService } from 'primeng/api';
 import { DataService } from '../../services/data.service';
 import { ScrollerModule } from 'primeng/scroller';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-doc-list',
   standalone: true,
-  imports: [NgFor, TableModule, ScrollerModule, InfiniteScrollDirective, ButtonModule],
+  imports: [NgFor, TableModule, ScrollerModule, InfiniteScrollDirective, ButtonModule,ProgressSpinnerModule, CommonModule, ToastModule],
   templateUrl: './doc-list.component.html',
   styleUrls: ['./doc-list.component.scss'],
 })
@@ -25,6 +27,7 @@ export class DocListComponent implements OnInit {
   folderName: any;
   loading: boolean = true;
   userId: string | undefined;
+  loadedAll: boolean = false;
 
   constructor(
     private router: Router,
@@ -34,35 +37,50 @@ export class DocListComponent implements OnInit {
     private messageService: MessageService,
   ) {}
 
-  onScroll() {
-    this.fetchDocumentsByPage(this.currentPage+1, this.itemsPerPage);
-  }
+
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
+      this.loading = true;
       this.folderName = params['folder'];
       this.apiService.getUserId().subscribe((userId: string | undefined) => {
         if (userId && userId !== 'Unknown UID') {
+          this.userId = userId;
           this.currentPage = 0;
+          this.loadedAll = false;
+          this.documents = [];
+          this.totalRecords = 0;
+          console.log('asdasdasdasdasd ID:', userId);
+          console.log('asdasdasdasdasd folder:', this.folderName);
           this.fetchDocumentsByPage(this.currentPage, this.itemsPerPage, userId);
         } else {
           console.error('User ID not found');
         }
-      });
-
+      }); 
     });
 
     this.dataService.notifyObservable$.subscribe((res) => {
       if (res && res.refresh) {
         if (res.document && (res.document.category==this.folderName || !this.folderName)) {
           if (res.type=='delete') this.documents = this.documents.filter((doc) => doc.id !== res.document.id);
-          else if (res.type=='upload') this.documents = [res.document, ...this.documents];
+          else if (res.type=='upload') this.documents = [{
+            ...res.document,
+            uploadedAtLocal: this.convertToUserTimezone(new Date(res.document.uploadedAt)),
+            lastOpenedLocal: this.convertToUserTimezone(new Date(res.document.lastOpened)),
+            fileSize: this.getFileSize(res.document.document.size),
+          }, ...this.documents];
         }
       }
     });
   }
 
+  onScroll() {
+    if (!this.userId) return;
+    this.fetchDocumentsByPage(this.currentPage+1, this.itemsPerPage, this.userId);
+  }
+
   fetchDocumentsByPage(page: number, itemsPerPage: number, userId?: string) {
+    if (!this.loadedAll){
     this.apiService.getDocuments(page, itemsPerPage, userId, this.folderName).subscribe({
       next: (res) => {
         this.documents = this.documents.concat(res.documents.map((doc: any) => ({
@@ -71,13 +89,21 @@ export class DocListComponent implements OnInit {
           lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
           fileSize: this.getFileSize(doc.document.size),
         })));
-        this.totalRecords = res.totalRecords;
+        this.totalRecords = res.count;
+        if (this.documents.length >= this.totalRecords) {
+          this.loadedAll = true;
+        }
         this.currentPage = page;
+        this.loading = false;
+        
+        console.log(this.documents);
+        console.log(this.loadedAll)
       },
       error: (err) => {
         console.error(err);
       },
     });
+  }
   }
 
   fetchInitialDocuments() {
@@ -125,6 +151,7 @@ export class DocListComponent implements OnInit {
       next: () => {
         this.documents = this.documents.filter((doc) => doc.id !== id);
         this.messageService.add({
+          key:'template',
           severity: 'warn',
           summary: 'Success',
           detail: 'Document successfully deleted',
@@ -133,6 +160,7 @@ export class DocListComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.messageService.add({
+          key:'template',
           severity: 'error',
           summary: 'Error',
           detail: 'Failed to delete document',

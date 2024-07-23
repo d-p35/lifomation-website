@@ -4,9 +4,10 @@
     infiniteScroll
     [infiniteScrollDistance]="2"
     [infiniteScrollThrottle]="300"
+    [infiniteScrollDisabled]="loadedAll"
     (scrolled)="onScroll()"
   >
-    <table>
+    <table *ngIf="!loading">
       <thead>
         <tr>
           <th>Icon</th>
@@ -17,36 +18,45 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let doc of documents">
+        <tbody >
+          <tr *ngFor="let doc of documents">
             <td>
               <img
                 [src]="getIcon(doc.document.mimetype)"
                 alt="Document Icon"
                 class="icon"
-                (click)="viewDocument(doc.id)" style="cursor: pointer"
+                (click)="viewDocument(doc.id)"
+                style="cursor: pointer"
               />
             </td>
 
-            <td (click)="viewDocument(doc.id)" style="cursor: pointer" class="document-name">
+            <td
+              (click)="viewDocument(doc.id)"
+              style="cursor: pointer"
+              class="document-name"
+            >
               {{ doc.document.originalname }}
             </td>
-         
-          <td>{{ doc.uploadedAtLocal }}</td>
-          <td>{{ doc.lastOpenedLocal }}</td>
-          <td>{{ doc.fileSize }}</td>
-          <td>
-            <button
-              type="button"
-              class="delete-button"
-              (click)="deleteDocument(doc.id, $event)"
-              pButton
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
+
+            <td>{{ doc.uploadedAtLocal }}</td>
+            <td>{{ doc.lastOpenedLocal }}</td>
+            <td>{{ doc.fileSize }}</td>
+            <td>
+              <button
+                type="button"
+                class="delete-button"
+                (click)="deleteDocument(doc.id, $event)"
+                pButton
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
     </table>
+    <div *ngIf="loading" class="progress">
+      <p-progressSpinner strokeWidth="1"></p-progressSpinner>
+    </div>
   </div>
 </div>
+

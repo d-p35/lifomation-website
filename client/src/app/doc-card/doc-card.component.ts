@@ -76,6 +76,7 @@ export class DocCardComponent implements OnInit {
       next: (res) => {
         this.dataService.notifyOther({ refresh: true, document: this.document, type: 'delete' });
         this.messageService.add({
+          key:'template',
           severity: 'warn',
           summary: 'Success',
           detail: 'Document successfully deleted',
@@ -84,6 +85,7 @@ export class DocCardComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.messageService.add({
+          key:'template',
           severity: 'error',
           summary: 'Error',
           detail: 'Failed to delete document',
