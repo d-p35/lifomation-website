@@ -133,7 +133,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  OnFolderClick() {
-    this.router.navigate(['/documents']);
+  OnFolderClick(folderName: String) {
+    this.router.navigate(['/documents'],
+      {
+        queryParams: {folder: folderName}
+      }
+    );
   }
 }
