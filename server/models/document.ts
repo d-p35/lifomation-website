@@ -1,7 +1,8 @@
-import { Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
+import { Entity, JoinColumn, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 import { User } from "./user";
 import { AllowNull } from "sequelize-typescript";
+import { DocumentPermission } from "./documentPermission";
 
 interface DocumentAttributes {
   id: number;
@@ -44,4 +45,7 @@ export class Document implements DocumentAttributes {
   @ManyToOne(() => User, (user) => user.documents)
   @JoinColumn({ name: "ownerId" })
   owner: User;
+
+  @OneToMany(() => DocumentPermission, (permission) => permission.document)
+  permissions: DocumentPermission[];
 }

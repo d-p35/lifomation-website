@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { NgFor } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -19,20 +19,14 @@ export class DocListComponent implements OnInit {
   rows: number = 10;
   currentPage = 0;
   itemsPerPage = 10; // Number of documents per page
-  folderName: any;
 
   constructor(
     private router: Router,
     private apiService: ApiService,
-    private dataService: DataService,
-    private route: ActivatedRoute
+    private dataService: DataService
   ) {}
 
   ngOnInit() {
-    this.route.queryParams.subscribe((params) => {
-      this.folderName = params['folder'];
-      console.log('Folder Name:', this.folderName);
-    });
     this.fetchDocuments();
     this.dataService.notifyObservable$.subscribe((res) => {
       if (res && res.refresh) {
@@ -41,27 +35,29 @@ export class DocListComponent implements OnInit {
     });
   }
 
-  fetchDocumentsByPage(page: number, itemsPerPage: number, userId?: string) {
-    this.apiService.getDocuments(page, itemsPerPage, userId, this.folderName).subscribe({
-      next: (res) => {
-        this.documents = res.documents.map((doc: any) => ({
-          ...doc,
-          uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
-          lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
-          fileSize: this.getFileSize(doc.document.size),
-        }));
-        this.totalRecords = res.totalRecords;
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
-
   fetchDocuments() {
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.fetchDocumentsByPage(this.currentPage, this.itemsPerPage, userId);
+        this.apiService
+          .getDocuments(this.currentPage, this.itemsPerPage, userId)
+          .subscribe({
+            next: (res) => {
+              this.documents = res.documents.map((doc: any) => ({
+                ...doc,
+                uploadedAtLocal: this.convertToUserTimezone(
+                  new Date(doc.uploadedAt)
+                ),
+                lastOpenedLocal: this.convertToUserTimezone(
+                  new Date(doc.lastOpened)
+                ),
+                fileSize: this.getFileSize(doc.document.size),
+              }));
+              this.totalRecords = res.totalRecords; // Adjust according to your API response
+            },
+            error: (err) => {
+              console.error(err);
+            },
+          });
       } else {
         console.error('User ID not found');
       }
@@ -77,7 +73,26 @@ export class DocListComponent implements OnInit {
     if (this.currentPage < 0) {
       this.currentPage = 0;
     }
-    this.fetchDocumentsByPage(this.currentPage, this.itemsPerPage);
+    this.apiService
+      .getDocuments(this.currentPage, this.itemsPerPage)
+      .subscribe({
+        next: (res) => {
+          this.documents = res.documents.map((doc: any) => ({
+            ...doc,
+            uploadedAtLocal: this.convertToUserTimezone(
+              new Date(doc.uploadedAt)
+            ),
+            lastOpenedLocal: this.convertToUserTimezone(
+              new Date(doc.lastOpened)
+            ),
+            fileSize: this.getFileSize(doc.document.size),
+          }));
+          this.totalRecords = res.totalRecords; // Adjust according to your API response
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
   convertToUserTimezone(date: Date): string {

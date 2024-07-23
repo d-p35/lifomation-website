@@ -52,52 +52,45 @@ export class ApiService {
   }
 
   getDocuments(
-    page?: number,
-    rows?: number,
-    userId?: string,
-    folderName?: string
+    page: number = 0,
+    rows: number = 10,
+    userId: String = ''
   ): Observable<any> {
-    page = page ?? 0;
-    rows = rows ?? 10;
-    folderName = folderName ?? '';
     console.log(
       'The page is:',
       page,
       'The rows is:',
       rows,
       'The user ID is:',
-      userId,
-      'The folder name is:',
-      folderName
+      userId
     );
     return this.http.get(
-      `${this.endpoint}/api/documents?page=${page}&rows=${rows}&userId=${userId}&categoryName=${folderName}`
+      `${this.endpoint}/api/documents?page=${page}&rows=${rows}&userId=${userId}`
     );
   }
-
   getRecentDocuments(userId: String): Observable<any> {
     return this.http.get(
       this.endpoint + `/api/documents/recent?userId=${userId}`
     );
   }
 
-  getDocument(documentId: number): Observable<any> {
-    return this.http.get(this.endpoint + `/api/documents/${documentId}`);
+  getDocument(documentId: number, userId: String): Observable<any> {
+    return this.http.get(this.endpoint + `/api/documents/${documentId}?userId=${userId}`);
   }
 
-  deleteDocument(documentId: number): Observable<any> {
-    return this.http.delete(this.endpoint + `/api/documents/${documentId}`);
+  deleteDocument(documentId: number, userId: String): Observable<any> {
+    return this.http.delete(this.endpoint + `/api/documents/${documentId}?userId=${userId}`);
   }
 
-  getFile(documentId: number): Observable<Blob> {
-    return this.http.get(this.endpoint + `/api/documents/${documentId}/file`, {
+  getFile(documentId: number, userId: String): Observable<Blob> {
+    return this.http.get(this.endpoint + `/api/documents/${documentId}/file?userId=${userId}`, {
       responseType: 'blob',
     });
   }
 
-  updateLastOpened(documentId: number): Observable<any> {
+  updateLastOpened(documentId: number, userId: String): Observable<any> {
     return this.http.patch(
-      this.endpoint + `/api/documents/lastOpened/${documentId}`,
+      this.endpoint + `/api/documents/lastOpened/${documentId}?userId=${userId}`,
       { time: new Date().toISOString() }
     );
   }
@@ -108,9 +101,9 @@ export class ApiService {
     );
   }
 
-  changeCategory(documentId: number, category: string): Observable<any> {
+  changeCategory(documentId: number, category: string, userId: String): Observable<any> {
     return this.http.patch(
-      this.endpoint + `/api/documents/category/${documentId}`,
+      this.endpoint + `/api/documents/category/${documentId}?userId=${userId}`,
       { category }
     );
   }
