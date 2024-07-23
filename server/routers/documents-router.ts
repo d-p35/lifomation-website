@@ -30,6 +30,7 @@ const documentRepository: Repository<Document> =
   dataSource.getRepository(Document);
 const documentPermissionRepository: Repository<DocumentPermission> =
   dataSource.getRepository(DocumentPermission);
+  
 // Add a permission to a document
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {

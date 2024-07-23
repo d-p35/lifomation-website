@@ -70,27 +70,32 @@ export class DocCardComponent implements OnInit {
     this.router.navigate(['/documents', id]);
   }
 
+
   deleteDocument(id: number, event: Event) {
     event.stopPropagation();
-    this.apiService.deleteDocument(id).subscribe({
-      next: (res) => {
-        this.dataService.notifyOther({ refresh: true, document: this.document, type: 'delete' });
-        this.messageService.add({
-          key:'template',
-          severity: 'warn',
-          summary: 'Success',
-          detail: 'Document successfully deleted',
-        });
-      },
-      error: (err) => {
-        console.error(err);
-        this.messageService.add({
-          key:'template',
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to delete document',
-        });
-      },
-    });
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+    if (userId && userId !== 'Unknown UID') {
+      this.apiService.deleteDocument(id, userId).subscribe({
+        next: (res) => {
+          this.dataService.notifyOther({ refresh: true });
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Success',
+            detail: 'Document successfully deleted',
+          });
+        },
+        error: (err) => {
+          console.error(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to delete document',
+          });
+        },
+      });
+    } else {
+      console.error('User ID not found');
+    }
+  });
   }
 }
