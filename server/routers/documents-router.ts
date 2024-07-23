@@ -236,59 +236,49 @@ DocumentsRouter.get("/:id/file", checkPermission("read" ), async (req: Request, 
   }
 });
 
-DocumentsRouter.post(
-  "/",
-  upload.single("document"),
-  async (req: Request, res: Response) => {
-    try {
-      const file = req.file;
-      const ownerId = req.body.userId;
+DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+    const ownerId = req.body.userId;
 
-      if (!file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
-      if (!ownerId) {
-        return res.status(400).json({ message: "User is not logged in" });
-      }
-      const processFunction =
-        file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
-      try {
-        let { document, text, classificationResult } = await processFunction(
-          file,
-          ownerId,
-          res
-        );
-
-        if (classificationResult.length === 0) {
-          return res
-            .status(500)
-            .json({ message: "Failed to classify document" });
-        }
-        const newDocument = await documentRepository.save(document);
-        const success = await index.addDocuments(
-          [
-            {
-              id: newDocument.id,
-              title: newDocument.document.originalname,
-              text: text,
-              ownerId,
-              category: classificationResult,
-            },
-          ],
-          { primaryKey: "id" }
-        );
-
-        res.status(201).json({ document: newDocument });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to save document" });
-      }
-    } catch (err: any) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to process document" });
+    if (!file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
+    if (!ownerId) {
+      return res.status(400).json({ message: "User is not logged in" });
+    }
+
+    const processFunction = file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
+    try {
+      let { document, text, classificationResult } = await processFunction(file, ownerId, res);
+
+      if (classificationResult.length === 0) {
+        return res.status(500).json({ message: "Failed to classify document" });
+      }
+      const newDocument = await documentRepository.save(document);
+      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
+
+      // Add default permission for the owner
+      const defaultPermission = new DocumentPermission();
+      defaultPermission.documentId = newDocument.id;
+      defaultPermission.userId = ownerId;
+      defaultPermission.accessLevel = 'full'; // Full access for the owner
+
+      await documentPermissionRepository.save(defaultPermission);
+
+      // Add document to MeiliSearch index
+      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
+
+      res.status(201).json({ document: newDocument });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to save document" });
+    }
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to process document" });
   }
-);
+});
 
 DocumentsRouter.patch("/category/:id", checkPermission("edit"), async (req: Request, res: Response) => {
   try {
