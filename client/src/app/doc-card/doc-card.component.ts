@@ -77,8 +77,9 @@ export class DocCardComponent implements OnInit {
     if (userId && userId !== 'Unknown UID') {
       this.apiService.deleteDocument(id, userId).subscribe({
         next: (res) => {
-          this.dataService.notifyOther({ refresh: true });
+          this.dataService.notifyOther({ refresh: true, type: 'delete', document: this.document });
           this.messageService.add({
+            key: 'template',
             severity: 'warn',
             summary: 'Success',
             detail: 'Document successfully deleted',
@@ -87,6 +88,7 @@ export class DocCardComponent implements OnInit {
         error: (err) => {
           console.error(err);
           this.messageService.add({
+            key: 'template',
             severity: 'error',
             summary: 'Error',
             detail: 'Failed to delete document',

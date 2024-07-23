@@ -134,7 +134,6 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const ownerId = req.query.userId as string;
     const categoryName = req.query.categoryName as string;
     let  cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
-    console.log("cursor", cursor)
 
     let whereClause = { ownerId: ownerId } as any;
     if (categoryName) {
@@ -205,13 +204,33 @@ DocumentsRouter.get("/search", async (req: Request, res: Response) => {
 DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
   try {
     const ownerId = req.body.userId;
-    const allDocuments = await documentRepository.find({
+    const cursor = req.query.cursor as string;
+    const rows = parseInt(req.query.rows as string) || 10;
+
+    let whereClause = { ownerId: ownerId } as any;
+
+
+    if (cursor) {
+      let cursorDate = new Date(cursor);
+      console.log(`Cursor: ${cursor}`);
+      whereClause.lastOpened = LessThan(cursorDate);
+      
+    }
+
+    const documents = await documentRepository.find({
+      take: rows,
       order: { lastOpened: "DESC" },
-      take: 10,
-      where: { ownerId: ownerId },
+      where: whereClause,
     });
-    const count = await documentRepository.count();
-    res.status(200).json({ count, documents: allDocuments });
+
+    let nextCursor: string | null = null;
+    if (documents.length == rows) {
+      const lastDocument = documents[rows - 1];
+      nextCursor = lastDocument.lastOpened.toISOString();
+    }
+
+    res.status(200).json({ nextCursor, documents });
+
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

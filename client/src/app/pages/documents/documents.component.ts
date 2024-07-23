@@ -20,7 +20,7 @@ export class DocumentsComponent implements OnInit {
   documents: any[] = [];
   folderName: string = 'My Documents';
   nextDocument: String|undefined;
-  itemsPerPage: number = 4;
+  itemsPerPage: number = 10;
   totalRecords: number = 0;
   loadedAll: boolean = false;
   loading: boolean = true;
@@ -83,7 +83,6 @@ export class DocumentsComponent implements OnInit {
         })));
         this.totalRecords = res.count;
         this.nextDocument = res.nextCursor;
-        console.log(this.nextDocument)
         if (!this.nextDocument) {
           this.loadedAll = true;
         }

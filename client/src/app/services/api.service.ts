@@ -64,9 +64,14 @@ export class ApiService {
       `${this.endpoint}/api/documents?cursor=${cursor}&rows=${rows}&userId=${userId}&categoryName=${folderName}`
     );
   }
-  getRecentDocuments(userId: String): Observable<any> {
+  getRecentDocuments(cursor?: String,
+    rows?: number,
+    userId?: string,): Observable<any> {
+    cursor = cursor ?? '';
+    rows = rows ?? 10;
+    userId = userId ?? '';
     return this.http.get(
-      this.endpoint + `/api/documents/recent?userId=${userId}`
+      this.endpoint + `/api/documents/recent?userId=${userId}&&cursor=${cursor}&rows=${rows}`
     );
   }
 
