@@ -122,6 +122,12 @@ export class ApiService {
     );
   }
 
+  getStarredDocuments(userId: string): Observable<any> {
+    return this.http.get(
+      `${this.endpoint}/api/documents/starred/${userId}`
+    );
+  }
+
   //   deleteMessage(messageId: number): Observable<Message> {
   //     return this.http.delete<Message>(
   //       this.endpoint + `/api/messages/${messageId}`,

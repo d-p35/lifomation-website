@@ -272,3 +272,15 @@ DocumentsRouter.patch("/starred/:id", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+DocumentsRouter.get("/starred/:userId", async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const allDocuments = await documentRepository.find({
+      where: { ownerId: userId, starred: true },
+    });
+    res.status(200).json({ documents: allDocuments });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
