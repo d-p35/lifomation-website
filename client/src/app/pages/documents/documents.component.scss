@@ -106,8 +106,7 @@ $header-height: 0px;
 .documents-container{
   background-color: #f8fafd;
   height: 100%; /* Ensures the background covers the entire viewport height */
-  width: 100%; /* Ensures the background covers the entire viewport width */
-  position: fixed; /* Fixes the background in place */
+  width: 100%; /* Ensures the background covers the entire viewport width *//* Fixes the background in place */
   // top: 0; /* Aligns the background to the top of the viewport */
   // left: 0; /* Aligns the background to the left of the viewport */
   // z-index: -1; /* Places the background behind other content */
@@ -125,6 +124,7 @@ $header-height: 0px;
   padding: 20px;
   background-color: #f4f5f7;
   border-radius: 20px;
+  height: 100svh; /* Full viewport height */
   
   .document-list-container {
     background-color: #f8fafd;
@@ -201,4 +201,11 @@ $header-height: 0px;
   }
 }
 
+.progress{
+  height: inherit; /* Full viewport height */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  background-color: inherit;
+}
 

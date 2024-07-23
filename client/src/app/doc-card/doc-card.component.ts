@@ -50,7 +50,7 @@ export class DocCardComponent implements OnInit {
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
-      return '../../..//public/doc-icon.png';
+      return '../../..//public/img-icon.png';
     } else if (mimetype.includes('pdf')) {
       return '../../..//public/pdf-icon.png';
     }
@@ -72,29 +72,25 @@ export class DocCardComponent implements OnInit {
 
   deleteDocument(id: number, event: Event) {
     event.stopPropagation();
-    this.apiService.getUserId().subscribe((userId: string | undefined) => {
-    if (userId && userId !== 'Unknown UID') {
-      this.apiService.deleteDocument(id, userId).subscribe({
-        next: (res) => {
-          this.dataService.notifyOther({ refresh: true });
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Success',
-            detail: 'Document successfully deleted',
-          });
-        },
-        error: (err) => {
-          console.error(err);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to delete document',
-          });
-        },
-      });
-    } else {
-      console.error('User ID not found');
-    }
-  });
+    this.apiService.deleteDocument(id).subscribe({
+      next: (res) => {
+        this.dataService.notifyOther({ refresh: true, document: this.document, type: 'delete' });
+        this.messageService.add({
+          key:'template',
+          severity: 'warn',
+          summary: 'Success',
+          detail: 'Document successfully deleted',
+        });
+      },
+      error: (err) => {
+        console.error(err);
+        this.messageService.add({
+          key:'template',
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to delete document',
+        });
+      },
+    });
   }
 }

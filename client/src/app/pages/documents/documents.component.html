@@ -3,9 +3,17 @@
     <main class="main-content">
       <section class="files-section">
         <div class="section-header">
-          <h2>All Files</h2>
+          <h2>{{ folderName }}</h2>
         </div>
-        <app-doc-list></app-doc-list>
+        <app-doc-list 
+          [documents]="documents" 
+          [loadedAll]="loadedAll" 
+          (scroll)="onScroll()"
+          *ngIf="!loading"
+        ></app-doc-list>
+        <div *ngIf="loading" class="progress">
+          <p-progressSpinner strokeWidth="1"></p-progressSpinner>
+        </div>
       </section>
     </main>
   </div>

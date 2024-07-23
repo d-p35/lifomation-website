@@ -18,7 +18,7 @@ export class StarredComponent implements OnInit {
   constructor(
     private router: Router,
     private apiService: ApiService,
-    private dataService: DataService,
+    private dataService: DataService
   ) {}
 
   ngOnInit() {
@@ -33,7 +33,7 @@ export class StarredComponent implements OnInit {
   fetchDocuments() {
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.apiService.getRecentDocuments(userId).subscribe({
+        this.apiService.getStarredDocuments(userId).subscribe({
           next: (res) => {
             this.documents = res.documents;
           },
