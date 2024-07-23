@@ -52,29 +52,22 @@ export class ApiService {
   }
 
   getDocuments(
-    page?: number,
-    rows?: number,
-    userId?: string,
-    folderName?: string
+    page: number = 0,
+    rows: number = 10,
+    userId: String = ''
   ): Observable<any> {
-    page = page ?? 0;
-    rows = rows ?? 10;
-    folderName = folderName ?? '';
     console.log(
       'The page is:',
       page,
       'The rows is:',
       rows,
       'The user ID is:',
-      userId,
-      'The folder name is:',
-      folderName
+      userId
     );
     return this.http.get(
-      `${this.endpoint}/api/documents?page=${page}&rows=${rows}&userId=${userId}&categoryName=${folderName}`
+      `${this.endpoint}/api/documents?page=${page}&rows=${rows}&userId=${userId}`
     );
   }
-
   getRecentDocuments(userId: String): Observable<any> {
     return this.http.get(
       this.endpoint + `/api/documents/recent?userId=${userId}`
