@@ -11,7 +11,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
 }
 
 .key-info-container {
@@ -44,11 +43,19 @@
   margin-left: 10px;
 }
 
+.key-info-item input {
+  flex: 1;
+  margin-left: 10px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
 .copy-button {
   margin-left: 10px;
   padding: 5px 10px;
   font-size: 12px;
-  color:  rgb(6, 177, 244);;
+  color: rgb(6, 177, 244);
   background-color: #ffffff;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -57,11 +64,44 @@
 }
 
 .copy-button:disabled {
-  background-color:  rgb(6, 177, 244);;
+  background-color: rgb(6, 177, 244);
   color: white;
   cursor: not-allowed;
 }
 
 .copy-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.edit-button,
+.save-button,
+.cancel-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: white;
+  background-color: rgb(6, 177, 244);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.edit-button:hover {
+  background-color: #006dd3;
+}
+
+.save-button {
+  color: green;
+  background-color: transparent;
+}
+
+.cancel-button {
+  color: red;
+  background-color: transparent;
+}
+
+.save-button:hover,
+.cancel-button:hover {
   background-color: #e0e0e0;
 }

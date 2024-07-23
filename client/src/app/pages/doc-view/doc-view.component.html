@@ -1,7 +1,7 @@
 <div *ngIf="!loading">
   <div class="document-view-container">
-    <h2>{{document.document.originalname}}</h2>
-    
+    <h2>{{ document.document.originalname }}</h2>
+
     <!-- Document Display -->
     <div *ngIf="documentType !== 'pdf'">
       <p-image
@@ -20,26 +20,57 @@
         height="700px"
       />
     </div>
-    
+
     <!-- Key Information Display -->
     <div class="key-info-container">
       <h3>Key Information</h3>
       <div *ngIf="keyInfo">
         <div *ngFor="let key of keyInfoKeys()" class="key-info-item">
           <strong>{{ key }}:</strong>
-          <span>{{ keyInfo[key] }}</span>
-          <button 
-            (click)="copyToClipboard(keyInfo[key], key)" 
+          <span *ngIf="!editingKey || editingKey !== key">{{
+            keyInfo[key]
+          }}</span>
+          <input *ngIf="editingKey === key" [(ngModel)]="editValue" />
+
+          <button
+            *ngIf="!editingKey || editingKey !== key"
+            (click)="copyToClipboard(keyInfo[key], key)"
             class="copy-button"
-            [disabled]="copiedKey === key">
-            {{ copiedKey === key ? 'Copied!' : 'Copy' }}
+            [disabled]="copiedKey === key"
+          >
+            {{ copiedKey === key ? "Copied!" : "Copy" }}
+          </button>
+
+          <button
+            *ngIf="editingKey === key"
+            (click)="saveEdit(key)"
+            class="save-button"
+          >
+            <i class="pi pi-check"></i>
+            <!-- PrimeNG check icon -->
+          </button>
+          <button
+            *ngIf="editingKey === key"
+            (click)="cancelEdit()"
+            class="cancel-button"
+          >
+            <i class="pi pi-times"></i>
+            <!-- PrimeNG cross icon -->
+          </button>
+
+          <button
+            *ngIf="!editingKey || editingKey !== key"
+            class="edit-button"
+            (click)="startEdit(key)"
+          >
+            <i class="pi pi-pencil"></i>
+            <!-- PrimeNG pencil icon -->
           </button>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 
 <div *ngIf="loading">
   <p>Loading document...</p>
