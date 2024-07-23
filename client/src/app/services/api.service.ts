@@ -124,7 +124,7 @@ export class ApiService {
 
   getStarredDocuments(userId: string): Observable<any> {
     return this.http.get(
-      `${this.endpoint}/api/documents/starred/${userId}`
+      `${this.endpoint}/api/documents/starred?userId=${userId}`
     );
   }
 

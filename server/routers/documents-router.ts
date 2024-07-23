@@ -253,7 +253,6 @@ DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
   }
 });
 
-
 DocumentsRouter.patch("/starred/:id", async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
@@ -273,11 +272,12 @@ DocumentsRouter.patch("/starred/:id", async (req: Request, res: Response) => {
   }
 });
 
-DocumentsRouter.get("/starred/:userId", async (req: Request, res: Response) => {
+DocumentsRouter.get("/starred", async (req: Request, res: Response) => {
   try {
-    const userId = req.params.userId;
+    const ownerId = req.body.userId;
     const allDocuments = await documentRepository.find({
-      where: { ownerId: userId, starred: true },
+      order: { lastOpened: "DESC" },
+      where: { ownerId: ownerId, starred: true },
     });
     res.status(200).json({ documents: allDocuments });
   } catch (err: any) {
