@@ -15,6 +15,7 @@ import tesseract from "tesseract.js";
 import { processImageFile } from "../services/extractTextService";
 import { processPdfFile } from "../services/extractTextService";
 import { MeiliSearch } from "meilisearch";
+import { DocumentPermission } from "../models/documentPermission";
 
 require("dotenv").config();
 
@@ -27,6 +28,8 @@ export const DocumentsRouter = Router();
 
 const documentRepository: Repository<Document> =
   dataSource.getRepository(Document);
+const documentPermissionRepository: Repository<DocumentPermission> =
+  dataSource.getRepository(DocumentPermission);
 // Add a permission to a document
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
