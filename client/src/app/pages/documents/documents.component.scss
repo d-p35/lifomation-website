@@ -124,6 +124,7 @@ $header-height: 0px;
   padding: 20px;
   background-color: #f4f5f7;
   border-radius: 20px;
+  height: 100svh; /* Full viewport height */
   
   .document-list-container {
     background-color: #f8fafd;
@@ -200,4 +201,11 @@ $header-height: 0px;
   }
 }
 
+.progress{
+  height: inherit; /* Full viewport height */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  background-color: inherit;
+}
 

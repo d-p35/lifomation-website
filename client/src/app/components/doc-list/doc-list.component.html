@@ -1,15 +1,14 @@
-<div class="document-list-container">
+<div class="document-list-container"
+class="table-container"
+infiniteScroll
+[infiniteScrollDistance]="2"
+[infiniteScrollThrottle]="300"
+[infiniteScrollDisabled]="loadedAll"
+(scrolled)="onScroll()">
   <div
-    class="table-container"
-    infiniteScroll
-    [infiniteScrollDistance]="2"
-    [infiniteScrollThrottle]="300"
-    [infiniteScrollDisabled]="loadedAll"
-    (scrolled)="onScroll()"
   >
-    <table *ngIf="!loading">
+    <table >
       <thead>
-
         <tr>
           <th>Icon</th>
           <th>Name</th>
@@ -61,9 +60,6 @@
           </tr>
         </tbody>
     </table>
-    <div *ngIf="loading" class="progress">
-      <p-progressSpinner strokeWidth="1"></p-progressSpinner>
-    </div>
   </div>
 </div>
 

@@ -1,25 +1,111 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ApiService } from '../../services/api.service';
+import { DataService } from '../../services/data.service';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { CommonModule, NgFor } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 import { DocListComponent } from '../../components/doc-list/doc-list.component';
-import { UploadComponent } from '../../components/upload/upload.component';
-
 
 @Component({
   selector: 'app-documents',
   standalone: true,
-  imports: [DocListComponent, UploadComponent],
   templateUrl: './documents.component.html',
-  styleUrl: './documents.component.scss',
+  styleUrls: ['./documents.component.scss'],
+  imports: [NgFor, TableModule, ButtonModule,ProgressSpinnerModule, CommonModule, ToastModule, DocListComponent],
 })
 export class DocumentsComponent implements OnInit {
+  documents: any[] = [];
+  folderName: string = 'My Documents';
+  currentPage: number = 0;
+  itemsPerPage: number = 10;
+  totalRecords: number = 0;
+  loadedAll: boolean = false;
+  loading: boolean = true;
+  userId: string | undefined;
 
-  constructor( private route: ActivatedRoute, ) { }
+  constructor(
+    private route: ActivatedRoute,
+    private apiService: ApiService,
+    private dataService: DataService
+  ) {}
 
-  folderName: String | undefined;
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params: { [x: string]: String | undefined; }) => {
-      this.folderName = params['folder']? params['folder'] : "My Documents";
-
+    this.route.queryParams.subscribe((params) => {
+      this.loading = true;
+      this.folderName = params['folder'] ? params['folder'] : 'My Documents';
+      this.apiService.getUserId().subscribe((userId: string | undefined) => {
+        if (userId && userId !== 'Unknown UID') {
+          this.userId = userId;
+          this.currentPage = 0;
+          this.loadedAll = false;
+          this.documents = [];
+          this.totalRecords = 0;
+          this.fetchDocumentsByPage(this.currentPage, this.itemsPerPage, userId);
+        } else {
+          console.error('User ID not found');
+        }
+      }); 
     });
+
+    this.dataService.notifyObservable$.subscribe((res) => {
+
+      if (res && res.refresh) {
+        if (res.document && (res.document.category.split(',')[0] == this.folderName || this.folderName=='My Documents')) {
+          if (res.type == 'delete') this.documents = this.documents.filter((doc) => doc.id !== res.document.id);
+          else if (res.type == 'upload') this.documents = [{
+            ...res.document,
+            uploadedAtLocal: this.convertToUserTimezone(new Date(res.document.uploadedAt)),
+            lastOpenedLocal: this.convertToUserTimezone(new Date(res.document.lastOpened)),
+            fileSize: this.getFileSize(res.document.document.size),
+          }, ...this.documents];
+        }
+      }
+    });
+  }
+
+  onScroll() {
+    if (!this.userId || this.loadedAll) return;
+    this.fetchDocumentsByPage(this.currentPage + 1, this.itemsPerPage, this.userId);
+  }
+
+
+  fetchDocumentsByPage(page: number, itemsPerPage: number, userId: string) {
+    this.apiService.getDocuments(page, itemsPerPage, userId, this.folderName=='My Documents'? undefined: this.folderName).subscribe({
+      next: (res) => {
+        this.documents = this.documents.concat(res.documents.map((doc: any) => ({
+          ...doc,
+          uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
+          lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
+          fileSize: this.getFileSize(doc.document.size),
+        })));
+        this.totalRecords = res.count;
+        if (this.documents.length >= this.totalRecords) {
+          this.loadedAll = true;
+        }
+        this.currentPage = page;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      },
+    });
+  }
+
+  convertToUserTimezone(date: Date): string {
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return localDate.toLocaleString();
+  }
+
+  getFileSize(size: number): string {
+    const gb = size / (1024 * 1024 * 1024);
+    const mb = size / (1024 * 1024);
+    if (gb >= 1) {
+      return `${gb.toFixed(2)} GB`;
+    }
+    return `${mb.toFixed(2)} MB`;
   }
 }
