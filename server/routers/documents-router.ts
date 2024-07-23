@@ -2,7 +2,7 @@ import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
-import { Repository, Like } from "typeorm";
+import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
@@ -126,33 +126,45 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   }
 });
 
-// Your existing router code
+
+// Route to get documents with cursor-based pagination
 DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
-    const page = parseInt(req.query.page as string) || 0;
     const rows = parseInt(req.query.rows as string) || 10;
-    const ownerId = req.query.userId;
+    const ownerId = req.query.userId as string;
     const categoryName = req.query.categoryName as string;
-    
+    let  cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
+    console.log("cursor", cursor)
+
     let whereClause = { ownerId: ownerId } as any;
     if (categoryName) {
       whereClause.category = Like(`${categoryName},%`);
     }
 
-    console.log(ownerId)
 
-    const [documents, count] = await documentRepository.findAndCount({
-      skip: page * rows,
-      take: rows,
-      order: { uploadedAt: "DESC" },
+    if (cursor) {
+      let cursorDate  = new Date(cursor)
+      whereClause.uploadedAt = LessThan(cursorDate); 
+    }
+
+    const documents = await documentRepository.find({
+      take: rows, // Fetch one extra row to check if there are more documents
+      order: { uploadedAt: "DESC"},
       where: whereClause,
     });
 
-    res.status(200).json({ count, documents });
+    let nextCursor: string | null = null;
+    if (documents.length == rows) {
+      const lastDocument = documents[rows-1];
+      nextCursor = lastDocument.uploadedAt.toISOString();
+    }
+
+    res.status(200).json({ nextCursor, documents });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 DocumentsRouter.get("/star", async (req: Request, res: Response) => {
   try {
@@ -273,6 +285,7 @@ DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: R
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Failed to save document" });
+
     }
   } catch (err: any) {
     console.error(err);
