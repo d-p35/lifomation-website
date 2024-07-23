@@ -96,33 +96,38 @@ export class UploadComponent implements OnInit {
     }
     this.selectedCategories.unshift(this.selectedCategory);
     this.selectedCategories = [...new Set(this.selectedCategories)]
-
-    this.apiService
-      .changeCategory(document.id, this.selectedCategories.join(','))
-      .subscribe({
-        next: (res) => {
-          this.changeCategoryIsProcessing = false;
-          this.messageService.clear('custom');
-
-          //@d-p35 Todo: Click this toast and it takes you to the document
-          this.messageService.add({
-            key: 'bottomright',
-            severity: 'success',
-            summary: `Your document has been added to ${this.selectedCategory} category`,
-            detail: `You can view it in the ${this.selectedCategory} folder.`,
+    this.apiService.getUserId().subscribe((userId: string | undefined)=>{
+      if (userId && userId !== 'Unknown UID'){
+        this.apiService.changeCategory(document.id, userId, this.selectedCategories.join(','))
+          .subscribe({
+            next: (res) => {
+              this.changeCategoryIsProcessing = false;
+              this.messageService.clear('custom');
+    
+              //@d-p35 Todo: Click this toast and it takes you to the document
+              this.messageService.add({
+                key: 'bottomright',
+                severity: 'success',
+                summary: `Your document has been added to ${this.selectedCategory} category`,
+                detail: `You can view it in the ${this.selectedCategory} folder.`,
+              });
+              this.dataService.notifyOther({ refresh: true });
+            },
+            error: (err) => {
+              console.error(err);
+              this.changeCategoryIsProcessing = false;
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Category change failed',
+              });
+            }
           });
-          this.dataService.notifyOther({ refresh: true, document: document, type: 'upload' });
-        },
-        error: (err) => {
-          console.error(err);
-          this.changeCategoryIsProcessing = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Category change failed',
-          });
-        }
-      });
+
+      }else {
+        console.error('User ID not found');
+      }
+    })
   }
 
   uploadFile() {

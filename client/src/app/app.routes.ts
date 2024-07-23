@@ -13,6 +13,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RecentComponent } from './pages/recent/recent.component';
 import { StarredComponent } from './pages/starred/starred.component';
 import { TrashComponent } from './pages/trash/trash.component';
+import { SharedComponent } from './pages/shared/shared.component';
+
 export const routes: Routes = [
   // Add your routes here
   { path: '', component: HomeComponent },
@@ -34,6 +36,11 @@ export const routes: Routes = [
   {
     path: 'recent',
     component: RecentComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'shared',
+    component: SharedComponent,
     canActivate: [AuthGuard],
   },
   {

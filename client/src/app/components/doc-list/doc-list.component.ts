@@ -49,27 +49,23 @@ export class DocListComponent implements OnInit {
     this.router.navigate(['documents', id]);
   }
 
+
   deleteDocument(id: number, event: Event) {
     event.stopPropagation();
-    this.apiService.deleteDocument(id).subscribe({
-      next: () => {
-        this.documents = this.documents.filter((doc) => doc.id !== id);
-        this.messageService.add({
-          key:'template',
-          severity: 'warn',
-          summary: 'Success',
-          detail: 'Document successfully deleted',
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId && userId !== 'Unknown UID') {
+        this.apiService.deleteDocument(id, userId).subscribe({
+          next: () => {
+            this.documents = this.documents.filter((doc) => doc.id !== id);
+          },
+          error: (err) => {
+            console.error(err);
+          },
         });
-      },
-      error: (err) => {
-        console.error(err);
-        this.messageService.add({
-          key:'template',
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to delete document',
-        });
-      },
+      }else{
+        console.error('User ID not found');
+      }
+      
     });
   }
 
