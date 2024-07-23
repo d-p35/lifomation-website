@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
-import { Like, Repository } from "typeorm";
+import { Repository, Like } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
@@ -18,6 +18,7 @@ import { MeiliSearch } from "meilisearch";
 
 require("dotenv").config();
 
+
 const upload = multer({ dest: "uploads/" });
 const client = new MeiliSearch({ host: "http://localhost:7700" });
 const index = client.index("documents");
@@ -26,6 +27,55 @@ export const DocumentsRouter = Router();
 
 const documentRepository: Repository<Document> =
   dataSource.getRepository(Document);
+// Add a permission to a document
+DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
+  try {
+    const documentId: number = parseInt(req.params.id);
+    const { userId, accessLevel } = req.body.userId;
+
+    const document = await documentRepository.findOne({ where: { id: documentId } });
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const newPermission = new DocumentPermission();
+    newPermission.documentId = documentId;
+    newPermission.userId = userId;
+    newPermission.accessLevel = accessLevel;
+
+    await documentPermissionRepository.save(newPermission);
+
+    res.status(201).json({ message: "Permission added" });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get permissions for a document
+DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
+  try {
+    const documentId: number = parseInt(req.params.id);
+    const permissions = await documentPermissionRepository.find({ where: { documentId: documentId } });
+
+    res.status(200).json({ permissions });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Remove a permission from a document
+DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
+  try {
+    const documentId: number = parseInt(req.params.id);
+    const { userId } = req.body.userId;
+
+    await documentPermissionRepository.delete({ documentId: documentId, userId: userId });
+
+    res.status(204).json();
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // Your existing router code
 DocumentsRouter.get("/", async (req: Request, res: Response) => {

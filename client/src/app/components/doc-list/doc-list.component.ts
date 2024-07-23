@@ -23,6 +23,7 @@ export class DocListComponent implements OnInit {
   @Input() loadedAll: boolean = false;
   @Output() scroll = new EventEmitter<void>();
 
+
   constructor(
     private router: Router,
     private apiService: ApiService,

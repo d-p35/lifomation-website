@@ -39,6 +39,7 @@ export class HeaderComponent {
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
   }
+  
 
   fetchDocumentsNames() {
     this.apiService.getDocuments().subscribe({
