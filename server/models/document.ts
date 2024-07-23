@@ -35,11 +35,14 @@ export class Document implements DocumentAttributes {
   @Column()
   category: string;
 
-  @Column("json", {nullable: true})
+  @Column("json", { nullable: true })
   keyInfo: Record<string, any>;
 
   @Column()
   ownerId: string;
+
+  @Column({ default: false })
+  starred: boolean;
 
   @ManyToOne(() => User, (user) => user.documents)
   @JoinColumn({ name: "ownerId" })

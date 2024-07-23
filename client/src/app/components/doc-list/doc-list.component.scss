@@ -62,10 +62,15 @@ tr:hover {
   object-fit: contain;
 }
 
+
 .progress{
   height: inherit; /* Full viewport height */
   display: flex;
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
   background-color: inherit;
+
+.star-icon {
+  cursor: pointer;
+  margin-right: 20px;
 }

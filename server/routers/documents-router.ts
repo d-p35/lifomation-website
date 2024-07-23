@@ -53,6 +53,20 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
   }
 });
 
+DocumentsRouter.get("/star", async (req: Request, res: Response) => {
+  try {
+    const ownerId = req.body.userId;
+    const allDocuments = await documentRepository.find({
+      order: { lastOpened: "DESC" },
+      where: { ownerId: ownerId, starred: true },
+    });
+    const count = await documentRepository.count();
+    res.status(200).json({ count, documents: allDocuments });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 DocumentsRouter.get("/search", async (req: Request, res: Response) => {
   try {
     const query = req.query.q as string;
@@ -252,3 +266,25 @@ DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+
+
+DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const starred = req.body.starred;
+    const document = await documentRepository.findOne({ where: { id: id } });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    document.starred = starred;
+    const updatedDocument = await documentRepository.save(document);
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
