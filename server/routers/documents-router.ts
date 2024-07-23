@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
@@ -31,6 +31,51 @@ const documentRepository: Repository<Document> =
 const documentPermissionRepository: Repository<DocumentPermission> =
   dataSource.getRepository(DocumentPermission);
   
+// Middleware to check permissions
+const checkPermission = (requiredAccessLevel: string) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    console.log("Middleware executed");
+
+    const documentId = parseInt(req.params.id);
+    const userId = req.body.userId || req.query.userId || req.headers['user-id'];
+
+    console.log(`Document ID: ${documentId}`);
+    console.log(`User ID: ${userId}`);
+
+    if (!userId) {
+      console.log("Permission denied: User ID is missing");
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    const document = await documentRepository.findOne({ where: { id: documentId }, relations: ["permissions"] });
+
+    console.log(`Document: ${JSON.stringify(document)}`);
+
+    if (!document) {
+      console.log("Document not found");
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const permission = document.permissions.find(p => p.userId === userId);
+    console.log(`Found permission: ${JSON.stringify(permission)}`);
+
+    const accessLevels = ["read", "edit", "full"];
+    const userAccessLevelIndex = accessLevels.indexOf(permission?.accessLevel || "none");
+    const requiredAccessLevelIndex = accessLevels.indexOf(requiredAccessLevel);
+
+    console.log(`User access level index: ${userAccessLevelIndex}`);
+    console.log(`Required access level index: ${requiredAccessLevelIndex}`);
+
+    if (userAccessLevelIndex < requiredAccessLevelIndex) {
+      console.log("Permission denied: Insufficient access level");
+      return res.status(403).json({ message: "Permission denied" });
+    }
+
+    next();
+  };
+};
+
+
 // Add a permission to a document
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
@@ -160,7 +205,7 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
   }
 });
 
-DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
+DocumentsRouter.get("/:id", checkPermission("read"), async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
     const document = await documentRepository.findOne({ where: { id: id } });
@@ -175,7 +220,7 @@ DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-DocumentsRouter.get("/:id/file", async (req: Request, res: Response) => {
+DocumentsRouter.get("/:id/file", checkPermission("read" ), async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
     const document = await documentRepository.findOne({ where: { id: id } });
@@ -245,7 +290,7 @@ DocumentsRouter.post(
   }
 );
 
-DocumentsRouter.patch("/category/:id", async (req: Request, res: Response) => {
+DocumentsRouter.patch("/category/:id", checkPermission("edit"), async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
     const category = req.body.category;
@@ -267,9 +312,8 @@ DocumentsRouter.patch("/category/:id", async (req: Request, res: Response) => {
   }
 });
 
-DocumentsRouter.patch(
-  "/lastOpened/:id",
-  async (req: Request, res: Response) => {
+DocumentsRouter.patch("/lastOpened/:id", checkPermission("read"), async (req: Request, res: Response) => {
+
     try {
       // Update lastOpened
       const id: number = parseInt(req.params.id);
@@ -289,7 +333,7 @@ DocumentsRouter.patch(
   }
 );
 
-DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
+DocumentsRouter.delete("/:id", checkPermission("full"), async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
 
