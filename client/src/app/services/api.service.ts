@@ -116,9 +116,14 @@ export class ApiService {
     );
   }
 
-  getStarredDocuments(userId: String): Observable<any> {
+  getStarredDocuments(cursor?: String,
+    rows?: number,
+    userId?: string,): Observable<any> {
+    cursor = cursor ?? '';
+    rows = rows ?? 10;
+    userId = userId ?? '';
     return this.http.get(
-      this.endpoint + `/api/documents/star?userId=${userId}`
+      this.endpoint + `/api/documents/star?userId=${userId}&&cursor=${cursor}&rows=${rows}`
     );
   }
 

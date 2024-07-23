@@ -25,7 +25,6 @@ export class RecentComponent implements OnInit {
   userId: string | undefined;
 
   constructor(
-    private route: ActivatedRoute,
     private apiService: ApiService,
     private dataService: DataService
   ) {}

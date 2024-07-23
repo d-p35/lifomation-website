@@ -168,12 +168,29 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
 DocumentsRouter.get("/star", async (req: Request, res: Response) => {
   try {
     const ownerId = req.body.userId;
-    const allDocuments = await documentRepository.find({
+    const cursor = req.query.cursor as string;
+    const rows = parseInt(req.query.rows as string) || 10;
+
+    let whereClause = { ownerId: ownerId, starred: true } as any;
+
+    if (cursor) {
+      let cursorDate = new Date(cursor);
+      whereClause.lastOpened = LessThan(cursorDate);
+    }
+
+    const documents = await documentRepository.find({
+      take: rows,
       order: { lastOpened: "DESC" },
-      where: { ownerId: ownerId, starred: true },
+      where: whereClause,
     });
-    const count = await documentRepository.count();
-    res.status(200).json({ count, documents: allDocuments });
+
+    let nextCursor: string | null = null;
+    if (documents.length == rows) {
+      const lastDocument = documents[rows - 1];
+      nextCursor = lastDocument.lastOpened.toISOString();
+    }
+
+    res.status(200).json({ nextCursor, documents });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
