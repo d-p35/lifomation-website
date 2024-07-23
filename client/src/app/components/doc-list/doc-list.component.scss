@@ -6,90 +6,69 @@
   width: 100%;
   transition: background-color 0.3s ease;
   overflow-x: auto;
+}
 
-  h2 {
-    margin-bottom: 20px;
-  }
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 20px;
+  table-layout: fixed; /* Ensures the table uses the available space */
+}
 
-  .table-container {
-    width: 100%;
-    overflow-x: auto;
-    border-radius: 20px;
-    table-layout: fixed; // Ensures the table uses the available space
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-    .p-datatable-wrapper {
-      max-height: 400px;
-      overflow-y: auto;
-    }
+th,
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+th {
+  background-color: #f9f9f9;
+}
 
-    th,
-    td {
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-      text-align: left;
-      word-wrap: break-word;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+tr:hover {
+  background-color: #f1f1f1;
+}
 
-    th {
-      background-color: #f9f9f9;
-    }
+.delete-button {
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #ff4d4d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
-    tr:hover {
-      background-color: #f1f1f1;
-    }
-
-    .delete-button {
-      padding: 0.5rem 1rem;
-      font-size: 14px;
-      font-weight: 500;
-      background-color: #ff4d4d;
-      color: #fff;
-      border: none;
-      margin-right:10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition:
-        background-color 0.3s ease,
-        transform 0.3s ease;
-    
-      &:hover {
-        background-color: #e60000;
-        transform: translateY(-2px);
-      }
-    }
-
-    @media (max-width: 768px) {
-      th,
-      td {
-        display: block;
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      th {
-        text-align: center;
-      }
-    }
-  }
-  .document-list-container:hover {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    background-color: #f1f1f1;
-  }
+.delete-button:hover {
+  background-color: #e60000;
+  transform: translateY(-2px);
 }
 
 .icon {
   width: 50px;
   height: 50px;
   object-fit: contain;
+}
+
+
+.progress{
+  height: inherit; /* Full viewport height */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  background-color: inherit;
 }
 
 .star-icon {

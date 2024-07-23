@@ -50,7 +50,7 @@ export class DocCardComponent implements OnInit {
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
-      return '../../..//public/doc-icon.png';
+      return '../../..//public/img-icon.png';
     } else if (mimetype.includes('pdf')) {
       return '../../..//public/pdf-icon.png';
     }
@@ -74,8 +74,9 @@ export class DocCardComponent implements OnInit {
     event.stopPropagation();
     this.apiService.deleteDocument(id).subscribe({
       next: (res) => {
-        this.dataService.notifyOther({ refresh: true });
+        this.dataService.notifyOther({ refresh: true, document: this.document, type: 'delete' });
         this.messageService.add({
+          key:'template',
           severity: 'warn',
           summary: 'Success',
           detail: 'Document successfully deleted',
@@ -84,6 +85,7 @@ export class DocCardComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.messageService.add({
+          key:'template',
           severity: 'error',
           summary: 'Error',
           detail: 'Failed to delete document',
