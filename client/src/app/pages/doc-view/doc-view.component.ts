@@ -25,7 +25,7 @@ export class DocViewComponent {
     private apiService: ApiService,
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -35,44 +35,42 @@ export class DocViewComponent {
     }
     const i = parseInt(index, 10);
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
-      if(userId && userId !== 'Unknown UID'){
+      if (userId && userId !== 'Unknown UID') {
         this.apiService.getFile(i, userId).subscribe({
           next: (blob: Blob) => {
             this.documentType = blob.type === 'application/pdf' ? 'pdf' : null;
             const objectUrl = URL.createObjectURL(blob);
             this.documentUrl =
               this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
-    
-              this.apiService.getDocument(i, userId).subscribe({
-                next: (res: any) => {
-                  console.log(res);
-                  this.loading = false;
-                  this.document = res.document;
-                  this.keyInfo = res.document.keyInfo;
-                },
-                error: (err) => {
-                  console.error(err);
-                },
-              });
+
+            this.apiService.getDocument(i, userId).subscribe({
+              next: (res: any) => {
+                console.log(res);
+                this.loading = false;
+                this.document = res.document;
+                this.keyInfo = res.document.keyInfo;
+              },
+              error: (err) => {
+                console.error(err);
+              },
+            });
           },
           error: (err) => {
             console.error(err);
           },
         });
-    
+
         this.apiService.updateLastOpened(i, userId).subscribe({
           next: () => {},
           error: (err) => {
             console.error(err);
           },
         });
-      }else {
+      } else {
         console.error('User ID not found');
       }
-
-    })
+    });
   }
-
 
   keyInfoKeys(): string[] {
     return Object.keys(this.keyInfo);
@@ -89,5 +87,22 @@ export class DocViewComponent {
       },
       (err) => console.error('Failed to copy text: ', err)
     );
+  }
+
+  editKeyInfo(key: string) {
+    const value = this.keyInfo[key];
+    let newValue = prompt('Enter new value for ' + key, value);
+    console.log('key:', key, 'newValue:', newValue);
+    if (newValue !== null) {
+      this.apiService.editKeyInfo(this.document.id, key, newValue).subscribe({
+        next: () => {
+          this.keyInfo[key] = newValue;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
+    }
   }
 }

@@ -1,7 +1,7 @@
 <div *ngIf="!loading">
   <div class="document-view-container">
-    <h2>{{document.document.originalname}}</h2>
-    
+    <h2>{{ document.document.originalname }}</h2>
+
     <!-- Document Display -->
     <div *ngIf="documentType !== 'pdf'">
       <p-image
@@ -20,7 +20,7 @@
         height="700px"
       />
     </div>
-    
+
     <!-- Key Information Display -->
     <div class="key-info-container">
       <h3>Key Information</h3>
@@ -28,18 +28,21 @@
         <div *ngFor="let key of keyInfoKeys()" class="key-info-item">
           <strong>{{ key }}:</strong>
           <span>{{ keyInfo[key] }}</span>
-          <button 
-            (click)="copyToClipboard(keyInfo[key], key)" 
+          <button
+            (click)="copyToClipboard(keyInfo[key], key)"
             class="copy-button"
-            [disabled]="copiedKey === key">
-            {{ copiedKey === key ? 'Copied!' : 'Copy' }}
+            [disabled]="copiedKey === key"
+          >
+            {{ copiedKey === key ? "Copied!" : "Copy" }}
+          </button>
+          <button class="edit-button" (click)="editKeyInfo(key)">
+            <i class="pi pi-pencil"></i> <!-- PrimeNG pencil icon -->
           </button>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 
 <div *ngIf="loading">
   <p>Loading document...</p>
