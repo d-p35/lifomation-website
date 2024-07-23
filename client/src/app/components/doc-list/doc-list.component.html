@@ -1,5 +1,4 @@
 <div class="document-list-container">
-  <!-- <h2>My Drive</h2> -->
   <div class="table-container">
     <p-table
       [value]="documents"
@@ -19,7 +18,7 @@
           <th>Uploaded At</th>
           <th>Last Opened</th>
           <th>Size</th>
-          <th>Actions</th>
+          <th></th>
         </tr>
       </ng-template>
 
@@ -39,6 +38,13 @@
           <td>{{ doc.lastOpenedLocal }}</td>
           <td>{{ doc.fileSize }}</td>
           <td>
+            <i
+              class="star-icon"
+              [ngClass]="
+                doc.starred ? 'pi pi-star-fill text-warning' : 'pi pi-star'
+              "
+              (click)="starDocument(doc, $event)"
+            ></i>
             <button
               type="button"
               class="delete-button"

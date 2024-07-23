@@ -5,11 +5,12 @@ import { NgFor } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { LazyLoadEvent } from 'primeng/api';
 import { DataService } from '../../services/data.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-doc-list',
   standalone: true,
-  imports: [NgFor, TableModule],
+  imports: [NgFor, TableModule, CommonModule],
   templateUrl: './doc-list.component.html',
   styleUrls: ['./doc-list.component.scss'],
 })
@@ -42,20 +43,26 @@ export class DocListComponent implements OnInit {
   }
 
   fetchDocumentsByPage(page: number, itemsPerPage: number, userId?: string) {
-    this.apiService.getDocuments(page, itemsPerPage, userId, this.folderName).subscribe({
-      next: (res) => {
-        this.documents = res.documents.map((doc: any) => ({
-          ...doc,
-          uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
-          lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
-          fileSize: this.getFileSize(doc.document.size),
-        }));
-        this.totalRecords = res.totalRecords;
-      },
-      error: (err) => {
-        console.error(err);
-      },
-    });
+    this.apiService
+      .getDocuments(page, itemsPerPage, userId, this.folderName)
+      .subscribe({
+        next: (res) => {
+          this.documents = res.documents.map((doc: any) => ({
+            ...doc,
+            uploadedAtLocal: this.convertToUserTimezone(
+              new Date(doc.uploadedAt)
+            ),
+            lastOpenedLocal: this.convertToUserTimezone(
+              new Date(doc.lastOpened)
+            ),
+            fileSize: this.getFileSize(doc.document.size),
+          }));
+          this.totalRecords = res.totalRecords;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
   fetchDocuments() {
@@ -115,6 +122,17 @@ export class DocListComponent implements OnInit {
       next: () => {
         this.documents = this.documents.filter((doc) => doc.id !== id);
       },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
+
+  starDocument(doc: any, event: Event) {
+    event.stopPropagation();
+    doc.starred = !doc.starred;
+    this.apiService.starDocument(doc.id, doc.starred).subscribe({
+      next: () => {},
       error: (err) => {
         console.error(err);
       },

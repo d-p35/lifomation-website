@@ -115,6 +115,19 @@ export class ApiService {
     );
   }
 
+  starDocument(documentId: number, starred: boolean): Observable<any> {
+    return this.http.patch(
+      this.endpoint + `/api/documents/starred/${documentId}/file`,
+      { starred }
+    );
+  }
+
+  getStarredDocuments(userId: String): Observable<any> {
+    return this.http.get(
+      this.endpoint + `/api/documents/star?userId=${userId}`
+    );
+  }
+
   //   deleteMessage(messageId: number): Observable<Message> {
   //     return this.http.delete<Message>(
   //       this.endpoint + `/api/messages/${messageId}`,
