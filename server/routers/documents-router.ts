@@ -2,7 +2,7 @@ import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
-import { Repository, Like } from "typeorm";
+import { Repository, Like, In } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
@@ -142,24 +142,39 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
+    // Step 1: Find all document permissions for the user
     const permissions = await documentPermissionRepository.find({
       where: { userId },
       relations: ["document", "document.owner"],
     });
 
-    const sharedDocuments = permissions.map((permission) => ({
-      documentId: permission.document.id,
-      title: permission.document.document.originalname,
-      sharedBy: permission.document.owner.id,
-      accessLevel: permission.accessLevel,
-    }));
+    // Extract document IDs from permissions
+    const documentIds = permissions.map(permission => permission.documentId);
 
-    res.json(sharedDocuments);
+    if (documentIds.length === 0) {
+      return res.json({ count: 0, documents: [] }); // No documents shared
+    }
+
+    // Step 2: Find documents from documentRepository using the IDs
+    const sharedDocuments = await documentRepository.find({
+      where: { id: In(documentIds) }, // Fetch documents with these IDs
+      relations: {owner: true}, // Include the owner relation
+    });
+    // Map documents to the required format
+    const result = sharedDocuments
+      .filter(doc => doc.owner.id !== userId) // Ensure document is not owned by the user
+
+      console.log(result)
+
+    // Return count and documents
+    res.json({ count: result.length, documents: result });
   } catch (error) {
     console.error('Error fetching shared documents:', error);
     res.status(500).send('Internal server error');
   }
 });
+
+
 
 //------------------------------------------------------------------------------------------------
 //---------------------------------Starred-------------------------------------------------------
@@ -173,6 +188,7 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
       where: { ownerId: ownerId, starred: true },
     });
     const count = await documentRepository.count();
+    console.log(allDocuments)
     res.status(200).json({ count, documents: allDocuments });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
