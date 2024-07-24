@@ -2,7 +2,7 @@ import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
-import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan } from "typeorm";
+import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan, In } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
@@ -52,7 +52,7 @@ const checkPermission = (requiredAccessLevel: string) => {
       relations: ["permissions"],
     });
 
-    console.log(`Document: ${JSON.stringify(document)}`);
+    // console.log(`Document: ${JSON.stringify(document)}`);
 
     if (!document) {
       console.log("Document not found");
@@ -105,11 +105,21 @@ DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
   }
 });
 
+//------------------------------------------------------------------------------------------------
+//-------------------------SharedComponent-------------------------------------------------------
+//------------------------------------------------------------------------------------------------
+
 // Add a permission to a document
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId, accessLevel } = req.body.userId;
+    const { userId, accessLevel } = req.body;
+    
+    // Validate request body
+    if (!userId || !accessLevel) {
+      console.log(req);
+      return res.status(400).json({ message: "userId and accessLevel are required" });
+    }
 
     const document = await documentRepository.findOne({
       where: { id: documentId },
@@ -149,7 +159,7 @@ DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
 DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId } = req.body.userId;
+    const { userId } = req.body;
 
     await documentPermissionRepository.delete({
       documentId: documentId,
@@ -162,8 +172,70 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   }
 });
 
+DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId as string;
+    const cursor = req.query.cursor as string;
+    const rows = parseInt(req.query.rows as string) || 10;
 
-// Route to get documents with cursor-based pagination
+
+
+
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    let whereClause = { userId: userId} as any;
+
+    if (cursor) {
+      let cursorDate = new Date(cursor);
+      whereClause.lastOpened = LessThan(cursorDate);
+    }
+
+
+
+
+    // Step 1: Find all document permissions for the user
+    const permissions = await documentPermissionRepository.find({
+      where: 
+      whereClause,
+      // order: { lastOpened: "DESC" },
+      order: { document : { lastOpened: "DESC" } },
+      relations: { document: true },
+    });
+
+    // Extract document IDs from permissions
+    const documentIds = permissions.map(permission => permission.documentId);
+
+    if (documentIds.length === 0) {
+      return res.json({ count: 0, documents: [] }); // No documents shared
+    }
+    const result = permissions
+      .filter(doc => doc.document.ownerId !== userId) // Ensure document is not owned by the user
+
+      const documents = result.map(permission => permission.document);
+
+      let nextCursor: string | null = null;
+      if (documents.length == rows) {
+        const lastDocument = documents[rows - 1];
+        nextCursor = lastDocument.lastOpened.toISOString();
+      }
+
+    // Return count and documents
+    res.json({ count: result.length, documents: documents });
+  } catch (error) {
+    console.error('Error fetching shared documents:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+
+//------------------------------------------------------------------------------------------------
+//---------------------------------Document-------------------------------------------------------
+//------------------------------------------------------------------------------------------------
+
+// Your existing router code
 DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
     const rows = parseInt(req.query.rows as string) || 10;
@@ -199,7 +271,6 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 DocumentsRouter.get("/star", async (req: Request, res: Response) => {
   try {
@@ -481,3 +552,4 @@ DocumentsRouter.patch(
     }
   }
 );
+

@@ -140,7 +140,12 @@ export class ApiService {
   }
 
   // Get documents shared with the user
-  getSharedDocuments(userId: string): Observable<any> {
+  getSharedDocuments(cursor?: String,
+    rows?: number,
+    userId?: string,): Observable<any> {
+    cursor = cursor ?? '';
+    rows = rows ?? 10;
+    userId = userId ?? '';
     return this.http.get(
       `${this.endpoint}/api/documents/shared?userId=${userId}`
     );
@@ -186,52 +191,4 @@ export class ApiService {
       { key, newValue }
     );
   }
-
-  //   deleteMessage(messageId: number): Observable<Message> {
-  //     return this.http.delete<Message>(
-  //       this.endpoint + `/api/messages/${messageId}`,
-  //     );
-  //   }
-
-  //   upvoteMessage(messageId: number) {
-  //     return this.http.patch<Message>(
-  //       this.endpoint + `/api/messages/${messageId}`,
-  //       { action: 'upvote' },
-  //     );
-  //   }
-
-  //   downvoteMessage(messageId: number) {
-  //     return this.http.patch<Message>(
-  //       this.endpoint + `/api/messages/${messageId}`,
-  //       { action: 'downvote' },
-  //     );
-  //   }
-
-  //   getMessages(): Observable<{ messages: Message[] }> {
-  //     return this.http.get<{ messages: Message[] }>(
-  //       this.endpoint + `/api/messages`,
-  //     );
-  //   }
-
-  //   signIn(username: string, password: string): Observable<any> {
-  //     return this.http.post(this.endpoint + '/api/users/signin', {
-  //       username,
-  //       password,
-  //     });
-  //   }
-
-  //   signUp(username: string, password: string): Observable<any> {
-  //     return this.http.post(this.endpoint + '/api/users/signup', {
-  //       username,
-  //       password,
-  //     });
-  //   }
-
-  //   signOut(): Observable<any> {
-  //     return this.http.get(this.endpoint + '/api/users/signout');
-  //   }
-
-  //   me(): Observable<any> {
-  //     return this.http.get(this.endpoint + '/api/users/me');
-  //   }
 }
