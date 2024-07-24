@@ -131,7 +131,7 @@ export class DashboardComponent implements OnInit {
   fetchDocuments() {
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.apiService.getRecentDocuments(userId).subscribe({
+        this.apiService.getRecentDocuments(undefined, 3, userId).subscribe({
           next: (res) => {
             this.documents = res.documents;
             if (this.documents.length > 3)
