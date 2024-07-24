@@ -2,7 +2,7 @@ import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
-import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan } from "typeorm";
+import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan, In } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
@@ -19,7 +19,6 @@ import { DocumentPermission } from "../models/documentPermission";
 
 require("dotenv").config();
 
-
 const upload = multer({ dest: "uploads/" });
 const client = new MeiliSearch({ host: "http://localhost:7700" });
 const index = client.index("documents");
@@ -30,14 +29,15 @@ const documentRepository: Repository<Document> =
   dataSource.getRepository(Document);
 const documentPermissionRepository: Repository<DocumentPermission> =
   dataSource.getRepository(DocumentPermission);
-  
+
 // Middleware to check permissions
 const checkPermission = (requiredAccessLevel: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     console.log("Middleware executed");
 
     const documentId = parseInt(req.params.id);
-    const userId = req.body.userId || req.query.userId || req.headers['user-id'];
+    const userId =
+      req.body.userId || req.query.userId || req.headers["user-id"];
 
     console.log(`Document ID: ${documentId}`);
     console.log(`User ID: ${userId}`);
@@ -47,20 +47,25 @@ const checkPermission = (requiredAccessLevel: string) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    const document = await documentRepository.findOne({ where: { id: documentId }, relations: ["permissions"] });
+    const document = await documentRepository.findOne({
+      where: { id: documentId },
+      relations: ["permissions"],
+    });
 
-    console.log(`Document: ${JSON.stringify(document)}`);
+    // console.log(`Document: ${JSON.stringify(document)}`);
 
     if (!document) {
       console.log("Document not found");
       return res.status(404).json({ message: "Document not found" });
     }
 
-    const permission = document.permissions.find(p => p.userId === userId);
+    const permission = document.permissions.find((p) => p.userId === userId);
     console.log(`Found permission: ${JSON.stringify(permission)}`);
 
     const accessLevels = ["read", "edit", "full"];
-    const userAccessLevelIndex = accessLevels.indexOf(permission?.accessLevel || "none");
+    const userAccessLevelIndex = accessLevels.indexOf(
+      permission?.accessLevel || "none"
+    );
     const requiredAccessLevelIndex = accessLevels.indexOf(requiredAccessLevel);
 
     console.log(`User access level index: ${userAccessLevelIndex}`);
@@ -75,14 +80,50 @@ const checkPermission = (requiredAccessLevel: string) => {
   };
 };
 
+DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
+  try {
+    const documentId: number = parseInt(req.params.id);
+    const key = req.body.key;
+    const newValue = req.body.newValue;
+    console.log(
+      `Updating key ${key} to ${newValue} for document ${documentId}`
+    );
+    const document = await documentRepository.findOne({
+      where: { id: documentId },
+    });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    document.keyInfo[key] = newValue;
+    const updatedDocument = await documentRepository.save(document);
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+//------------------------------------------------------------------------------------------------
+//-------------------------SharedComponent-------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 
 // Add a permission to a document
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId, accessLevel } = req.body.userId;
+    const { userId, accessLevel } = req.body;
+    
+    // Validate request body
+    if (!userId || !accessLevel) {
+      console.log(req);
+      return res.status(400).json({ message: "userId and accessLevel are required" });
+    }
 
-    const document = await documentRepository.findOne({ where: { id: documentId } });
+    const document = await documentRepository.findOne({
+      where: { id: documentId },
+    });
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
@@ -104,7 +145,9 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
 DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const permissions = await documentPermissionRepository.find({ where: { documentId: documentId } });
+    const permissions = await documentPermissionRepository.find({
+      where: { documentId: documentId },
+    });
 
     res.status(200).json({ permissions });
   } catch (err: any) {
@@ -116,9 +159,12 @@ DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
 DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId } = req.body.userId;
+    const { userId } = req.body;
 
-    await documentPermissionRepository.delete({ documentId: documentId, userId: userId });
+    await documentPermissionRepository.delete({
+      documentId: documentId,
+      userId: userId,
+    });
 
     res.status(204).json();
   } catch (err: any) {
@@ -126,8 +172,70 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   }
 });
 
+DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId as string;
+    const cursor = req.query.cursor as string;
+    const rows = parseInt(req.query.rows as string) || 10;
 
-// Route to get documents with cursor-based pagination
+
+
+
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    let whereClause = { userId: userId} as any;
+
+    if (cursor) {
+      let cursorDate = new Date(cursor);
+      whereClause.lastOpened = LessThan(cursorDate);
+    }
+
+
+
+
+    // Step 1: Find all document permissions for the user
+    const permissions = await documentPermissionRepository.find({
+      where: 
+      whereClause,
+      // order: { lastOpened: "DESC" },
+      order: { document : { lastOpened: "DESC" } },
+      relations: { document: true },
+    });
+
+    // Extract document IDs from permissions
+    const documentIds = permissions.map(permission => permission.documentId);
+
+    if (documentIds.length === 0) {
+      return res.json({ count: 0, documents: [] }); // No documents shared
+    }
+    const result = permissions
+      .filter(doc => doc.document.ownerId !== userId) // Ensure document is not owned by the user
+
+      const documents = result.map(permission => permission.document);
+
+      let nextCursor: string | null = null;
+      if (documents.length == rows) {
+        const lastDocument = documents[rows - 1];
+        nextCursor = lastDocument.lastOpened.toISOString();
+      }
+
+    // Return count and documents
+    res.json({ count: result.length, documents: documents });
+  } catch (error) {
+    console.error('Error fetching shared documents:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+
+//------------------------------------------------------------------------------------------------
+//---------------------------------Document-------------------------------------------------------
+//------------------------------------------------------------------------------------------------
+
+// Your existing router code
 DocumentsRouter.get("/", async (req: Request, res: Response) => {
   try {
     const rows = parseInt(req.query.rows as string) || 10;
@@ -135,11 +243,11 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const categoryName = req.query.categoryName as string;
     let  cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
 
+
     let whereClause = { ownerId: ownerId } as any;
     if (categoryName) {
       whereClause.category = Like(`${categoryName},%`);
     }
-
 
     if (cursor) {
       let cursorDate  = new Date(cursor)
@@ -168,7 +276,6 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 DocumentsRouter.get("/star", async (req: Request, res: Response) => {
   try {
@@ -269,36 +376,44 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
   }
 });
 
-DocumentsRouter.get("/:id", checkPermission("read"), async (req: Request, res: Response) => {
-  try {
-    const id: number = parseInt(req.params.id);
-    const document = await documentRepository.findOne({ where: { id: id } });
+DocumentsRouter.get(
+  "/:id",
+  checkPermission("read"),
+  async (req: Request, res: Response) => {
+    try {
+      const id: number = parseInt(req.params.id);
+      const document = await documentRepository.findOne({ where: { id: id } });
 
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      res.status(200).json({ document });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
     }
-
-    res.status(200).json({ document });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
   }
-});
+);
 
-DocumentsRouter.get("/:id/file", checkPermission("read" ), async (req: Request, res: Response) => {
-  try {
-    const id: number = parseInt(req.params.id);
-    const document = await documentRepository.findOne({ where: { id: id } });
+DocumentsRouter.get(
+  "/:id/file",
+  checkPermission("read"),
+  async (req: Request, res: Response) => {
+    try {
+      const id: number = parseInt(req.params.id);
+      const document = await documentRepository.findOne({ where: { id: id } });
 
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      res.setHeader("Content-Type", document.document.mimetype);
+      res.sendFile(document.document.path, { root: path.resolve() });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
     }
-
-    res.setHeader("Content-Type", document.document.mimetype);
-    res.sendFile(document.document.path, { root: path.resolve() });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
   }
-});
+);
 
 DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: Response) => {
   try {
@@ -345,30 +460,36 @@ DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: R
   }
 });
 
-DocumentsRouter.patch("/category/:id", checkPermission("edit"), async (req: Request, res: Response) => {
-  try {
-    const id: number = parseInt(req.params.id);
-    const category = req.body.category;
-    const document = await documentRepository.findOne({ where: { id: id } });
+DocumentsRouter.patch(
+  "/category/:id",
+  checkPermission("edit"),
+  async (req: Request, res: Response) => {
+    try {
+      const id: number = parseInt(req.params.id);
+      const category = req.body.category;
+      const document = await documentRepository.findOne({ where: { id: id } });
 
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      document.category = category;
+      const updatedDocument = await documentRepository.save(document);
+      index.updateDocuments([{ id: updatedDocument.id, category: category }], {
+        primaryKey: "id",
+      });
+
+      res.status(200).json({ document: updatedDocument });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
     }
-
-    document.category = category;
-    const updatedDocument = await documentRepository.save(document);
-    index.updateDocuments([{ id: updatedDocument.id, category: category }], {
-      primaryKey: "id",
-    });
-
-    res.status(200).json({ document: updatedDocument });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
   }
-});
+);
 
-DocumentsRouter.patch("/lastOpened/:id", checkPermission("read"), async (req: Request, res: Response) => {
-
+DocumentsRouter.patch(
+  "/lastOpened/:id",
+  checkPermission("read"),
+  async (req: Request, res: Response) => {
     try {
       // Update lastOpened
       const id: number = parseInt(req.params.id);
@@ -388,41 +509,46 @@ DocumentsRouter.patch("/lastOpened/:id", checkPermission("read"), async (req: Re
   }
 );
 
-DocumentsRouter.delete("/:id", checkPermission("full"), async (req: Request, res: Response) => {
-  try {
-    const id: number = parseInt(req.params.id);
-
-    // Find document by id
-    const document = await documentRepository.findOne({ where: { id: id } });
-
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-    const filePath = path.join(
-      __dirname,
-      "../uploads",
-      document.document.filename
-    );
+DocumentsRouter.delete(
+  "/:id",
+  checkPermission("full"),
+  async (req: Request, res: Response) => {
+    try {
+      const id: number = parseInt(req.params.id);
 
     index.deleteDocument(document.id);
     // Delete document
     await documentPermissionRepository.delete({ documentId: document.id });
     await documentRepository.delete(document.id);
-    
+  
 
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error("Error deleting file: ", err);
-        return res.status(500).json({ message: "Error deleting file" });
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
       }
-    });
+      const filePath = path.join(
+        __dirname,
+        "../uploads",
+        document.document.filename
+      );
 
-    // Return the new document
-    res.status(204).json();
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
+      index.deleteDocument(document.id);
+      // Delete document
+      await documentRepository.delete(document.id);
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file: ", err);
+          return res.status(500).json({ message: "Error deleting file" });
+        }
+      });
+
+      // Return the new document
+      res.status(204).json();
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
   }
-});
+);
 
 
 
@@ -432,10 +558,6 @@ DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) =
     const starred = req.body.starred;
     const document = await documentPermissionRepository.findOne({ where: { id: id }, relations: {document: true} });
 
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-
     document.starred = starred;
     const updatedDocument = await documentPermissionRepository.save(document);
 
@@ -443,5 +565,5 @@ DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) =
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
-});
+);
 

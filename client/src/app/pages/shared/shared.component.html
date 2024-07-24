@@ -1,19 +1,20 @@
 <div class="dashboard">
   <div class="main-container">
     <main class="main-content">
-
       <section class="recent-files-section">
-        <h2>Shared with me</h2>
+        <h2>Shared With Me</h2>
         <div class="recent-files-list">
-          <div class="file-info">
-            <app-doc-card
-              *ngFor="let doc of documents"
-              [document]="doc"
-            ></app-doc-card>
+          <app-docshared-list
+            [documents]="documents"
+            [loadedAll]="loadedAll"
+            (scroll)="onScroll()"
+            *ngIf="!loading"
+          ></app-docshared-list>
+          <div *ngIf="loading" class="progress">
+            <p-progressSpinner strokeWidth="1"></p-progressSpinner>
           </div>
         </div>
       </section>
-
     </main>
   </div>
 </div>
