@@ -33,9 +33,14 @@ export class SharedComponent implements OnInit {
   fetchDocuments() {
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.apiService.getRecentDocuments(userId).subscribe({
+        this.apiService.getSharedDocuments(userId).subscribe({
           next: (res) => {
+            console.log("-------------------------------------------------------------------------------")
+            console.log('Documents:', res.documents);
+            console.log("-------------------------------------------------------------------------------\n")
+            
             this.documents = res.documents;
+            console.log('Documents:', this.documents);
           },
           error: (err) => {
             console.error(err);
