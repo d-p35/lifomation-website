@@ -147,7 +147,7 @@ export class ApiService {
     rows = rows ?? 10;
     userId = userId ?? '';
     return this.http.get(
-      `${this.endpoint}/api/documents/shared?userId=${userId}`
+      `${this.endpoint}/api/documents/shared?userId=${userId}&&cursor=${cursor}&rows=${rows}`
     );
   }
 

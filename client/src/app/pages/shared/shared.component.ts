@@ -65,7 +65,6 @@ export class SharedComponent implements OnInit {
   fetchDocumentsByPage(next: String|undefined, itemsPerPage: number, userId: string) {
     this.apiService.getSharedDocuments(next, itemsPerPage, userId).subscribe({
       next: (res) => {
-        console.log('res', res);
         this.documents = this.documents.concat(res.documents.map((doc: any) => ({
           ...doc,
           uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
