@@ -175,15 +175,34 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
 DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId as string;
+    const cursor = req.query.cursor as string;
+    const rows = parseInt(req.query.rows as string) || 10;
+
+
+
+
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
+    let whereClause = { userId: userId} as any;
+
+    if (cursor) {
+      let cursorDate = new Date(cursor);
+      whereClause.lastOpened = LessThan(cursorDate);
+    }
+
+
+
+
     // Step 1: Find all document permissions for the user
     const permissions = await documentPermissionRepository.find({
-      where: { userId },
-      relations: ["document", "document.owner"],
+      where: 
+      whereClause,
+      // order: { lastOpened: "DESC" },
+      order: { document : { lastOpened: "DESC" } },
+      relations: { document: true },
     });
 
     // Extract document IDs from permissions
@@ -192,20 +211,19 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
     if (documentIds.length === 0) {
       return res.json({ count: 0, documents: [] }); // No documents shared
     }
+    const result = permissions
+      .filter(doc => doc.document.ownerId !== userId) // Ensure document is not owned by the user
 
-    // Step 2: Find documents from documentRepository using the IDs
-    const sharedDocuments = await documentRepository.find({
-      where: { id: In(documentIds) }, // Fetch documents with these IDs
-      relations: {owner: true}, // Include the owner relation
-    });
-    // Map documents to the required format
-    const result = sharedDocuments
-      .filter(doc => doc.owner.id !== userId) // Ensure document is not owned by the user
+      const documents = result.map(permission => permission.document);
 
-      console.log(result)
+      let nextCursor: string | null = null;
+      if (documents.length == rows) {
+        const lastDocument = documents[rows - 1];
+        nextCursor = lastDocument.lastOpened.toISOString();
+      }
 
     // Return count and documents
-    res.json({ count: result.length, documents: result });
+    res.json({ count: result.length, documents: documents });
   } catch (error) {
     console.error('Error fetching shared documents:', error);
     res.status(500).send('Internal server error');

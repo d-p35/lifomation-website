@@ -140,7 +140,12 @@ export class ApiService {
   }
 
   // Get documents shared with the user
-  getSharedDocuments(userId: string): Observable<any> {
+  getSharedDocuments(cursor?: String,
+    rows?: number,
+    userId?: string,): Observable<any> {
+    cursor = cursor ?? '';
+    rows = rows ?? 10;
+    userId = userId ?? '';
     return this.http.get(
       `${this.endpoint}/api/documents/shared?userId=${userId}`
     );

@@ -4,51 +4,98 @@ import { ApiService } from '../../services/api.service';
 import { DocCardComponent } from '../../doc-card/doc-card.component';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../services/data.service';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DocListSharedComponent } from '../../components/doc-list-shared/doc-list-shared.component';
 
 @Component({
   selector: 'app-shared',
   standalone: true,
-  imports: [DocCardComponent, CommonModule],
+  imports: [DocCardComponent, CommonModule, ProgressSpinnerModule, DocListSharedComponent],
   templateUrl: './shared.component.html',
   styleUrl: './shared.component.scss',
 })
 export class SharedComponent implements OnInit {
   documents: any[] = [];
+  folderName: string = 'My Documents';
+  nextDocument: String|undefined;
+  itemsPerPage: number = 10;
+  totalRecords: number = 0;
+  loadedAll: boolean = false;
+  loading: boolean = true;
+  userId: string | undefined;
 
   constructor(
-    private router: Router,
     private apiService: ApiService,
-    private dataService: DataService,
+    private dataService: DataService
   ) {}
+  ngOnInit(): void {
 
-  ngOnInit() {
-    this.fetchDocuments();
-    this.dataService.notifyObservable$.subscribe((res) => {
-      if (res && res.refresh) {
-        this.fetchDocuments();
-      }
-    });
-  }
-
-  fetchDocuments() {
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.apiService.getSharedDocuments(userId).subscribe({
-          next: (res) => {
-            console.log("-------------------------------------------------------------------------------")
-            console.log('Documents:', res.documents);
-            console.log("-------------------------------------------------------------------------------\n")
-            
-            this.documents = res.documents;
-            console.log('Documents:', this.documents);
-          },
-          error: (err) => {
-            console.error(err);
-          },
-        });
+        this.userId = userId;
+        this.nextDocument = undefined;
+        this.loadedAll = false;
+        this.documents = [];
+        this.totalRecords = 0;
+        this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage, userId);
       } else {
         console.error('User ID not found');
       }
     });
+
+    this.dataService.notifyObservable$.subscribe((res) => {
+      if (res && res.refresh && res.document) {
+          if (res.type == 'delete') this.documents = this.documents.filter((doc) => doc.id !== res.document.id);
+          else if (res.type == 'upload') this.documents = [{
+            ...res.document,
+            uploadedAtLocal: this.convertToUserTimezone(new Date(res.document.uploadedAt)),
+            lastOpenedLocal: this.convertToUserTimezone(new Date(res.document.lastOpened)),
+            fileSize: this.getFileSize(res.document.document.size),
+          }, ...this.documents];
+      }
+    });
+  }
+
+  onScroll() {
+    if (!this.userId || this.loadedAll) return;
+    this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage, this.userId);
+  }
+
+
+  fetchDocumentsByPage(next: String|undefined, itemsPerPage: number, userId: string) {
+    this.apiService.getSharedDocuments(next, itemsPerPage, userId).subscribe({
+      next: (res) => {
+        console.log('res', res);
+        this.documents = this.documents.concat(res.documents.map((doc: any) => ({
+          ...doc,
+          uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
+          lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
+          fileSize: this.getFileSize(doc.document.size),
+        })));
+        this.nextDocument = res.nextCursor;
+        if (!this.nextDocument) {
+          this.loadedAll = true;
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      },
+    });
+  }
+
+  convertToUserTimezone(date: Date): string {
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return localDate.toLocaleString();
+  }
+
+  getFileSize(size: number): string {
+    const gb = size / (1024 * 1024 * 1024);
+    const mb = size / (1024 * 1024);
+    if (gb >= 1) {
+      return `${gb.toFixed(2)} GB`;
+    }
+    return `${mb.toFixed(2)} MB`;
   }
 }
