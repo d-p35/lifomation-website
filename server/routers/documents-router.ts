@@ -2,7 +2,7 @@ import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
-import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan, In } from "typeorm";
+import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan, In, Not } from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
@@ -178,10 +178,6 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
 
-
-
-
-
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
@@ -193,37 +189,23 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
       whereClause.lastOpened = LessThan(cursorDate);
     }
 
-
-
-
     // Step 1: Find all document permissions for the user
     const permissions = await documentPermissionRepository.find({
-      where: 
-      whereClause,
-      // order: { lastOpened: "DESC" },
-      order: { document : { lastOpened: "DESC" } },
+      where: {...whereClause, document: {ownerId: Not(userId)}},
+      order: { lastOpened: "DESC" },
       relations: { document: true },
     });
 
-    // Extract document IDs from permissions
-    const documentIds = permissions.map(permission => permission.documentId);
-
-    if (documentIds.length === 0) {
-      return res.json({ count: 0, documents: [] }); // No documents shared
-    }
-    const result = permissions
-      .filter(doc => doc.document.ownerId !== userId) // Ensure document is not owned by the user
-
-      const documents = result.map(permission => permission.document);
-
       let nextCursor: string | null = null;
-      if (documents.length == rows) {
-        const lastDocument = documents[rows - 1];
+      if (permissions.length == rows) {
+        const lastDocument = permissions[rows - 1];
         nextCursor = lastDocument.lastOpened.toISOString();
       }
 
+      const documents = permissions.map(permission => {return {...permission.document, lastOpened: permission.lastOpened, starred: permission.starred}});
+
     // Return count and documents
-    res.json({ count: result.length, documents: documents });
+    res.json({ documents: documents });
   } catch (error) {
     console.error('Error fetching shared documents:', error);
     res.status(500).send('Internal server error');
@@ -516,6 +498,12 @@ DocumentsRouter.delete(
     try {
       const id: number = parseInt(req.params.id);
 
+      const document = await documentRepository.findOne({ where: { id: id } });
+
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
     index.deleteDocument(document.id);
     // Delete document
     await documentPermissionRepository.delete({ documentId: document.id });
@@ -558,6 +546,10 @@ DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) =
     const starred = req.body.starred;
     const document = await documentPermissionRepository.findOne({ where: { id: id }, relations: {document: true} });
 
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
     document.starred = starred;
     const updatedDocument = await documentPermissionRepository.save(document);
 
@@ -565,5 +557,6 @@ DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) =
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
+}
 );
 
