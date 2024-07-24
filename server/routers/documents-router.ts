@@ -130,6 +130,15 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
     let existingPermission = await documentPermissionRepository.findOne({
       where: { documentId, userId },
     });
+    
+       index.getDocument(documentId).then((document) => {
+      if (!document){
+        return res.status(404).json({ message: "Document not found in MeiliSearch" });
+      }
+      let sharedUsers = document.sharedUsers || [];
+      sharedUsers.push(userId);
+      index.updateDocuments([{ id: documentId, sharedUsers: [...sharedUsers] }], { primaryKey: 'id' });
+    });
 
     if (existingPermission) {
       // Update the existing permission
@@ -173,6 +182,16 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
     await documentPermissionRepository.delete({
       documentId: documentId,
       userId: userId,
+    });
+
+
+    index.getDocument(documentId).then((document) => {
+      if (!document){
+        return res.status(404).json({ message: "Document not found in MeiliSearch" });
+      }
+      let sharedUsers = document.sharedUsers || [];
+      sharedUsers = sharedUsers.filter((user: string) => user !== userId);
+      index.updateDocuments([{ id: documentId, sharedUsers: [...sharedUsers] }], { primaryKey: 'id' });
     });
 
     res.status(204).json();
@@ -314,7 +333,7 @@ DocumentsRouter.get("/search", async (req: Request, res: Response) => {
     }
 
     const searchResults = await index.search(query, {
-      filter: `ownerId = "${userId}"`,
+      filter: `ownerId = "${userId}" OR sharedUsers IN ["${userId}"]`,
     });
 
     res.status(200).json(searchResults.hits);
@@ -437,7 +456,7 @@ DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: R
       const newDefaultPermission = await documentPermissionRepository.save(defaultPermission);
 
       // Add document to MeiliSearch index
-      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
+      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult,sharedUsers:[] }], { primaryKey: 'id' });
 
       res.status(201).json({ document: {...newDocument , lastOpened:newDefaultPermission.lastOpened, starred:newDefaultPermission.starred } });
     } catch (error) {
