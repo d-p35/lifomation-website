@@ -8,8 +8,7 @@ interface DocumentAttributes {
   id: number;
   document: Express.Multer.File;
   uploadedAt: Date;
-  lastOpened: Date;
-  views: number;
+
   owner: User;
   ownerId: string;
   category: string;
@@ -27,11 +26,6 @@ export class Document implements DocumentAttributes {
   @CreateDateColumn()
   uploadedAt: Date;
 
-  @UpdateDateColumn()
-  lastOpened: Date;
-
-  @Column({ default: 0 })
-  views: number;
 
   @Column()
   category: string;
@@ -42,8 +36,7 @@ export class Document implements DocumentAttributes {
   @Column()
   ownerId: string;
 
-  @Column({ default: false })
-  starred: boolean;
+  
 
   @ManyToOne(() => User, (user) => user.documents)
   @JoinColumn({ name: "ownerId" })
