@@ -47,7 +47,9 @@ infiniteScroll
                 doc.starred ? 'pi pi-star-fill text-warning' : 'pi pi-star'
               "
               (click)="starDocument(doc, $event)"
-            ></i>
+              ></i>
+              <!-- Todo: change to name save in database -->
+              {{ doc.ownerId }} 
               <!-- <button
                 type="button"
                 class="delete-button"
