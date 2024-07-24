@@ -126,15 +126,12 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
-
-    const newPermission = new DocumentPermission();
-    newPermission.documentId = documentId;
-    newPermission.userId = userId;
-    newPermission.accessLevel = accessLevel;
-
-    await documentPermissionRepository.save(newPermission);
-
-    index.getDocument(documentId).then((document) => {
+    // Check if a DocumentPermission already exists for this documentId and userId
+    let existingPermission = await documentPermissionRepository.findOne({
+      where: { documentId, userId },
+    });
+    
+       index.getDocument(documentId).then((document) => {
       if (!document){
         return res.status(404).json({ message: "Document not found in MeiliSearch" });
       }
@@ -142,7 +139,21 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
       sharedUsers.push(userId);
       index.updateDocuments([{ id: documentId, sharedUsers: [...sharedUsers] }], { primaryKey: 'id' });
     });
-    res.status(201).json({ message: "Permission added" });
+
+    if (existingPermission) {
+      // Update the existing permission
+      existingPermission.accessLevel = accessLevel;
+      await documentPermissionRepository.save(existingPermission);
+      return res.status(200).json({ message: "Permission updated" });
+    } else {
+      // Create a new permission
+      const newPermission = new DocumentPermission();
+      newPermission.documentId = documentId;
+      newPermission.userId = userId;
+      newPermission.accessLevel = accessLevel;
+      await documentPermissionRepository.save(newPermission);
+      return res.status(201).json({ message: "Permission added" });
+    }
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

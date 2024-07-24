@@ -30,6 +30,11 @@ export class DocViewComponent {
   editingKey: string | null = null;
   editValue: string = '';
 
+  shareUserId: string = '';
+  shareAccessLevel: string = 'read';
+  shareMessage: string | null = null;
+  shareSuccess: boolean = false;
+
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
@@ -116,8 +121,36 @@ export class DocViewComponent {
         });
     }
   }
+
   cancelEdit() {
     this.editingKey = null;
     this.editValue = '';
+  }
+
+  shareDocument() {
+    if (!this.document || !this.shareUserId || !this.shareAccessLevel) {
+      return;
+    }
+
+    this.apiService.shareDocument(this.document.id, this.shareUserId, this.shareAccessLevel).subscribe({
+      next: () => {
+        this.shareSuccess = true;
+        this.shareMessage = 'Document shared successfully!';
+        this.clearShareMessage();
+      },
+      error: (err) => {
+        console.error(err);
+        this.shareSuccess = false;
+        this.shareMessage = 'Failed to share document: ' + (err.error?.message || err.message);
+        this.clearShareMessage();
+      },
+    });
+  }
+
+  clearShareMessage() {
+    setTimeout(() => {
+      this.shareMessage = null;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }
