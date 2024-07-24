@@ -20,7 +20,6 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })
-
 export class DocViewComponent {
   documentUrl: any = '';
   documentType: string | null = null;
@@ -29,9 +28,12 @@ export class DocViewComponent {
   document: any;
   copiedKey: string | null = null;
   editingKey: string | null = null;
-  editValue: string = ''; 
+  editValue: string = '';
+
   shareUserId: string = '';
-  shareAccessLevel: string = '';
+  shareAccessLevel: string = 'read';
+  shareMessage: string | null = null;
+  shareSuccess: boolean = false;
 
   constructor(
     private apiService: ApiService,
@@ -124,24 +126,31 @@ export class DocViewComponent {
     this.editingKey = null;
     this.editValue = '';
   }
+
   shareDocument() {
-    if (!this.shareUserId || !this.shareAccessLevel) {
-      console.error('User ID and access level are required to share a document');
+    if (!this.document || !this.shareUserId || !this.shareAccessLevel) {
       return;
     }
-    console.log('Sharing document with user:', this.shareUserId);
-    console.log('Access level:', this.shareAccessLevel);
-    console.log('Document ID:', this.document.id);
 
-    this.apiService
-      .shareDocument(this.document.id, this.shareUserId, this.shareAccessLevel)
-      .subscribe({
-        next: (res) => {
-          console.log('Document shared successfully:', res);
-        },
-        error: (err) => {
-          console.error('Error sharing document:', err);
-        },
-      });
+    this.apiService.shareDocument(this.document.id, this.shareUserId, this.shareAccessLevel).subscribe({
+      next: () => {
+        this.shareSuccess = true;
+        this.shareMessage = 'Document shared successfully!';
+        this.clearShareMessage();
+      },
+      error: (err) => {
+        console.error(err);
+        this.shareSuccess = false;
+        this.shareMessage = 'Failed to share document: ' + (err.error?.message || err.message);
+        this.clearShareMessage();
+      },
+    });
+  }
+
+  clearShareMessage() {
+    setTimeout(() => {
+      this.shareMessage = null;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }
