@@ -114,10 +114,9 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
     const { userId, accessLevel } = req.body;
-    
+
     // Validate request body
     if (!userId || !accessLevel) {
-      console.log(req);
       return res.status(400).json({ message: "userId and accessLevel are required" });
     }
 
@@ -191,6 +190,7 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
 
     // Step 1: Find all document permissions for the user
     const permissions = await documentPermissionRepository.find({
+      take: rows,
       where: {...whereClause, document: {ownerId: Not(userId)}},
       order: { lastOpened: "DESC" },
       relations: { document: true },
@@ -204,8 +204,7 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
 
       const documents = permissions.map(permission => {return {...permission.document, lastOpened: permission.lastOpened, starred: permission.starred}});
 
-    // Return count and documents
-    res.json({ documents: documents });
+    res.json({ nextCursor, documents: documents });
   } catch (error) {
     console.error('Error fetching shared documents:', error);
     res.status(500).send('Internal server error');
