@@ -28,7 +28,7 @@ dataSource
     const client = new MeiliSearch({ host: "http://localhost:7700" });
     const index = client.index("documents");
 
-    index.updateFilterableAttributes(["ownerId"]).then(() => {
+    index.updateFilterableAttributes(["ownerId", "sharedUsers"]).then(() => {
       console.log("Filterable attributes updated.");
       index.updateSynonyms(synonyms).then(() => {
         console.log("Synonyms updated.");
