@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })
+
 export class DocViewComponent {
   documentUrl: any = '';
   documentType: string | null = null;
@@ -28,7 +29,9 @@ export class DocViewComponent {
   document: any;
   copiedKey: string | null = null;
   editingKey: string | null = null;
-  editValue: string = '';
+  editValue: string = ''; 
+  shareUserId: string = '';
+  shareAccessLevel: string = '';
 
   constructor(
     private apiService: ApiService,
@@ -116,8 +119,29 @@ export class DocViewComponent {
         });
     }
   }
+
   cancelEdit() {
     this.editingKey = null;
     this.editValue = '';
+  }
+  shareDocument() {
+    if (!this.shareUserId || !this.shareAccessLevel) {
+      console.error('User ID and access level are required to share a document');
+      return;
+    }
+    console.log('Sharing document with user:', this.shareUserId);
+    console.log('Access level:', this.shareAccessLevel);
+    console.log('Document ID:', this.document.id);
+
+    this.apiService
+      .shareDocument(this.document.id, this.shareUserId, this.shareAccessLevel)
+      .subscribe({
+        next: (res) => {
+          console.log('Document shared successfully:', res);
+        },
+        error: (err) => {
+          console.error('Error sharing document:', err);
+        },
+      });
   }
 }
