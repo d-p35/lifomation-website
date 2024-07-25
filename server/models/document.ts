@@ -1,4 +1,10 @@
-import { Entity, JoinColumn, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
+import {
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  UpdateDateColumn,
+} from "typeorm";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 import { User } from "./user";
 import { AllowNull } from "sequelize-typescript";
@@ -26,7 +32,6 @@ export class Document implements DocumentAttributes {
   @CreateDateColumn()
   uploadedAt: Date;
 
-
   @Column()
   category: string;
 
@@ -36,7 +41,8 @@ export class Document implements DocumentAttributes {
   @Column()
   ownerId: string;
 
-  
+  @Column()
+  email: string;
 
   @ManyToOne(() => User, (user) => user.documents)
   @JoinColumn({ name: "ownerId" })
