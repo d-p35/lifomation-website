@@ -1,23 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { DocCardComponent } from '../../doc-card/doc-card.component';
-import { CommonModule } from '@angular/common';
 import { DataService } from '../../services/data.service';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DocListComponent } from '../../components/doc-list/doc-list.component';
+import { CommonModule } from '@angular/common';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-recent',
   standalone: true,
-  imports: [DocCardComponent, CommonModule, ProgressSpinnerModule, DocListComponent],
+  imports: [CommonModule, ProgressSpinnerModule, DocListComponent],
   templateUrl: './recent.component.html',
-  styleUrl: './recent.component.scss',
+  styleUrls: ['./recent.component.scss'],
 })
 export class RecentComponent implements OnInit {
   documents: any[] = [];
-  folderName: string = 'My Documents';
-  nextDocument: String|undefined;
+  nextDocument: String | undefined;
   itemsPerPage: number = 10;
   totalRecords: number = 0;
   loadedAll: boolean = false;
@@ -30,7 +27,6 @@ export class RecentComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
         this.userId = userId;
@@ -46,33 +42,58 @@ export class RecentComponent implements OnInit {
 
     this.dataService.notifyObservable$.subscribe((res) => {
       if (res && res.refresh && res.document) {
-          if (res.type == 'delete') this.documents = this.documents.filter((doc) => doc.id !== res.document.id);
-          else if (res.type == 'upload') this.documents = [{
-            ...res.document,
-            uploadedAtLocal: this.convertToUserTimezone(new Date(res.document.uploadedAt)),
-            lastOpenedLocal: this.convertToUserTimezone(new Date(res.document.lastOpened)),
-            fileSize: this.getFileSize(res.document.document.size),
-          }, ...this.documents];
+        if (res.type == 'delete') {
+          this.documents = this.documents.filter(
+            (doc) => doc.id !== res.document.id
+          );
+          this.onDocumentDeleted(this.documents); // Check if no documents left
+        } else if (res.type == 'upload') {
+          this.documents = [
+            {
+              ...res.document,
+              uploadedAtLocal: this.convertToUserTimezone(
+                new Date(res.document.uploadedAt)
+              ),
+              lastOpenedLocal: this.convertToUserTimezone(
+                new Date(res.document.lastOpened)
+              ),
+              fileSize: this.getFileSize(res.document.document.size),
+            },
+            ...this.documents,
+          ];
+        }
       }
     });
   }
 
   onScroll() {
     if (!this.userId || this.loadedAll) return;
-    this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage, this.userId);
+    this.fetchDocumentsByPage(
+      this.nextDocument,
+      this.itemsPerPage,
+      this.userId
+    );
   }
 
-
-  fetchDocumentsByPage(next: String|undefined, itemsPerPage: number, userId: string) {
+  fetchDocumentsByPage(
+    next: String | undefined,
+    itemsPerPage: number,
+    userId: string
+  ) {
     this.apiService.getRecentDocuments(next, itemsPerPage, userId).subscribe({
       next: (res) => {
-        console.log('res', res);
-        this.documents = this.documents.concat(res.documents.map((doc: any) => ({
-          ...doc,
-          uploadedAtLocal: this.convertToUserTimezone(new Date(doc.uploadedAt)),
-          lastOpenedLocal: this.convertToUserTimezone(new Date(doc.lastOpened)),
-          fileSize: this.getFileSize(doc.document.size),
-        })));
+        this.documents = this.documents.concat(
+          res.documents.map((doc: any) => ({
+            ...doc,
+            uploadedAtLocal: this.convertToUserTimezone(
+              new Date(doc.uploadedAt)
+            ),
+            lastOpenedLocal: this.convertToUserTimezone(
+              new Date(doc.lastOpened)
+            ),
+            fileSize: this.getFileSize(doc.document.size),
+          }))
+        );
         this.nextDocument = res.nextCursor;
         if (!this.nextDocument) {
           this.loadedAll = true;
@@ -86,8 +107,17 @@ export class RecentComponent implements OnInit {
     });
   }
 
+  onDocumentDeleted(updatedDocuments: any[]) {
+    this.documents = updatedDocuments;
+    if (this.documents.length === 0) {
+      this.loadedAll = true;
+    }
+  }
+
   convertToUserTimezone(date: Date): string {
-    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    );
     return localDate.toLocaleString();
   }
 

@@ -30,8 +30,6 @@ $header-height: 0px;
     margin-bottom: 20px;
   }
 
-
-  
   .recent-files-section {
     h2 {
       margin: 0 0 20px;
@@ -84,11 +82,9 @@ $header-height: 0px;
       }
     }
   }
-
-
 }
 
-.progress{
+.progress {
   height: inherit; /* Full viewport height */
   display: flex;
   justify-content: center; /* Center horizontally */
@@ -96,3 +92,8 @@ $header-height: 0px;
   background-color: inherit;
 }
 
+.no-documents {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}

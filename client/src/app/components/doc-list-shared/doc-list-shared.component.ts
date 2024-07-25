@@ -14,7 +14,16 @@ import { ToastModule } from 'primeng/toast';
 @Component({
   selector: 'app-docshared-list',
   standalone: true,
-  imports: [NgFor, TableModule, ScrollerModule, InfiniteScrollDirective, ButtonModule,ProgressSpinnerModule, CommonModule, ToastModule],
+  imports: [
+    NgFor,
+    TableModule,
+    ScrollerModule,
+    InfiniteScrollDirective,
+    ButtonModule,
+    ProgressSpinnerModule,
+    CommonModule,
+    ToastModule,
+  ],
   templateUrl: './doc-list-shared.component.html',
   styleUrls: ['./doc-list-shared.component.scss'],
 })
@@ -23,18 +32,15 @@ export class DocListSharedComponent implements OnInit {
   @Input() loadedAll: boolean = false;
   @Output() scroll = new EventEmitter<void>();
 
-
   constructor(
     private router: Router,
     private apiService: ApiService,
     private dataService: DataService,
     private route: ActivatedRoute,
-    private messageService: MessageService,
+    private messageService: MessageService
   ) {}
 
-  ngOnInit(): void {
-    
-  }
+  ngOnInit(): void {}
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
@@ -62,6 +68,4 @@ export class DocListSharedComponent implements OnInit {
       },
     });
   }
-
-  
 }
