@@ -278,8 +278,9 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const ownerId = req.query.userId as string;
     const categoryName = req.query.categoryName as string;
     let cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
+    let email = await getEmailFromUserId(ownerId as string);
 
-    let whereClause = { ownerId: ownerId } as any;
+    let whereClause = { email: email } as any;
     if (categoryName) {
       whereClause.category = Like(`${categoryName},%`);
     }
@@ -292,7 +293,7 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const documents = await documentRepository.find({
       take: rows, // Fetch one extra row to check if there are more documents
       order: { uploadedAt: "DESC" },
-      where: { ...whereClause, permissions: { userId: ownerId } },
+      where: { ...whereClause, permissions: { email: email } },
       relations: {
         permissions: true,
       },
@@ -323,8 +324,9 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
     const ownerId = req.body.userId;
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
+    let email = await getEmailFromUserId(ownerId as string);
 
-    let whereClause = { document: { ownerId: ownerId }, starred: true } as any;
+    let whereClause = { document: { email: email }, starred: true } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -386,9 +388,9 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
 
-    console.log(`Ownwer ID: ${ownerId}, Cursor: ${cursor}, Rows: ${rows}`);
 
-    let whereClause = { document: { ownerId: ownerId } } as any;
+    let email = await getEmailFromUserId(ownerId as String);
+    let whereClause = { document: { email: email } } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);

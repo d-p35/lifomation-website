@@ -1,12 +1,13 @@
 import { CommonModule, NgIf } from '@angular/common';
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { ImageModule } from 'primeng/image';
 import { FormsModule } from '@angular/forms';
-
+import { WebSocketService } from '../../services/websocket.service';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-doc-view',
   standalone: true,
@@ -34,12 +35,13 @@ export class DocViewComponent {
   shareAccessLevel: string = 'read';
   shareMessage: string | null = null;
   shareSuccess: boolean = false;
-
+  wsSubscription: Subscription | undefined;
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private wsService: WebSocketService
   ) {}
 
   ngOnInit() {
@@ -80,10 +82,24 @@ export class DocViewComponent {
             console.error(err);
           },
         });
+
+        this.wsSubscription = this.wsService.getMessages().subscribe((message) => {
+          if (message.type === 'edit' && message.documentId === this.document.id) {
+            this.keyInfo[message.key] = message.value;
+            this.cdr.detectChanges();
+          }
+        });
       } else {
         console.error('User ID not found');
       }
     });
+  }
+
+  ngOnDestroy() {
+    // Unsubscribe to avoid memory leaks
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
   }
 
   keyInfoKeys() {
@@ -107,18 +123,22 @@ export class DocViewComponent {
 
   saveEdit(key: string) {
     if (this.editValue !== null) {
-      this.apiService
-        .editKeyInfo(this.document.id, key, this.editValue)
-        .subscribe({
-          next: () => {
-            this.keyInfo[key] = this.editValue;
-            this.editingKey = null;
-            this.cdr.detectChanges();
-          },
-          error: (err) => {
-            console.error(err);
-          },
-        });
+      this.apiService.editKeyInfo(this.document.id, key, this.editValue).subscribe({
+        next: () => {
+          this.keyInfo[key] = this.editValue;
+          this.editingKey = null;
+          this.wsService.sendMessage({
+            type: 'edit',
+            documentId: this.document.id,
+            key: key,
+            value: this.editValue,
+          });
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
     }
   }
 
