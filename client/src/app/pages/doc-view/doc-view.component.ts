@@ -30,7 +30,7 @@ export class DocViewComponent {
   editingKey: string | null = null;
   editValue: string = '';
 
-  shareUserId: string = '';
+  shareemail: string = '';
   shareAccessLevel: string = 'read';
   shareMessage: string | null = null;
   shareSuccess: boolean = false;
@@ -128,11 +128,11 @@ export class DocViewComponent {
   }
 
   shareDocument() {
-    if (!this.document || !this.shareUserId || !this.shareAccessLevel) {
+    if (!this.document || !this.shareemail || !this.shareAccessLevel) {
       return;
     }
 
-    this.apiService.shareDocument(this.document.id, this.shareUserId, this.shareAccessLevel).subscribe({
+    this.apiService.shareDocument(this.document.id, this.shareemail, this.shareAccessLevel).subscribe({
       next: () => {
         this.shareSuccess = true;
         this.shareMessage = 'Document shared successfully!';
