@@ -2,7 +2,15 @@ import { NextFunction, Router } from "express";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { dataSource } from "../db/database";
-import { Repository, Like, MoreThanOrEqual, LessThanOrEqual, LessThan, In, Not } from "typeorm";
+import {
+  Repository,
+  Like,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  LessThan,
+  In,
+  Not,
+} from "typeorm";
 import { Document } from "../models/document";
 import multer from "multer";
 import path from "path";
@@ -117,7 +125,9 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
 
     // Validate request body
     if (!userId || !accessLevel) {
-      return res.status(400).json({ message: "userId and accessLevel are required" });
+      return res
+        .status(400)
+        .json({ message: "userId and accessLevel are required" });
     }
 
     const document = await documentRepository.findOne({
@@ -129,6 +139,20 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
     // Check if a DocumentPermission already exists for this documentId and userId
     let existingPermission = await documentPermissionRepository.findOne({
       where: { documentId, userId },
+    });
+
+    index.getDocument(documentId).then((document) => {
+      if (!document) {
+        return res
+          .status(404)
+          .json({ message: "Document not found in MeiliSearch" });
+      }
+      let sharedUsers = document.sharedUsers || [];
+      sharedUsers.push(userId);
+      index.updateDocuments(
+        [{ id: documentId, sharedUsers: [...sharedUsers] }],
+        { primaryKey: "id" }
+      );
     });
 
     if (existingPermission) {
@@ -175,6 +199,20 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
       userId: userId,
     });
 
+    index.getDocument(documentId).then((document) => {
+      if (!document) {
+        return res
+          .status(404)
+          .json({ message: "Document not found in MeiliSearch" });
+      }
+      let sharedUsers = document.sharedUsers || [];
+      sharedUsers = sharedUsers.filter((user: string) => user !== userId);
+      index.updateDocuments(
+        [{ id: documentId, sharedUsers: [...sharedUsers] }],
+        { primaryKey: "id" }
+      );
+    });
+
     res.status(204).json();
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -191,7 +229,7 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    let whereClause = { userId: userId} as any;
+    let whereClause = { userId: userId } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -201,26 +239,31 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
     // Step 1: Find all document permissions for the user
     const permissions = await documentPermissionRepository.find({
       take: rows,
-      where: {...whereClause, document: {ownerId: Not(userId)}},
+      where: { ...whereClause, document: { ownerId: Not(userId) } },
       order: { lastOpened: "DESC" },
       relations: { document: true },
     });
 
-      let nextCursor: string | null = null;
-      if (permissions.length == rows) {
-        const lastDocument = permissions[rows - 1];
-        nextCursor = lastDocument.lastOpened.toISOString();
-      }
+    let nextCursor: string | null = null;
+    if (permissions.length == rows) {
+      const lastDocument = permissions[rows - 1];
+      nextCursor = lastDocument.lastOpened.toISOString();
+    }
 
-      const documents = permissions.map(permission => {return {...permission.document, lastOpened: permission.lastOpened, starred: permission.starred}});
+    const documents = permissions.map((permission) => {
+      return {
+        ...permission.document,
+        lastOpened: permission.lastOpened,
+        starred: permission.starred,
+      };
+    });
 
     res.json({ nextCursor, documents: documents });
   } catch (error) {
-    console.error('Error fetching shared documents:', error);
-    res.status(500).send('Internal server error');
+    console.error("Error fetching shared documents:", error);
+    res.status(500).send("Internal server error");
   }
 });
-
 
 //------------------------------------------------------------------------------------------------
 //---------------------------------Document-------------------------------------------------------
@@ -232,8 +275,7 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const rows = parseInt(req.query.rows as string) || 10;
     const ownerId = req.query.userId as string;
     const categoryName = req.query.categoryName as string;
-    let  cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
-
+    let cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
 
     let whereClause = { ownerId: ownerId } as any;
     if (categoryName) {
@@ -241,28 +283,34 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     }
 
     if (cursor) {
-      let cursorDate  = new Date(cursor)
-      whereClause.uploadedAt = LessThan(cursorDate); 
+      let cursorDate = new Date(cursor);
+      whereClause.uploadedAt = LessThan(cursorDate);
     }
 
     const documents = await documentRepository.find({
       take: rows, // Fetch one extra row to check if there are more documents
-      order: { uploadedAt: "DESC"},
-      where: {...whereClause, permissions: {userId: ownerId}},
+      order: { uploadedAt: "DESC" },
+      where: { ...whereClause, permissions: { userId: ownerId } },
       relations: {
         permissions: true,
-      }
+      },
     });
 
     let nextCursor: string | null = null;
     if (documents.length == rows) {
-      const lastDocument = documents[rows-1];
+      const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.uploadedAt.toISOString();
     }
 
-    const results = documents.map((doc) => {return {...doc, lastOpened: doc.permissions[0].lastOpened, starred: doc.permissions[0].starred}});
+    const results = documents.map((doc) => {
+      return {
+        ...doc,
+        lastOpened: doc.permissions[0].lastOpened,
+        starred: doc.permissions[0].starred,
+      };
+    });
 
-    res.status(200).json({ nextCursor, documents:results });
+    res.status(200).json({ nextCursor, documents: results });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -274,7 +322,7 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
 
-    let whereClause = { document:{ownerId: ownerId}, starred: true } as any;
+    let whereClause = { document: { ownerId: ownerId }, starred: true } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -296,7 +344,13 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
       nextCursor = lastDocument.lastOpened.toISOString();
     }
 
-    const result = documents.map((doc) => {return {...doc.document, starred:doc.starred, lastOpened:doc.lastOpened}});
+    const result = documents.map((doc) => {
+      return {
+        ...doc.document,
+        starred: doc.starred,
+        lastOpened: doc.lastOpened,
+      };
+    });
 
     res.status(200).json({ nextCursor, documents: result });
   } catch (err: any) {
@@ -314,7 +368,7 @@ DocumentsRouter.get("/search", async (req: Request, res: Response) => {
     }
 
     const searchResults = await index.search(query, {
-      filter: `ownerId = "${userId}"`,
+      filter: `ownerId = "${userId}" OR sharedUsers IN ["${userId}"]`,
     });
 
     res.status(200).json(searchResults.hits);
@@ -330,16 +384,14 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
 
-
     console.log(`Ownwer ID: ${ownerId}, Cursor: ${cursor}, Rows: ${rows}`);
 
-    let whereClause = { document:{ownerId: ownerId} } as any;
+    let whereClause = { document: { ownerId: ownerId } } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
       whereClause.lastOpened = LessThan(cursorDate);
     }
-
 
     let documents = await documentPermissionRepository.find({
       take: rows,
@@ -350,18 +402,21 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
       where: whereClause,
     });
 
-
     let nextCursor: string | null = null;
     if (documents.length == rows) {
       const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.lastOpened.toISOString();
     }
 
-    const result = documents.map((doc) => {return {...doc.document, starred:doc.starred, lastOpened:doc.lastOpened}});
-
+    const result = documents.map((doc) => {
+      return {
+        ...doc.document,
+        starred: doc.starred,
+        lastOpened: doc.lastOpened,
+      };
+    });
 
     res.status(200).json({ nextCursor, documents: result });
-
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -406,50 +461,94 @@ DocumentsRouter.get(
   }
 );
 
-DocumentsRouter.post("/", upload.single("document"), async (req: Request, res: Response) => {
-  try {
-    const file = req.file;
-    const ownerId = req.body.userId;
-
-    if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-    if (!ownerId) {
-      return res.status(400).json({ message: "User is not logged in" });
-    }
-
-    const processFunction = file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
+DocumentsRouter.post(
+  "/",
+  upload.single("document"),
+  async (req: Request, res: Response) => {
     try {
-      let { document, text, classificationResult } = await processFunction(file, ownerId, res);
+      const file = req.file;
+      const ownerId = req.body.userId;
+      const email = req.body.email;
 
-      if (classificationResult.length === 0) {
-        return res.status(500).json({ message: "Failed to classify document" });
+      if (!file) {
+        return res.status(400).json({ message: "No file uploaded" });
       }
-      const newDocument = await documentRepository.save(document);
-      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
+      if (!ownerId) {
+        return res.status(400).json({ message: "User is not logged in" });
+      }
 
-      // Add default permission for the owner
-      const defaultPermission = new DocumentPermission();
-      defaultPermission.documentId = newDocument.id;
-      defaultPermission.userId = ownerId;
-      defaultPermission.accessLevel = 'full'; // Full access for the owner
+      const processFunction =
+        file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
+      try {
+        let { document, text, classificationResult } = await processFunction(
+          file,
+          ownerId,
+          res
+        );
+        document.email = email;
+        if (classificationResult.length === 0) {
+          return res
+            .status(500)
+            .json({ message: "Failed to classify document" });
+        }
+        const newDocument = await documentRepository.save(document);
+        await index.addDocuments(
+          [
+            {
+              id: newDocument.id,
+              title: newDocument.document.originalname,
+              text: text,
+              ownerId,
+              category: classificationResult,
+            },
+          ],
+          { primaryKey: "id" }
+        );
 
-      const newDefaultPermission = await documentPermissionRepository.save(defaultPermission);
+        // Add default permission for the owner
+        const defaultPermission = new DocumentPermission();
+        defaultPermission.documentId = newDocument.id;
+        defaultPermission.userId = ownerId;
+        defaultPermission.accessLevel = "full"; // Full access for the owner
 
-      // Add document to MeiliSearch index
-      await index.addDocuments([{ id: newDocument.id, title: newDocument.document.originalname, text: text, ownerId, category: classificationResult }], { primaryKey: 'id' });
+        const newDefaultPermission = await documentPermissionRepository.save(
+          defaultPermission
+        );
 
-      res.status(201).json({ document: {...newDocument , lastOpened:newDefaultPermission.lastOpened, starred:newDefaultPermission.starred } });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Failed to save document" });
+        // Add document to MeiliSearch index
+        await index.addDocuments(
+          [
+            {
+              id: newDocument.id,
+              title: newDocument.document.originalname,
+              text: text,
+              ownerId,
+              category: classificationResult,
+              sharedUsers: [],
+            },
+          ],
+          { primaryKey: "id" }
+        );
 
+        res
+          .status(201)
+          .json({
+            document: {
+              ...newDocument,
+              lastOpened: newDefaultPermission.lastOpened,
+              starred: newDefaultPermission.starred,
+            },
+          });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to save document" });
+      }
+    } catch (err: any) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to process document" });
     }
-  } catch (err: any) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to process document" });
   }
-});
+);
 
 DocumentsRouter.patch(
   "/category/:id",
@@ -484,7 +583,10 @@ DocumentsRouter.patch(
     try {
       // Update lastOpened
       const id: number = parseInt(req.params.id);
-      const document = await documentPermissionRepository.findOne({ where: { documentId: id }, relations: {document: true}  });
+      const document = await documentPermissionRepository.findOne({
+        where: { documentId: id },
+        relations: { document: true },
+      });
 
       if (!document) {
         return res.status(404).json({ message: "Document not found" });
@@ -513,11 +615,10 @@ DocumentsRouter.delete(
         return res.status(404).json({ message: "Document not found" });
       }
 
-    index.deleteDocument(document.id);
-    // Delete document
-    await documentPermissionRepository.delete({ documentId: document.id });
-    await documentRepository.delete(document.id);
-  
+      index.deleteDocument(document.id);
+      // Delete document
+      await documentPermissionRepository.delete({ documentId: document.id });
+      await documentRepository.delete(document.id);
 
       if (!document) {
         return res.status(404).json({ message: "Document not found" });
@@ -547,25 +648,27 @@ DocumentsRouter.delete(
   }
 );
 
+DocumentsRouter.patch(
+  "/starred/:id/file",
+  async (req: Request, res: Response) => {
+    try {
+      const id: number = parseInt(req.params.id);
+      const starred = req.body.starred;
+      const document = await documentPermissionRepository.findOne({
+        where: { id: id },
+        relations: { document: true },
+      });
 
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
 
-DocumentsRouter.patch("/starred/:id/file", async (req: Request, res: Response) => {
-  try {
-    const id: number = parseInt(req.params.id);
-    const starred = req.body.starred;
-    const document = await documentPermissionRepository.findOne({ where: { id: id }, relations: {document: true} });
+      document.starred = starred;
+      const updatedDocument = await documentPermissionRepository.save(document);
 
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
+      res.status(200).json({ document: updatedDocument });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
     }
-
-    document.starred = starred;
-    const updatedDocument = await documentPermissionRepository.save(document);
-
-    res.status(200).json({ document: updatedDocument });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
   }
-}
 );
-
