@@ -4,6 +4,7 @@ import { HomeHeaderComponent } from '../../layout/home-header/header.component';
 import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
 import { ApiService } from '../../services/api.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -157,10 +158,7 @@ export class HomeComponent implements OnInit {
     },
   ];
 
-  constructor(
-    private apiService: ApiService,
-    private router: Router,
-  ) {} // Step 2: Inject Router
+  constructor(private apiService: ApiService, private router: Router) {} // Step 2: Inject Router
   userId: string | undefined;
 
   ngOnInit(): void {
@@ -172,16 +170,25 @@ export class HomeComponent implements OnInit {
     //   }
     // });
 
-    // @d-p35: Prints the user id
-    this.apiService.getUserId().subscribe((userId: string | undefined) => {
-      if (userId && userId !== 'Unknown UID') {
-        this.apiService.createUser(userId).subscribe((response) => {
-          this.router.navigate(['/dashboard']);
-        });
-      } else {
-        console.error('User ID not found');
+    combineLatest([
+      this.apiService.getUserId(),
+      this.apiService.getUserEmail(),
+    ]).subscribe(
+      ([userId, email]: [string | undefined, string | undefined]) => {
+        if (
+          userId &&
+          userId !== 'Unknown UID' &&
+          email &&
+          email !== 'Unknown Email'
+        ) {
+          this.apiService.createUser(userId, email).subscribe((response) => {
+            this.router.navigate(['/dashboard']);
+          });
+        } else {
+          console.error('User ID or Email not found');
+        }
       }
-    });
+    );
   }
 
   initThreeJS() {
@@ -190,7 +197,7 @@ export class HomeComponent implements OnInit {
       75,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000,
+      1000
     );
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
@@ -218,7 +225,7 @@ export class HomeComponent implements OnInit {
 
     // Create mesh array
     const meshes = geometries.map(
-      (geometry, index) => new THREE.Mesh(geometry, materials[index]),
+      (geometry, index) => new THREE.Mesh(geometry, materials[index])
     );
 
     // Position meshes randomly
@@ -226,7 +233,7 @@ export class HomeComponent implements OnInit {
       mesh.position.set(
         Math.random() * 20 - 10,
         Math.random() * 20 - 10,
-        Math.random() * 20 - 10,
+        Math.random() * 20 - 10
       );
       scene.add(mesh);
     });

@@ -1,9 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -16,11 +11,12 @@ import { PrimeNGConfig } from 'primeng/api';
 import { InfoCircleIcon } from 'primeng/icons/infocircle';
 import { TimesIcon } from 'primeng/icons/times';
 import { Ripple, RippleModule } from 'primeng/ripple';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CommonModule } from '@angular/common';
 import { DropdownModule } from 'primeng/dropdown';
 import { CategoryService } from '../../services/categories.service';
 import { FormsModule } from '@angular/forms';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-upload',
@@ -38,7 +34,7 @@ import { FormsModule } from '@angular/forms';
     ProgressSpinnerModule,
     CommonModule,
     DropdownModule,
-    FormsModule
+    FormsModule,
   ],
   templateUrl: './upload.component.html',
   styleUrls: [
@@ -50,6 +46,7 @@ export class UploadComponent implements OnInit {
   selectedFile: File | null = null;
   visible: boolean = false;
   userId: string | undefined;
+  email: string | undefined;
   documentisProcessing: boolean = false;
   selectedCategory: string = '';
   selectedCategories: string[] = [];
@@ -69,13 +66,24 @@ export class UploadComponent implements OnInit {
     this.primengConfig.ripple = true;
     this.categories = this.categoryService.getCategories();
 
-    this.apiService.getUserId().subscribe((userId: string | undefined) => {
-      if (userId) {
-        this.userId = userId;
-      } else {
-        console.error('User ID not found');
+    combineLatest([
+      this.apiService.getUserId(),
+      this.apiService.getUserEmail(),
+    ]).subscribe(
+      ([userId, email]: [string | undefined, string | undefined]) => {
+        if (userId) {
+          this.userId = userId;
+        } else {
+          console.error('User ID not found');
+        }
+
+        if (email) {
+          this.email = email;
+        } else {
+          console.error('User email not found');
+        }
       }
-    });
+    );
   }
 
   showDialog() {
@@ -95,15 +103,20 @@ export class UploadComponent implements OnInit {
       return;
     }
     this.selectedCategories.unshift(this.selectedCategory);
-    this.selectedCategories = [...new Set(this.selectedCategories)]
-    this.apiService.getUserId().subscribe((userId: string | undefined)=>{
-      if (userId && userId !== 'Unknown UID'){
-        this.apiService.changeCategory(document.id, userId, this.selectedCategories.join(','))
+    this.selectedCategories = [...new Set(this.selectedCategories)];
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId && userId !== 'Unknown UID') {
+        this.apiService
+          .changeCategory(
+            document.id,
+            userId,
+            this.selectedCategories.join(',')
+          )
           .subscribe({
             next: (res) => {
               this.changeCategoryIsProcessing = false;
               this.messageService.clear('custom');
-    
+
               //@d-p35 Todo: Click this toast and it takes you to the document
               this.messageService.add({
                 key: 'bottomright',
@@ -121,21 +134,21 @@ export class UploadComponent implements OnInit {
                 summary: 'Error',
                 detail: 'Category change failed',
               });
-            }
+            },
           });
-
-      }else {
+      } else {
         console.error('User ID not found');
       }
-    })
+    });
   }
 
   uploadFile() {
     if (this.selectedFile) {
-      this.documentisProcessing = true
+      this.documentisProcessing = true;
       const formData = new FormData();
       formData.append('document', this.selectedFile);
       if (this.userId) formData.append('userId', this.userId || '');
+      if (this.email) formData.append('email', this.email || '');
       this.apiService.uploadDocument(formData).subscribe({
         next: (res) => {
           this.clearFileInput();
@@ -145,14 +158,19 @@ export class UploadComponent implements OnInit {
             summary: 'Success',
             detail: 'Document uploaded successfully',
           });
-          this.selectedCategories = res.document.category.split(',').map((category: string) => category.trim());
+          this.selectedCategories = res.document.category
+            .split(',')
+            .map((category: string) => category.trim());
 
-          if(!this.selectedCategories || this.selectedCategories.length === 0){
+          if (
+            !this.selectedCategories ||
+            this.selectedCategories.length === 0
+          ) {
             this.selectedCategories = ['Uncategorized'];
           }
 
-          this.selectedCategory =this.selectedCategories[0];
-          
+          this.selectedCategory = this.selectedCategories[0];
+
           setTimeout(() => {
             this.messageService.clear('template');
             this.messageService.add({
@@ -164,9 +182,11 @@ export class UploadComponent implements OnInit {
               life: 20000,
             });
           }, 3000);
-          this.dataService.notifyOther({ refresh: true, document : res.document, type: 'upload' });
-
-          
+          this.dataService.notifyOther({
+            refresh: true,
+            document: res.document,
+            type: 'upload',
+          });
         },
         error: (err) => {
           console.error(err);
