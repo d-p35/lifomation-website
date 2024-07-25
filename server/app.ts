@@ -7,8 +7,7 @@ import { UsersRouter } from "./routers/users-router";
 import { DocumentsRouter } from "./routers/documents-router";
 import MeiliSearch from "meilisearch";
 import synonyms from "./synonyms.json";
-import { WebSocketServer } from "ws"; // Import WebSocketServer
-
+import { initializeWebSocketServer } from "./services/websocket";
 const app = express();
 
 app.use(express.json());
@@ -40,27 +39,8 @@ dataSource
             console.log(`Server started on port ${port}`);
           });
 
-          // WebSocket setup
-          const wss = new WebSocketServer({ server });
-
-          wss.on("connection", (ws) => {
-            console.log("Client connected");
-
-            ws.on("message", (message) => {
-              console.log(`Received message => ${message}`);
-
-              // Broadcast message to all clients
-              wss.clients.forEach((client) => {
-                if (client !== ws && client.readyState === 1) {
-                  client.send(message);
-                }
-              });
-            });
-
-            ws.on("close", () => {
-              console.log("Client disconnected");
-            });
-          });
+          // Initialize WebSocket server
+          initializeWebSocketServer(server);
         });
       });
     });

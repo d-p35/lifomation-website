@@ -184,6 +184,6 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.wsSubscription.unsubscribe();
-    this.wsService.closeConnection();
+    // this.wsService.closeConnection();
   }
 }

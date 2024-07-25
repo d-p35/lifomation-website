@@ -5,7 +5,7 @@ import { Document } from "./document";
 interface DocumentPermissionAttributes {
   id: number;
   documentId: number;
-  userId: string;
+  email: string;
   accessLevel: "read" | "edit" | "full";
   lastOpened: Date;
   views: number;
@@ -13,7 +13,7 @@ interface DocumentPermissionAttributes {
 }
 
 @Entity()
-@Unique(["documentId", "userId"])
+@Unique(["documentId", "email"])
 export class DocumentPermission implements DocumentPermissionAttributes {
   @PrimaryGeneratedColumn()
   id: number;
@@ -22,7 +22,7 @@ export class DocumentPermission implements DocumentPermissionAttributes {
   documentId: number;
 
   @Column()
-  userId: string;
+  email: string;
 
   @Column()
   accessLevel: "read" | "edit" | "full";

@@ -24,19 +24,16 @@ import { processImageFile } from "../services/extractTextService";
 import { processPdfFile } from "../services/extractTextService";
 import { MeiliSearch } from "meilisearch";
 import { DocumentPermission } from "../models/documentPermission";
+import { getEmailFromUserId } from "../utils/userUtils"; // Import the utility function
 
 require("dotenv").config();
 
 const upload = multer({ dest: "uploads/" });
 const client = new MeiliSearch({ host: "http://localhost:7700" });
 const index = client.index("documents");
-
 export const DocumentsRouter = Router();
-
-const documentRepository: Repository<Document> =
-  dataSource.getRepository(Document);
-const documentPermissionRepository: Repository<DocumentPermission> =
-  dataSource.getRepository(DocumentPermission);
+const documentRepository: Repository<Document> = dataSource.getRepository(Document);
+const documentPermissionRepository: Repository<DocumentPermission> = dataSource.getRepository(DocumentPermission);
 
 // Middleware to check permissions
 const checkPermission = (requiredAccessLevel: string) => {
@@ -44,16 +41,18 @@ const checkPermission = (requiredAccessLevel: string) => {
     console.log("Middleware executed");
 
     const documentId = parseInt(req.params.id);
-    const userId =
-      req.body.userId || req.query.userId || req.headers["user-id"];
+    let email = req.body.email || req.query.email || req.headers["email"];
+    const userId = req.body.userId || req.query.userId || req.headers["userId"];
+    console.log(`Email: ${email}, User ID: ${userId}`);
 
-    console.log(`Document ID: ${documentId}`);
-    console.log(`User ID: ${userId}`);
-
-    if (!userId) {
-      console.log("Permission denied: User ID is missing");
-      return res.status(400).json({ message: "User ID is required" });
+    if (!email && userId) {
+      email = await getEmailFromUserId(userId);
     }
+    console.log(`Email: ${email}, User ID: ${userId}`);
+    if (!email) {
+      return res.status(400).json({ message: "Email or User ID is required" });
+    }
+    console.log(`Email: ${email}, User ID: ${userId}`);
 
     const document = await documentRepository.findOne({
       where: { id: documentId },
@@ -67,7 +66,7 @@ const checkPermission = (requiredAccessLevel: string) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    const permission = document.permissions.find((p) => p.userId === userId);
+    const permission = document.permissions.find((p) => p.email === email);
     console.log(`Found permission: ${JSON.stringify(permission)}`);
 
     const accessLevels = ["read", "edit", "full"];
@@ -121,10 +120,10 @@ DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId, accessLevel } = req.body;
+    const { email, accessLevel } = req.body;
 
     // Validate request body
-    if (!userId || !accessLevel) {
+    if (!email || !accessLevel) {
       return res
         .status(400)
         .json({ message: "userId and accessLevel are required" });
@@ -138,7 +137,7 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
     }
     // Check if a DocumentPermission already exists for this documentId and userId
     let existingPermission = await documentPermissionRepository.findOne({
-      where: { documentId, userId },
+      where: { documentId, email },
     });
 
     index.getDocument(documentId).then((document) => {
@@ -148,7 +147,7 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
           .json({ message: "Document not found in MeiliSearch" });
       }
       let sharedUsers = document.sharedUsers || [];
-      sharedUsers.push(userId);
+      sharedUsers.push(email);
       index.updateDocuments(
         [{ id: documentId, sharedUsers: [...sharedUsers] }],
         { primaryKey: "id" }
@@ -164,7 +163,7 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
       // Create a new permission
       const newPermission = new DocumentPermission();
       newPermission.documentId = documentId;
-      newPermission.userId = userId;
+      newPermission.email = email;
       newPermission.accessLevel = accessLevel;
       await documentPermissionRepository.save(newPermission);
       return res.status(201).json({ message: "Permission added" });
@@ -192,11 +191,11 @@ DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
 DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
-    const { userId } = req.body;
+    const { email } = req.body;
 
     await documentPermissionRepository.delete({
       documentId: documentId,
-      userId: userId,
+      email: email,
     });
 
     index.getDocument(documentId).then((document) => {
@@ -206,7 +205,7 @@ DocumentsRouter.delete("/:id/share", async (req: Request, res: Response) => {
           .json({ message: "Document not found in MeiliSearch" });
       }
       let sharedUsers = document.sharedUsers || [];
-      sharedUsers = sharedUsers.filter((user: string) => user !== userId);
+      sharedUsers = sharedUsers.filter((user: string) => user !== email);
       index.updateDocuments(
         [{ id: documentId, sharedUsers: [...sharedUsers] }],
         { primaryKey: "id" }
@@ -229,17 +228,20 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    let whereClause = { userId: userId } as any;
+    let email = await getEmailFromUserId(userId);
+    console.log(`Email: ${email}`);
+
+    let whereClause = { email: email } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
       whereClause.lastOpened = LessThan(cursorDate);
     }
-
+    
     // Step 1: Find all document permissions for the user
     const permissions = await documentPermissionRepository.find({
       take: rows,
-      where: { ...whereClause, document: { ownerId: Not(userId) } },
+      where: { ...whereClause, document: { email: Not(email) } },
       order: { lastOpened: "DESC" },
       relations: { document: true },
     });
@@ -276,8 +278,9 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const ownerId = req.query.userId as string;
     const categoryName = req.query.categoryName as string;
     let cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
+    let email = await getEmailFromUserId(ownerId as string);
 
-    let whereClause = { ownerId: ownerId } as any;
+    let whereClause = { email: email } as any;
     if (categoryName) {
       whereClause.category = Like(`${categoryName},%`);
     }
@@ -290,7 +293,7 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const documents = await documentRepository.find({
       take: rows, // Fetch one extra row to check if there are more documents
       order: { uploadedAt: "DESC" },
-      where: { ...whereClause, permissions: { userId: ownerId } },
+      where: { ...whereClause, permissions: { email: email } },
       relations: {
         permissions: true,
       },
@@ -321,8 +324,9 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
     const ownerId = req.body.userId;
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
+    let email = await getEmailFromUserId(ownerId as string);
 
-    let whereClause = { document: { ownerId: ownerId }, starred: true } as any;
+    let whereClause = { document: { email: email }, starred: true } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -384,9 +388,9 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
 
-    console.log(`Ownwer ID: ${ownerId}, Cursor: ${cursor}, Rows: ${rows}`);
 
-    let whereClause = { document: { ownerId: ownerId } } as any;
+    let email = await getEmailFromUserId(ownerId as String);
+    let whereClause = { document: { email: email } } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -508,7 +512,7 @@ DocumentsRouter.post(
         // Add default permission for the owner
         const defaultPermission = new DocumentPermission();
         defaultPermission.documentId = newDocument.id;
-        defaultPermission.userId = ownerId;
+        defaultPermission.email = email;
         defaultPermission.accessLevel = "full"; // Full access for the owner
 
         const newDefaultPermission = await documentPermissionRepository.save(
