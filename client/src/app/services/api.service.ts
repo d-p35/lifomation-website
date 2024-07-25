@@ -30,6 +30,10 @@ export class ApiService {
   getUserId(): Observable<string> {
     return this.auth.user$.pipe(map((user) => user?.sub ?? 'Unknown UID'));
   }
+
+  getUserEmail(): Observable<string> {
+    return this.auth.user$.pipe(map((user) => user?.email ?? 'Unknown Email'));
+  }
   /**
    * HttpClient has methods for all the CRUD actions: get, post, put, patch, delete, and head.
    * First parameter is the URL, and the second parameter is the body.
@@ -43,8 +47,8 @@ export class ApiService {
   //     });
   //   }
 
-  createUser(userId: string): Observable<any> {
-    return this.http.post(this.endpoint + '/api/users', { userId });
+  createUser(userId: string, email: string): Observable<any> {
+    return this.http.post(this.endpoint + '/api/users', { userId, email });
   }
 
   uploadDocument(formData: FormData): Observable<any> {
@@ -64,14 +68,17 @@ export class ApiService {
       `${this.endpoint}/api/documents?cursor=${cursor}&rows=${rows}&userId=${userId}&categoryName=${folderName}`
     );
   }
-  getRecentDocuments(cursor?: String,
+  getRecentDocuments(
+    cursor?: String,
     rows?: number,
-    userId?: string,): Observable<any> {
+    userId?: string
+  ): Observable<any> {
     cursor = cursor ?? '';
     rows = rows ?? 10;
     userId = userId ?? '';
     return this.http.get(
-      this.endpoint + `/api/documents/recent?userId=${userId}&&cursor=${cursor}&rows=${rows}`
+      this.endpoint +
+        `/api/documents/recent?userId=${userId}&&cursor=${cursor}&rows=${rows}`
     );
   }
 
@@ -128,21 +135,26 @@ export class ApiService {
     );
   }
 
-  getStarredDocuments(cursor?: String,
+  getStarredDocuments(
+    cursor?: String,
     rows?: number,
-    userId?: string,): Observable<any> {
+    userId?: string
+  ): Observable<any> {
     cursor = cursor ?? '';
     rows = rows ?? 10;
     userId = userId ?? '';
     return this.http.get(
-      this.endpoint + `/api/documents/star?userId=${userId}&&cursor=${cursor}&rows=${rows}`
+      this.endpoint +
+        `/api/documents/star?userId=${userId}&&cursor=${cursor}&rows=${rows}`
     );
   }
 
   // Get documents shared with the user
-  getSharedDocuments(cursor?: String,
+  getSharedDocuments(
+    cursor?: String,
     rows?: number,
-    userId?: string,): Observable<any> {
+    userId?: string
+  ): Observable<any> {
     cursor = cursor ?? '';
     rows = rows ?? 10;
     userId = userId ?? '';

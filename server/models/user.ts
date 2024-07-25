@@ -1,4 +1,4 @@
-import { Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { Document } from "./document";
 import { DocumentPermission } from "./documentPermission";
 
@@ -12,6 +12,9 @@ interface UserAttributes {
 export class User implements UserAttributes {
   @PrimaryColumn()
   id: string;
+
+  @Column()
+  email: string;
 
   @OneToMany(() => Document, (document) => document.owner)
   documents: Document[];
