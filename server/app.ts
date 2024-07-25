@@ -3,11 +3,11 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { port } from "./config/config";
 import { dataSource } from "./db/database";
-import { User } from "./models/user";
 import { UsersRouter } from "./routers/users-router";
 import { DocumentsRouter } from "./routers/documents-router";
 import MeiliSearch from "meilisearch";
 import synonyms from "./synonyms.json";
+import { WebSocketServer } from "ws"; // Import WebSocketServer
 
 const app = express();
 
@@ -33,18 +33,38 @@ dataSource
       index.updateSynonyms(synonyms).then(() => {
         console.log("Synonyms updated.");
         index.updateSearchableAttributes(["title", "text", "category"]).then(() => {
-        app.use("/api/users", UsersRouter);
-        app.use("/api/documents", DocumentsRouter);
+          app.use("/api/users", UsersRouter);
+          app.use("/api/documents", DocumentsRouter);
 
-        // Start the server
-        app.listen(port, () => {
-          console.log(`Server started on port ${port}`);
+          const server = app.listen(port, () => {
+            console.log(`Server started on port ${port}`);
+          });
+
+          // WebSocket setup
+          const wss = new WebSocketServer({ server });
+
+          wss.on("connection", (ws) => {
+            console.log("Client connected");
+
+            ws.on("message", (message) => {
+              console.log(`Received message => ${message}`);
+
+              // Broadcast message to all clients
+              wss.clients.forEach((client) => {
+                if (client !== ws && client.readyState === 1) {
+                  client.send(message);
+                }
+              });
+            });
+
+            ws.on("close", () => {
+              console.log("Client disconnected");
+            });
+          });
         });
-      });
       });
     });
   })
-
   .catch((error: any) => {
     console.error("Error connecting to the database:", error);
   });

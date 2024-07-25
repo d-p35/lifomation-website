@@ -8,7 +8,8 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { DocListComponent } from '../../components/doc-list/doc-list.component';
-
+import { WebSocketService } from '../../services/websocket.service';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-documents',
   standalone: true,
@@ -16,6 +17,7 @@ import { DocListComponent } from '../../components/doc-list/doc-list.component';
   styleUrls: ['./documents.component.scss'],
   imports: [NgFor, TableModule, ButtonModule,ProgressSpinnerModule, CommonModule, ToastModule, DocListComponent],
 })
+
 export class DocumentsComponent implements OnInit {
   documents: any[] = [];
   folderName: string = 'My Documents';
@@ -26,10 +28,13 @@ export class DocumentsComponent implements OnInit {
   loading: boolean = true;
   userId: string | undefined;
 
+  private wsSubscription: Subscription = new Subscription();
+
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
-    private dataService: DataService
+    private dataService: DataService,
+    private wsService: WebSocketService
   ) {}
 
   ngOnInit(): void {
@@ -51,7 +56,6 @@ export class DocumentsComponent implements OnInit {
     });
 
     this.dataService.notifyObservable$.subscribe((res) => {
-
       if (res && res.refresh) {
         if (res.document && (res.document.category.split(',')[0] == this.folderName || this.folderName=='My Documents')) {
           if (res.type == 'delete') this.documents = this.documents.filter((doc) => doc.id !== res.document.id);
@@ -63,6 +67,11 @@ export class DocumentsComponent implements OnInit {
           }, ...this.documents];
         }
       }
+    });
+
+    this.wsSubscription = this.wsService.getMessages().subscribe((message) => {
+      console.log('Received message:', message);
+      //@d-p35 TODO 
     });
   }
 
@@ -107,5 +116,14 @@ export class DocumentsComponent implements OnInit {
       return `${gb.toFixed(2)} GB`;
     }
     return `${mb.toFixed(2)} MB`;
+  }
+
+  sendMessage(message: any) {
+    this.wsService.sendMessage(message);
+  }
+
+  ngOnDestroy() {
+    this.wsSubscription.unsubscribe();
+    this.wsService.closeConnection();
   }
 }
