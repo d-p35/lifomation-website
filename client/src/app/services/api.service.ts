@@ -153,25 +153,25 @@ export class ApiService {
   getSharedDocuments(
     cursor?: String,
     rows?: number,
-    userId?: string
+    email?: string
   ): Observable<any> {
     cursor = cursor ?? '';
     rows = rows ?? 10;
-    userId = userId ?? '';
+    email = email ?? '';
     return this.http.get(
-      `${this.endpoint}/api/documents/shared?userId=${userId}&&cursor=${cursor}&rows=${rows}`
+      `${this.endpoint}/api/documents/shared?userId=${email}&&cursor=${cursor}&rows=${rows}`
     );
   }
 
   // Share a document with another user
   shareDocument(
     documentId: number,
-    userId: string,
+    email: string,
     accessLevel: string
   ): Observable<any> {
     return this.http.post(
       `${this.endpoint}/api/documents/${documentId}/share`,
-      { userId, accessLevel }
+      { email, accessLevel }
     );
   }
 
@@ -185,11 +185,11 @@ export class ApiService {
   // Remove a permission from a document
   removeDocumentPermission(
     documentId: number,
-    userId: string
+    email: string
   ): Observable<any> {
     return this.http.delete(
       `${this.endpoint}/api/documents/${documentId}/share`,
-      { body: { userId } }
+      { body: { userId: email } }
     );
   }
 
