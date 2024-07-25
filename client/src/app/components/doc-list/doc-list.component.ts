@@ -14,7 +14,16 @@ import { ToastModule } from 'primeng/toast';
 @Component({
   selector: 'app-doc-list',
   standalone: true,
-  imports: [NgFor, TableModule, ScrollerModule, InfiniteScrollDirective, ButtonModule,ProgressSpinnerModule, CommonModule, ToastModule],
+  imports: [
+    NgFor,
+    TableModule,
+    ScrollerModule,
+    InfiniteScrollDirective,
+    ButtonModule,
+    ProgressSpinnerModule,
+    CommonModule,
+    ToastModule,
+  ],
   templateUrl: './doc-list.component.html',
   styleUrls: ['./doc-list.component.scss'],
 })
@@ -22,19 +31,17 @@ export class DocListComponent implements OnInit {
   @Input() documents: any[] = [];
   @Input() loadedAll: boolean = false;
   @Output() scroll = new EventEmitter<void>();
-
+  @Output() documentDeleted = new EventEmitter<any[]>();
 
   constructor(
     private router: Router,
     private apiService: ApiService,
     private dataService: DataService,
     private route: ActivatedRoute,
-    private messageService: MessageService,
+    private messageService: MessageService
   ) {}
 
-  ngOnInit(): void {
-    
-  }
+  ngOnInit(): void {}
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
@@ -49,7 +56,6 @@ export class DocListComponent implements OnInit {
     this.router.navigate(['documents', id]);
   }
 
-
   deleteDocument(id: number, event: Event) {
     event.stopPropagation();
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
@@ -57,15 +63,16 @@ export class DocListComponent implements OnInit {
         this.apiService.deleteDocument(id, userId).subscribe({
           next: () => {
             this.documents = this.documents.filter((doc) => doc.id !== id);
+            // to check if no documents are left
+            this.documentDeleted.emit(this.documents);
           },
           error: (err) => {
             console.error(err);
           },
         });
-      }else{
+      } else {
         console.error('User ID not found');
       }
-      
     });
   }
 
@@ -82,6 +89,4 @@ export class DocListComponent implements OnInit {
       },
     });
   }
-
-  
 }

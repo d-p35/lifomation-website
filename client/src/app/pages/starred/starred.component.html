@@ -4,12 +4,23 @@
       <section class="recent-files-section">
         <h2>Starred Files</h2>
         <div class="recent-files-list">
-          <app-doc-list
-            [documents]="documents"
-            [loadedAll]="loadedAll"
-            (scroll)="onScroll()"
-            *ngIf="!loading"
-          ></app-doc-list>
+          <ng-container *ngIf="!loading">
+            <ng-container
+              *ngIf="documents.length > 0; else noDocumentsTemplate"
+            >
+              <app-doc-list
+                [documents]="documents"
+                [loadedAll]="loadedAll"
+                (scroll)="onScroll()"
+                (documentDeleted)="onDocumentDeleted($event)"
+              ></app-doc-list>
+            </ng-container>
+            <ng-template #noDocumentsTemplate>
+              <div class="no-documents">
+                <p>No files to show. Press upload to show files</p>
+              </div>
+            </ng-template>
+          </ng-container>
           <div *ngIf="loading" class="progress">
             <p-progressSpinner strokeWidth="1"></p-progressSpinner>
           </div>

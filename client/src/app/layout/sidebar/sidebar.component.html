@@ -1,12 +1,12 @@
 <div class="sidebar">
-      <div class="logo">
-      <div class="logo-icon">
-        <img src="../../..//public/logo.png" alt="Logo" class="logo-img" />
-      </div>
-      <div class="logo-name">
-        <h3>Lifomation</h3>
-      </div>
+  <div class="logo">
+    <div class="logo-icon">
+      <img src="../../..//public/logo.png" alt="Logo" class="logo-img" />
     </div>
+    <div class="logo-name">
+      <h3>Lifomation</h3>
+    </div>
+  </div>
   <ul class="menu">
     <a routerLink="/dashboard"
       ><li [class.active]="isRouteActive('/dashboard')" class="sidebar-item">
@@ -33,19 +33,5 @@
         <i class="material-icons">star</i> Starred
       </li></a
     >
-    <a routerLink="/trash"
-      ><li [class.active]="isRouteActive('/trash')" class="sidebar-item">
-        <i class="material-icons">delete</i> Trash
-      </li></a
-    >
-    <a routerLink="/"
-      ><li class="sidebar-item">
-        <i class="material-icons">settings</i> Settings
-      </li></a
-    >
   </ul>
-  <div class="storage-info">
-    <p>0 MB of 500 MB used</p>
-    <a href="#">Manage storage</a>
-  </div>
 </div>
