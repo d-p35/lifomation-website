@@ -24,7 +24,7 @@ import { processImageFile } from "../services/extractTextService";
 import { processPdfFile } from "../services/extractTextService";
 import { MeiliSearch } from "meilisearch";
 import { DocumentPermission } from "../models/documentPermission";
-import { getEmailFromUserId } from "../utils/userUtils"; // Import the utility function
+import { getEmailFromUserId, getUserIdFromEmail } from "../utils/userUtils"; // Import the utility function
 import { WebSocketServer } from "ws";
 import { notifyUser } from "../services/websocket";
 
@@ -90,11 +90,14 @@ const checkPermission = (requiredAccessLevel: string) => {
   };
 };
 
+export const editDocument = (wss: WebSocketServer) => {
+
 DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
     const key = req.body.key;
     const newValue = req.body.newValue;
+    const userId = req.body.userId;
     console.log(
       `Updating key ${key} to ${newValue} for document ${documentId}`
     );
@@ -109,11 +112,28 @@ DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
     document.keyInfo[key] = newValue;
     const updatedDocument = await documentRepository.save(document);
 
+    const editorId = await getEmailFromUserId(userId);
+
+    if (!editorId) {
+      return res.status(404).json({ message: "Editor not found"
+      });
+    }
+
+    notifyUser(document.ownerId, {
+      type: "edit",
+      documentId,
+      documentTitle: document.document.originalname,
+      key,
+      value: newValue,
+      senderEmail: editorId,
+    });
+
     res.status(200).json({ document: updatedDocument });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
+}
 
 //------------------------------------------------------------------------------------------------
 //-------------------------SharedComponent-------------------------------------------------------
@@ -159,11 +179,8 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
       );
     });
 
-    console.log(`Existing permission: ${JSON.stringify(existingPermission)}`);
 
-    
     if (existingPermission) {
-      console.log(`dddddddddddddddddddddddddddddddddddd`);
       // Update the existing permission
       existingPermission.accessLevel = accessLevel;
       await documentPermissionRepository.save(existingPermission);
@@ -171,15 +188,13 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
     } else {
       // Create a new permission
 
-      const reciever = await UserRepository.findOne({ where: { email: email } });
+      const recieverId = await getUserIdFromEmail(email);
 
-      if (!reciever) {
-        return res.status(404).json({ message: "Reciever not found" });
+      if (!recieverId) {
+        return res.status(404).json({ message: "User not found" });
       }
 
-      console.log(`adasfdsfasfadsfasfsdfdsfsdfsdfdsfsdfdsfdsfdssdfsd`);
-
-      notifyUser(reciever.id, {
+      notifyUser(recieverId as string, {
         type: 'share',
         documentId,
         accessLevel,

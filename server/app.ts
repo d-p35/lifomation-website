@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import { port } from "./config/config";
 import { dataSource } from "./db/database";
 import { UsersRouter } from "./routers/users-router";
-import { DocumentsRouter, shareDocument } from "./routers/documents-router";
+import { DocumentsRouter, shareDocument, editDocument } from "./routers/documents-router";
 import MeiliSearch from "meilisearch";
 import synonyms from "./synonyms.json";
 import { initWebSocketServer } from "./services/websocket";
@@ -42,6 +42,7 @@ dataSource
           // Initialize WebSocket server
           const wss = initWebSocketServer(server);
           shareDocument(wss);
+          editDocument(wss);
         });
       });
     });

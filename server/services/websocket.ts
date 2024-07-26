@@ -37,9 +37,7 @@ const initWebSocketServer = (server: Server) => {
 
 const notifyUser = (userId: string, message: any) => {
   const connection = connections.find((conn) => conn.userId === userId);
-  console.log('Sending message to user:', userId);
   if (connection) {
-    console.log('User found');
     connection.ws.send(JSON.stringify(message));
 
   }

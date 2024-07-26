@@ -49,14 +49,25 @@ export class HeaderComponent {
         this.messageService.add({
           key:"template",
           severity: 'success',
-          summary: 'Document shared with you', 
+          summary: 'Document Shared', 
           detail: `${message.senderEmail} shared a document with you.`,
         });
+        this.dataService.notifyOther({
+          refresh: true,
+          type: 'share',
+        });
       }
-    this.dataService.notifyOther({
-      refresh: true,
-      type: 'share',
-    });
+
+      else if (message && message.type === 'edit') {
+        console.log('Trigger');
+        this.messageService.add({
+          key:"template",
+          severity: 'success',
+          summary: 'Document Edited', 
+          detail: `${message.senderEmail} edited ${message.documentTitle}.`,
+        });
+      }
+   
       
     });
     
