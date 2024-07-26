@@ -30,8 +30,9 @@
               <div *ngFor="let key of keyInfoKeys()" class="key-info-item">
                 <strong>{{ key }}:</strong>
                 <span *ngIf="!editingKey || editingKey !== key">{{ keyInfo[key] }}</span>
+                
+                
                 <input *ngIf="editingKey === key" [(ngModel)]="editValue" />
-
                 <button *ngIf="!editingKey || editingKey !== key" (click)="copyToClipboard(keyInfo[key], key)" class="copy-button" [disabled]="copiedKey === key">
                   {{ copiedKey === key ? "Copied!" : "Copy" }}
                 </button>
