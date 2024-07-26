@@ -100,10 +100,10 @@ export class DocumentsComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.wsSubscription = this.wsService.getMessages().subscribe((message) => {
-      console.log('Received message:', message);
-      //@d-p35 TODO
-    });
+    // this.wsSubscription = this.wsService.getMessages().subscribe((message) => {
+    //   console.log('Received message:', message);
+    //   //@d-p35 TODO
+    // });
   }
 
   onScroll() {

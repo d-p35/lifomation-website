@@ -4,10 +4,10 @@ import bodyParser from "body-parser";
 import { port } from "./config/config";
 import { dataSource } from "./db/database";
 import { UsersRouter } from "./routers/users-router";
-import { DocumentsRouter } from "./routers/documents-router";
+import { DocumentsRouter, shareDocument } from "./routers/documents-router";
 import MeiliSearch from "meilisearch";
 import synonyms from "./synonyms.json";
-import { initializeWebSocketServer } from "./services/websocket";
+import { initWebSocketServer } from "./services/websocket";
 const app = express();
 
 app.use(express.json());
@@ -40,7 +40,8 @@ dataSource
           });
 
           // Initialize WebSocket server
-          initializeWebSocketServer(server);
+          const wss = initWebSocketServer(server);
+          shareDocument(wss);
         });
       });
     });

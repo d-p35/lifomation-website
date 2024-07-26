@@ -6,6 +6,7 @@ interface UserAttributes {
   id: string;
   documents: Document[];
   permissions: DocumentPermission[];
+  email: string;
 }
 
 @Entity()

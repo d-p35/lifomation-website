@@ -25,6 +25,8 @@ import { processPdfFile } from "../services/extractTextService";
 import { MeiliSearch } from "meilisearch";
 import { DocumentPermission } from "../models/documentPermission";
 import { getEmailFromUserId } from "../utils/userUtils"; // Import the utility function
+import { WebSocketServer } from "ws";
+import { notifyUser } from "../services/websocket";
 
 require("dotenv").config();
 
@@ -34,6 +36,7 @@ const index = client.index("documents");
 export const DocumentsRouter = Router();
 const documentRepository: Repository<Document> = dataSource.getRepository(Document);
 const documentPermissionRepository: Repository<DocumentPermission> = dataSource.getRepository(DocumentPermission);
+const UserRepository:Repository<User>  = dataSource.getRepository(User);
 
 // Middleware to check permissions
 const checkPermission = (requiredAccessLevel: string) => {
@@ -117,6 +120,8 @@ DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
 //------------------------------------------------------------------------------------------------
 
 // Add a permission to a document
+
+export const shareDocument = (wss: WebSocketServer) => {
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
@@ -154,13 +159,33 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
       );
     });
 
+    console.log(`Existing permission: ${JSON.stringify(existingPermission)}`);
+
+    
     if (existingPermission) {
+      console.log(`dddddddddddddddddddddddddddddddddddd`);
       // Update the existing permission
       existingPermission.accessLevel = accessLevel;
       await documentPermissionRepository.save(existingPermission);
       return res.status(200).json({ message: "Permission updated" });
     } else {
       // Create a new permission
+
+      const reciever = await UserRepository.findOne({ where: { email: email } });
+
+      if (!reciever) {
+        return res.status(404).json({ message: "Reciever not found" });
+      }
+
+      console.log(`adasfdsfasfadsfasfsdfdsfsdfsdfdsfsdfdsfdsfdssdfsd`);
+
+      notifyUser(reciever.id, {
+        type: 'share',
+        documentId,
+        accessLevel,
+        senderEmail: email,
+      });
+      
       const newPermission = new DocumentPermission();
       newPermission.documentId = documentId;
       newPermission.email = email;
@@ -172,6 +197,7 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+}
 
 // Get permissions for a document
 DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {

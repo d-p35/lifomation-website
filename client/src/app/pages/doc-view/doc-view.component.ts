@@ -83,12 +83,12 @@ export class DocViewComponent {
           },
         });
 
-        this.wsSubscription = this.wsService.getMessages().subscribe((message) => {
-          if (message.type === 'edit' && message.documentId === this.document.id) {
-            this.keyInfo[message.key] = message.value;
-            this.cdr.detectChanges();
-          }
-        });
+        // this.wsSubscription = this.wsService.getMessages().subscribe((message) => {
+        //   if (message.type === 'edit' && message.documentId === this.document.id) {
+        //     this.keyInfo[message.key] = message.value;
+        //     this.cdr.detectChanges();
+        //   }
+        // });
       } else {
         console.error('User ID not found');
       }

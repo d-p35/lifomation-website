@@ -7,6 +7,10 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { UploadComponent } from '../../components/upload/upload.component';
 import { ApiService } from '../../services/api.service';
 import { SearchBarComponent } from '../../components/search-bar/search-bar.component';
+import { WebSocketService } from '../../services/websocket.service';
+import { MessageService } from 'primeng/api';
+import { DataService } from '../../services/data.service';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'header-component',
@@ -17,7 +21,8 @@ import { SearchBarComponent } from '../../components/search-bar/search-bar.compo
     CommonModule,
     RouterModule,
     UploadComponent,
-    SearchBarComponent
+    SearchBarComponent,
+    ToastModule,
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -30,10 +35,31 @@ export class HeaderComponent {
     public auth: AuthService,
     private apiService: ApiService,
     private router: Router,
+    private webSocketService: WebSocketService,
+    private messageService: MessageService,
+    private dataService: DataService,
   ) {}
 
   ngOnInit() {
     this.fetchDocumentsNames();
+    this.webSocketService.messages$.subscribe((message) => {
+      console.log('Message received:', message);
+      if (message && message.type === 'share') {
+        console.log('Trigger');
+        this.messageService.add({
+          key:"template",
+          severity: 'success',
+          summary: 'Document shared with you', 
+          detail: `${message.senderEmail} shared a document with you.`,
+        });
+      }
+    this.dataService.notifyOther({
+      refresh: true,
+      type: 'share',
+    });
+      
+    });
+    
   }
 
   toggleDropdown() {
