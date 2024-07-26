@@ -133,7 +133,7 @@ export const editDocument = (wss: WebSocketServer) => {
       res.status(500).json({ message: err.message });
     }
   });
-  DocumentsRouter.post("/:id/key-info", async (req: Request, res: Response) => {
+  DocumentsRouter.post("/:id/addkey-info", async (req: Request, res: Response) => {
     try {
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
@@ -178,7 +178,7 @@ export const editDocument = (wss: WebSocketServer) => {
       res.status(500).json({ message: err.message });
     }
   });
-  DocumentsRouter.delete("/:id/key-info", async (req: Request, res: Response) => {
+  DocumentsRouter.delete("/:id/delkey-info", async (req: Request, res: Response) => {
     try {
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
@@ -192,14 +192,24 @@ export const editDocument = (wss: WebSocketServer) => {
 
       if (document.keyInfo && document.keyInfo[key]) {
         delete document.keyInfo[key];
-        await documentRepository.save(document);
+        const updatedDocument = await documentRepository.save(document);
 
-        const email = await getEmailFromUserId(userId);
-        if (email) {
-          notifyUser(email, 'Key info deleted');
+        const editorId = await getEmailFromUserId(userId);
+
+        if (!editorId) {
+          return res.status(404).json({ message: "Editor not found"
+          });
         }
+        
+        notifyUser(document.ownerId, {
+          type: "delete",
+          documentId,
+          documentTitle: document.document.originalname,
+          key,
+          senderEmail: editorId,
+        });
 
-        res.json({ success: true });
+        res.status(200).json({ document: updatedDocument });
       } else {
         res.status(404).json({ error: 'Key not found' });
       }

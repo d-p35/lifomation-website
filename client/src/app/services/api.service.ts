@@ -213,14 +213,15 @@ export class ApiService {
   ): Observable<any> {
     userId = userId ?? '';
     return this.http.post(
-      `${this.endpoint}/api/documents/${documentId}/key-info`,
+      `${this.endpoint}/api/documents/${documentId}/addkey-info`,
       { key, value, userId }
     );
   }
   deleteKeyInfoApi(documentId: number, key: string, userId: string | undefined): Observable<any> {
     userId = userId ?? '';
+    console.log('___________________________________________________', userId);
     return this.http.delete(
-      `${this.endpoint}/api/documents/${documentId}/key-info`,
+      `${this.endpoint}/api/documents/${documentId}/delkey-info`,
       { body: { key, userId } }
     );
   }

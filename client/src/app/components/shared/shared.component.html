@@ -1,0 +1,23 @@
+<div class="modal-overlay" (click)="close()"></div>
+<div class="modal-content">
+  <h3>Share Document</h3>
+  <form (ngSubmit)="shareDocument()">
+    <div class="form-group">
+      <label for="shareemail">User Email:</label>
+      <input id="shareemail" [(ngModel)]="shareemail" name="shareemail" required />
+    </div>
+    <div class="form-group">
+      <label for="shareAccessLevel">Access Level:</label>
+      <select id="shareAccessLevel" [(ngModel)]="shareAccessLevel" name="shareAccessLevel" required>
+        <option value="read">Read</option>
+        <option value="full">Full</option>
+        <option value="edit">Edit</option>
+      </select>
+    </div>
+    <button type="submit" class="share-button">Share</button>
+  </form>
+  <div *ngIf="shareMessage" class="share-message" [ngClass]="{'success': shareSuccess, 'error': !shareSuccess}">
+    {{ shareMessage }}
+  </div>
+  <button (click)="close()" class="close-button">Close</button>
+</div>
