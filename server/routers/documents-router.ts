@@ -133,6 +133,51 @@ DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+DocumentsRouter.post("/:id/key-info", async (req: Request, res: Response) => {
+  try {
+    const documentId: number = parseInt(req.params.id);
+    const key = req.body.key;
+    const value = req.body.value;
+    const userId = req.body.userId;
+    console.log(
+      `Adding key ${key} with value ${value} for document ${documentId}`
+    );
+
+    const document = await documentRepository.findOne({
+      where: { id: documentId },
+    });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    if (document.keyInfo[key]) {
+      return res.status(400).json({ message: "Key already exists" });
+    }
+
+    document.keyInfo[key] = value;
+    const updatedDocument = await documentRepository.save(document);
+
+    const editorId = await getEmailFromUserId(userId);
+
+    if (!editorId) {
+      return res.status(404).json({ message: "Editor not found" });
+    }
+
+    notifyUser(document.ownerId, {
+      type: "add",
+      documentId,
+      documentTitle: document.document.originalname,
+      key,
+      value,
+      senderEmail: editorId,
+    });
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
 }
 
 //------------------------------------------------------------------------------------------------

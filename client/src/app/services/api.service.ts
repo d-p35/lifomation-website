@@ -205,6 +205,18 @@ export class ApiService {
       { key, newValue, userId}
     );
   }
+  addKeyInfo(
+    documentId: number,
+    key: string,
+    value: string,
+    userId: string | undefined
+  ): Observable<any> {
+    userId = userId ?? '';
+    return this.http.post(
+      `${this.endpoint}/api/documents/${documentId}/key-info`,
+      { key, value, userId }
+    );
+  }
 }
 
 

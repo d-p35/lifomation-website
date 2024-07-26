@@ -8,6 +8,7 @@ import { ImageModule } from 'primeng/image';
 import { FormsModule } from '@angular/forms';
 import { WebSocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-doc-view',
   standalone: true,
@@ -21,7 +22,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })
-export class DocViewComponent {
+export class DocViewComponent implements OnInit, OnDestroy {
   documentUrl: any = '';
   documentType: string | null = null;
   loading = true;
@@ -30,6 +31,8 @@ export class DocViewComponent {
   copiedKey: string | null = null;
   editingKey: string | null = null;
   editValue: string = '';
+  newKey: string = '';
+  newValue: string = '';
   editDisabled: boolean = false;
 
   shareemail: string = '';
@@ -37,7 +40,8 @@ export class DocViewComponent {
   shareMessage: string | null = null;
   shareSuccess: boolean = false;
   wsSubscription: Subscription | undefined;
-  userId : string | undefined;
+  userId: string | undefined;
+
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
@@ -59,8 +63,7 @@ export class DocViewComponent {
           next: (blob: Blob) => {
             this.documentType = blob.type === 'application/pdf' ? 'pdf' : null;
             const objectUrl = URL.createObjectURL(blob);
-            this.documentUrl =
-              this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
+            this.documentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
 
             this.apiService.getDocument(i, userId).subscribe({
               next: (res: any) => {
@@ -70,7 +73,7 @@ export class DocViewComponent {
 
                 this.apiService.getDocumentPermissions(i, userId).subscribe({
                   next: (res: any) => {
-                    if(res.permissions.accessLevel==='read'){
+                    if (res.permissions.accessLevel === 'read') {
                       this.editDisabled = true;
                     }
                   },
@@ -109,10 +112,9 @@ export class DocViewComponent {
   }
 
   ngOnDestroy() {
-    // Unsubscribe to avoid memory leaks
-    // if (this.wsSubscription) {
-    //   this.wsSubscription.unsubscribe();
-    // }
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
   }
 
   keyInfoKeys() {
@@ -132,20 +134,19 @@ export class DocViewComponent {
   startEdit(key: string) {
     this.editingKey = key;
     this.editValue = this.keyInfo[key];
+    this.newKey = key; // Set the key for editing
   }
 
   saveEdit(key: string) {
     if (this.editValue !== null) {
-      this.apiService.editKeyInfo(this.document.id, key, this.editValue, this.userId).subscribe({
+      this.apiService.editKeyInfo(this.document.id, this.newKey, this.editValue, this.userId).subscribe({
         next: () => {
-          this.keyInfo[key] = this.editValue;
+          // If the key is changed, update the key and its value
+          if (this.newKey !== key) {
+            delete this.keyInfo[key];
+          }
+          this.keyInfo[this.newKey] = this.editValue;
           this.editingKey = null;
-          // this.wsService.sendMessage({
-          //   type: 'edit',
-          //   documentId: this.document.id,
-          //   key: key,
-          //   value: this.editValue,
-          // });
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -158,6 +159,23 @@ export class DocViewComponent {
   cancelEdit() {
     this.editingKey = null;
     this.editValue = '';
+    this.newKey = ''; // Reset new key
+  }
+
+  addKeyInfo() {
+    if (this.newKey && this.newValue) {
+      this.apiService.addKeyInfo(this.document.id, this.newKey, this.newValue, this.userId).subscribe({
+        next: () => {
+          this.keyInfo[this.newKey] = this.newValue;
+          this.newKey = '';
+          this.newValue = '';
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
+    }
   }
 
   shareDocument() {
