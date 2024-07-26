@@ -204,4 +204,11 @@ export class DocViewComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     }, 3000);
   }
+  deleteKeyInfo(key: string) {
+    this.apiService.deleteKeyInfoApi(this.document.id, key, 'userId')
+      .subscribe(() => {
+        delete this.keyInfo[key];
+      });
+  }
+
 }

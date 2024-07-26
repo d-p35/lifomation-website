@@ -92,92 +92,122 @@ const checkPermission = (requiredAccessLevel: string) => {
 
 export const editDocument = (wss: WebSocketServer) => {
 
-DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
-  try {
-    const documentId: number = parseInt(req.params.id);
-    const key = req.body.key;
-    const newValue = req.body.newValue;
-    const userId = req.body.userId;
-    console.log(
-      `Updating key ${key} to ${newValue} for document ${documentId}`
-    );
-    const document = await documentRepository.findOne({
-      where: { id: documentId },
-    });
-
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-
-    document.keyInfo[key] = newValue;
-    const updatedDocument = await documentRepository.save(document);
-
-    const editorId = await getEmailFromUserId(userId);
-
-    if (!editorId) {
-      return res.status(404).json({ message: "Editor not found"
+  DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
+    try {
+      const documentId: number = parseInt(req.params.id);
+      const key = req.body.key;
+      const newValue = req.body.newValue;
+      const userId = req.body.userId;
+      console.log(
+        `Updating key ${key} to ${newValue} for document ${documentId}`
+      );
+      const document = await documentRepository.findOne({
+        where: { id: documentId },
       });
+
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      document.keyInfo[key] = newValue;
+      const updatedDocument = await documentRepository.save(document);
+
+      const editorId = await getEmailFromUserId(userId);
+
+      if (!editorId) {
+        return res.status(404).json({ message: "Editor not found"
+        });
+      }
+
+      notifyUser(document.ownerId, {
+        type: "edit",
+        documentId,
+        documentTitle: document.document.originalname,
+        key,
+        value: newValue,
+        senderEmail: editorId,
+      });
+
+      res.status(200).json({ document: updatedDocument });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
     }
+  });
+  DocumentsRouter.post("/:id/key-info", async (req: Request, res: Response) => {
+    try {
+      const documentId: number = parseInt(req.params.id);
+      const key = req.body.key;
+      const value = req.body.value;
+      const userId = req.body.userId;
+      console.log(
+        `Adding key ${key} with value ${value} for document ${documentId}`
+      );
 
-    notifyUser(document.ownerId, {
-      type: "edit",
-      documentId,
-      documentTitle: document.document.originalname,
-      key,
-      value: newValue,
-      senderEmail: editorId,
-    });
+      const document = await documentRepository.findOne({
+        where: { id: documentId },
+      });
 
-    res.status(200).json({ document: updatedDocument });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
-DocumentsRouter.post("/:id/key-info", async (req: Request, res: Response) => {
-  try {
-    const documentId: number = parseInt(req.params.id);
-    const key = req.body.key;
-    const value = req.body.value;
-    const userId = req.body.userId;
-    console.log(
-      `Adding key ${key} with value ${value} for document ${documentId}`
-    );
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
 
-    const document = await documentRepository.findOne({
-      where: { id: documentId },
-    });
+      if (document.keyInfo[key]) {
+        return res.status(400).json({ message: "Key already exists" });
+      }
 
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
+      document.keyInfo[key] = value;
+      const updatedDocument = await documentRepository.save(document);
+
+      const editorId = await getEmailFromUserId(userId);
+
+      if (!editorId) {
+        return res.status(404).json({ message: "Editor not found" });
+      }
+
+      notifyUser(document.ownerId, {
+        type: "add",
+        documentId,
+        documentTitle: document.document.originalname,
+        key,
+        value,
+        senderEmail: editorId,
+      });
+
+      res.status(200).json({ document: updatedDocument });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
     }
+  });
+  DocumentsRouter.delete("/:id/key-info", async (req: Request, res: Response) => {
+    try {
+      const documentId: number = parseInt(req.params.id);
+      const key = req.body.key;
+      const userId = req.body.userId;
 
-    if (document.keyInfo[key]) {
-      return res.status(400).json({ message: "Key already exists" });
+      const document = await documentRepository.findOne({ where: { id: documentId } });
+
+      if (!document) {
+        return res.status(404).json({ error: 'Document not found' });
+      }
+
+      if (document.keyInfo && document.keyInfo[key]) {
+        delete document.keyInfo[key];
+        await documentRepository.save(document);
+
+        const email = await getEmailFromUserId(userId);
+        if (email) {
+          notifyUser(email, 'Key info deleted');
+        }
+
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: 'Key not found' });
+      }
+    } catch (error) {
+      console.error('Error deleting key info:', error);
+      res.status(500).json({ error: 'Failed to delete key info' });
     }
-
-    document.keyInfo[key] = value;
-    const updatedDocument = await documentRepository.save(document);
-
-    const editorId = await getEmailFromUserId(userId);
-
-    if (!editorId) {
-      return res.status(404).json({ message: "Editor not found" });
-    }
-
-    notifyUser(document.ownerId, {
-      type: "add",
-      documentId,
-      documentTitle: document.document.originalname,
-      key,
-      value,
-      senderEmail: editorId,
-    });
-
-    res.status(200).json({ document: updatedDocument });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
+  });
 }
 
 //------------------------------------------------------------------------------------------------

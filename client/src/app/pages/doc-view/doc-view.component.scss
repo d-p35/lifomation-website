@@ -139,6 +139,9 @@ $header-height: 0px;
   .key-info-item strong {
     width: 100px;
     font-weight: bold;
+    word-wrap: break-word;
+    hyphens: auto;
+    max-width: 900px; /* Adjust as needed */
   }
 
   .key-info-item span {
@@ -181,7 +184,8 @@ $header-height: 0px;
 
   .edit-button,
   .save-button,
-  .cancel-button {
+  .cancel-button,
+  .delete-button {
     margin-left: 10px;
     padding: 5px 10px;
     font-size: 12px;
@@ -205,6 +209,14 @@ $header-height: 0px;
   .cancel-button {
     color: red;
     background-color: transparent;
+  }
+  .delete-button {
+    color: red;
+    background-color: transparent;
+  }
+
+  .delete-button:hover {
+    background-color: #e0e0e0;
   }
 
   .save-button:hover,

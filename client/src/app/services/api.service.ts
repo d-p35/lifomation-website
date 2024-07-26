@@ -217,6 +217,13 @@ export class ApiService {
       { key, value, userId }
     );
   }
+  deleteKeyInfoApi(documentId: number, key: string, userId: string | undefined): Observable<any> {
+    userId = userId ?? '';
+    return this.http.delete(
+      `${this.endpoint}/api/documents/${documentId}/key-info`,
+      { body: { key, userId } }
+    );
+  }
 }
 
 
