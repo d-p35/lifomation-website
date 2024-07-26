@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 // Import the AuthService type from the SDK
 import { AuthService, User } from '@auth0/auth0-angular';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FormsModule } from '@angular/forms';
 @Component({
@@ -15,10 +15,15 @@ import { FormsModule } from '@angular/forms';
 export class HomeHeaderComponent {
   isDarkMode = false;
   // Inject the authentication service into your component through the constructor
-  constructor(public auth: AuthService) {}
+  constructor(public auth: AuthService, public router : Router) {}
 
   toggleTheme() {
     this.isDarkMode = !this.isDarkMode;
     document.body.classList.toggle('dark-theme', this.isDarkMode);
+  }
+
+  login(){
+    this.auth.loginWithRedirect();
+    this.router.navigate(['/dashboard']);
   }
 }

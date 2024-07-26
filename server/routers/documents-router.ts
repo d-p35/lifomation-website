@@ -165,6 +165,12 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
       where: { documentId, email },
     });
 
+    const userId  = await getUserIdFromEmail(email);
+
+    if (!userId) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     index.getDocument(documentId).then((document) => {
       if (!document) {
         return res
@@ -172,7 +178,10 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
           .json({ message: "Document not found in MeiliSearch" });
       }
       let sharedUsers = document.sharedUsers || [];
-      sharedUsers.push(email);
+      //add is not already in it
+      if (!sharedUsers.includes(userId)) {
+        sharedUsers.push(userId);
+      }
       index.updateDocuments(
         [{ id: documentId, sharedUsers: [...sharedUsers] }],
         { primaryKey: "id" }

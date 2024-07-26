@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
 import { ApiService } from '../../services/api.service';
 import { combineLatest } from 'rxjs';
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-home',
@@ -158,7 +159,7 @@ export class HomeComponent implements OnInit {
     },
   ];
 
-  constructor(private apiService: ApiService, private router: Router) {} // Step 2: Inject Router
+  constructor(private apiService: ApiService, private router: Router, public auth: AuthService) {} // Step 2: Inject Router
   userId: string | undefined;
 
   ngOnInit(): void {
