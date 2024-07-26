@@ -30,6 +30,7 @@ export class DocViewComponent {
   copiedKey: string | null = null;
   editingKey: string | null = null;
   editValue: string = '';
+  editDisabled: boolean = false;
 
   shareemail: string = '';
   shareAccessLevel: string = 'read';
@@ -63,10 +64,20 @@ export class DocViewComponent {
 
             this.apiService.getDocument(i, userId).subscribe({
               next: (res: any) => {
-                console.log(res);
                 this.loading = false;
                 this.document = res.document;
                 this.keyInfo = res.document.keyInfo;
+
+                this.apiService.getDocumentPermissions(i, userId).subscribe({
+                  next: (res: any) => {
+                    if(res.permissions.accessLevel==='read'){
+                      this.editDisabled = true;
+                    }
+                  },
+                  error: (err) => {
+                    console.error(err);
+                  },
+                });
               },
               error: (err) => {
                 console.error(err);

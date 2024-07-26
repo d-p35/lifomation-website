@@ -226,9 +226,17 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
 // Get permissions for a document
 DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
   try {
+    const userId = req.query.userId as string;
     const documentId: number = parseInt(req.params.id);
-    const permissions = await documentPermissionRepository.find({
-      where: { documentId: documentId },
+
+    const email = await getEmailFromUserId(userId);
+
+    if (!email) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const permissions = await documentPermissionRepository.findOne({
+      where: { documentId: documentId, email: email },
     });
 
     res.status(200).json({ permissions });
@@ -488,7 +496,7 @@ DocumentsRouter.get(
   async (req: Request, res: Response) => {
     try {
       const id: number = parseInt(req.params.id);
-      const document = await documentRepository.findOne({ where: { id: id } });
+      const document = await documentRepository.findOne({ where: { id: id }});
 
       if (!document) {
         return res.status(404).json({ message: "Document not found" });

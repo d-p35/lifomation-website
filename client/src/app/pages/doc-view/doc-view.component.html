@@ -45,7 +45,7 @@
                   <!-- PrimeNG cross icon -->
                 </button>
 
-                <button *ngIf="!editingKey || editingKey !== key" class="edit-button" (click)="startEdit(key)">
+                <button *ngIf="(!editingKey || editingKey !== key) && !editDisabled" class="edit-button" (click)="startEdit(key)">
                   <i class="pi pi-pencil"></i>
                   <!-- PrimeNG pencil icon -->
                 </button>

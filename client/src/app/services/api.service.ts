@@ -176,9 +176,9 @@ export class ApiService {
   }
 
   // Get permissions for a document
-  getDocumentPermissions(documentId: number): Observable<any> {
+  getDocumentPermissions(documentId: number, userId: String): Observable<any> {
     return this.http.get(
-      `${this.endpoint}/api/documents/${documentId}/permissions`
+      `${this.endpoint}/api/documents/${documentId}/permissions?userId=${userId}`
     );
   }
 
@@ -206,3 +206,6 @@ export class ApiService {
     );
   }
 }
+
+
+
