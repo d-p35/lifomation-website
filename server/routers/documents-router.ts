@@ -24,7 +24,9 @@ import { processImageFile } from "../services/extractTextService";
 import { processPdfFile } from "../services/extractTextService";
 import { MeiliSearch } from "meilisearch";
 import { DocumentPermission } from "../models/documentPermission";
-import { getEmailFromUserId } from "../utils/userUtils"; // Import the utility function
+import { getEmailFromUserId, getUserIdFromEmail } from "../utils/userUtils"; // Import the utility function
+import { WebSocketServer } from "ws";
+import { notifyUser } from "../services/websocket";
 
 require("dotenv").config();
 
@@ -34,6 +36,7 @@ const index = client.index("documents");
 export const DocumentsRouter = Router();
 const documentRepository: Repository<Document> = dataSource.getRepository(Document);
 const documentPermissionRepository: Repository<DocumentPermission> = dataSource.getRepository(DocumentPermission);
+const UserRepository:Repository<User>  = dataSource.getRepository(User);
 
 // Middleware to check permissions
 const checkPermission = (requiredAccessLevel: string) => {
@@ -87,11 +90,14 @@ const checkPermission = (requiredAccessLevel: string) => {
   };
 };
 
+export const editDocument = (wss: WebSocketServer) => {
+
 DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
     const key = req.body.key;
     const newValue = req.body.newValue;
+    const userId = req.body.userId;
     console.log(
       `Updating key ${key} to ${newValue} for document ${documentId}`
     );
@@ -106,17 +112,36 @@ DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
     document.keyInfo[key] = newValue;
     const updatedDocument = await documentRepository.save(document);
 
+    const editorId = await getEmailFromUserId(userId);
+
+    if (!editorId) {
+      return res.status(404).json({ message: "Editor not found"
+      });
+    }
+
+    notifyUser(document.ownerId, {
+      type: "edit",
+      documentId,
+      documentTitle: document.document.originalname,
+      key,
+      value: newValue,
+      senderEmail: editorId,
+    });
+
     res.status(200).json({ document: updatedDocument });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
+}
 
 //------------------------------------------------------------------------------------------------
 //-------------------------SharedComponent-------------------------------------------------------
 //------------------------------------------------------------------------------------------------
 
 // Add a permission to a document
+
+export const shareDocument = (wss: WebSocketServer) => {
 DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
   try {
     const documentId: number = parseInt(req.params.id);
@@ -154,6 +179,7 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
       );
     });
 
+
     if (existingPermission) {
       // Update the existing permission
       existingPermission.accessLevel = accessLevel;
@@ -161,6 +187,20 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
       return res.status(200).json({ message: "Permission updated" });
     } else {
       // Create a new permission
+
+      const recieverId = await getUserIdFromEmail(email);
+
+      if (!recieverId) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      notifyUser(recieverId as string, {
+        type: 'share',
+        documentId,
+        accessLevel,
+        senderEmail: email,
+      });
+      
       const newPermission = new DocumentPermission();
       newPermission.documentId = documentId;
       newPermission.email = email;
@@ -172,6 +212,7 @@ DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 });
+}
 
 // Get permissions for a document
 DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
@@ -321,12 +362,12 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
 
 DocumentsRouter.get("/star", async (req: Request, res: Response) => {
   try {
-    const ownerId = req.body.userId;
+    const ownerId = req.query.userId;
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
     let email = await getEmailFromUserId(ownerId as string);
 
-    let whereClause = { document: { email: email }, starred: true } as any;
+    let whereClause = { email, starred: true } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -347,6 +388,8 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
       const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.lastOpened.toISOString();
     }
+    console.log(email);
+    console.log(documents);
 
     const result = documents.map((doc) => {
       return {
@@ -390,7 +433,9 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
 
 
     let email = await getEmailFromUserId(ownerId as String);
-    let whereClause = { document: { email: email } } as any;
+    let whereClause = { email } as any;
+
+    
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -406,11 +451,13 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
       where: whereClause,
     });
 
+
     let nextCursor: string | null = null;
     if (documents.length == rows) {
       const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.lastOpened.toISOString();
     }
+
 
     const result = documents.map((doc) => {
       return {
@@ -657,9 +704,16 @@ DocumentsRouter.patch(
   async (req: Request, res: Response) => {
     try {
       const id: number = parseInt(req.params.id);
+      const userId = req.body.userId;
       const starred = req.body.starred;
+
+      const userEmail = await getEmailFromUserId(userId);
+      if (!userEmail) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const document = await documentPermissionRepository.findOne({
-        where: { id: id },
+        where: { documentId: id, email: userEmail },
         relations: { document: true },
       });
 

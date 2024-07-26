@@ -36,6 +36,7 @@ export class DocViewComponent {
   shareMessage: string | null = null;
   shareSuccess: boolean = false;
   wsSubscription: Subscription | undefined;
+  userId : string | undefined;
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
@@ -52,6 +53,7 @@ export class DocViewComponent {
     const i = parseInt(index, 10);
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
+        this.userId = userId;
         this.apiService.getFile(i, userId).subscribe({
           next: (blob: Blob) => {
             this.documentType = blob.type === 'application/pdf' ? 'pdf' : null;
@@ -83,8 +85,8 @@ export class DocViewComponent {
           },
         });
 
-        this.wsSubscription = this.wsService.getMessages().subscribe((message) => {
-          if (message.type === 'edit' && message.documentId === this.document.id) {
+        this.wsSubscription = this.wsService.messages$.subscribe((message) => {
+          if (message && message.type === 'edit' && message.documentId === this.document.id) {
             this.keyInfo[message.key] = message.value;
             this.cdr.detectChanges();
           }
@@ -97,9 +99,9 @@ export class DocViewComponent {
 
   ngOnDestroy() {
     // Unsubscribe to avoid memory leaks
-    if (this.wsSubscription) {
-      this.wsSubscription.unsubscribe();
-    }
+    // if (this.wsSubscription) {
+    //   this.wsSubscription.unsubscribe();
+    // }
   }
 
   keyInfoKeys() {
@@ -123,16 +125,16 @@ export class DocViewComponent {
 
   saveEdit(key: string) {
     if (this.editValue !== null) {
-      this.apiService.editKeyInfo(this.document.id, key, this.editValue).subscribe({
+      this.apiService.editKeyInfo(this.document.id, key, this.editValue, this.userId).subscribe({
         next: () => {
           this.keyInfo[key] = this.editValue;
           this.editingKey = null;
-          this.wsService.sendMessage({
-            type: 'edit',
-            documentId: this.document.id,
-            key: key,
-            value: this.editValue,
-          });
+          // this.wsService.sendMessage({
+          //   type: 'edit',
+          //   documentId: this.document.id,
+          //   key: key,
+          //   value: this.editValue,
+          // });
           this.cdr.detectChanges();
         },
         error: (err) => {

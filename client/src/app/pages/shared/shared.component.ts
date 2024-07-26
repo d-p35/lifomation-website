@@ -37,21 +37,20 @@ export class SharedComponent implements OnInit {
         this.loadedAll = false;
         this.documents = [];
         this.totalRecords = 0;
-        this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage, userId);
+        this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage, userId?userId:'');
       } else {
         console.error('User ID not found');
       }
     });
 
     this.dataService.notifyObservable$.subscribe((res) => {
-      if (res && res.refresh && res.document) {
-          if (res.type == 'delete') this.documents = this.documents.filter((doc) => doc.id !== res.document.id);
-          else if (res.type == 'upload') this.documents = [{
-            ...res.document,
-            uploadedAtLocal: this.convertToUserTimezone(new Date(res.document.uploadedAt)),
-            lastOpenedLocal: this.convertToUserTimezone(new Date(res.document.lastOpened)),
-            fileSize: this.getFileSize(res.document.document.size),
-          }, ...this.documents];
+      if (res && res.refresh && res.type === 'share') {
+        this.nextDocument = undefined;
+        this.loadedAll = false;
+        this.documents = [];
+        this.totalRecords = 0;
+        this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage, this.userId?this.userId:'');
+      } else {
       }
     });
   }

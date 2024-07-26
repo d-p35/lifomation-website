@@ -128,10 +128,10 @@ export class ApiService {
     );
   }
 
-  starDocument(documentId: number, starred: boolean): Observable<any> {
+  starDocument(documentId: number, starred: boolean, userId: String | undefined): Observable<any> {
     return this.http.patch(
       this.endpoint + `/api/documents/starred/${documentId}/file`,
-      { starred }
+      { starred, userId}
     );
   }
 
@@ -196,11 +196,13 @@ export class ApiService {
   editKeyInfo(
     documentId: number,
     key: string,
-    newValue: string
+    newValue: string,
+    userId: string | undefined
   ): Observable<any> {
+    userId = userId ?? '';
     return this.http.put(
       `${this.endpoint}/api/documents/${documentId}/key-info`,
-      { key, newValue }
+      { key, newValue, userId}
     );
   }
 }

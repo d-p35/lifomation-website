@@ -1,28 +1,46 @@
-import { WebSocketServer } from "ws"; // Import WebSocketServer
+// websocket.ts
+import { WebSocketServer, WebSocket } from 'ws';
+import { Server } from 'http';
 
-// Function to initialize WebSocket server
-export function initializeWebSocketServer(server: any) {
+interface Connection {
+  userId: string;
+  ws: WebSocket;
+}
+
+const connections: Connection[] = [];
+
+const initWebSocketServer = (server: Server) => {
   const wss = new WebSocketServer({ server });
 
-  // Event listener for new client connections
   wss.on('connection', (ws) => {
-    console.log("Client connected");
+    console.log('New client connected');
 
-    
     ws.on('message', (message) => {
       const data = JSON.parse(message.toString());
-      if (data.type === 'edit') {
-        // Broadcast the edit to all connected clients
-        wss.clients.forEach((client) => {
-          if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(data));
-          }
-        });
+      if (data.type === 'init' && data.userId) {
+        connections.push({ userId: data.userId, ws });
+        console.log(`User ${data.userId} connected`);
       }
     });
-    // Event listener for client disconnections
-    ws.on("close", () => {
-      console.log("Client disconnected");
+
+    ws.on('close', () => {
+      const index = connections.findIndex((conn) => conn.ws === ws);
+      if (index !== -1) {
+        console.log(`User ${connections[index].userId} disconnected`);
+        connections.splice(index, 1);
+      }
     });
   });
-}
+
+  return wss;
+};
+
+const notifyUser = (userId: string, message: any) => {
+  const connection = connections.find((conn) => conn.userId === userId);
+  if (connection) {
+    connection.ws.send(JSON.stringify(message));
+
+  }
+};
+
+export { initWebSocketServer, notifyUser };
