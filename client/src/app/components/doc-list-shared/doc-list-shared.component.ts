@@ -31,6 +31,7 @@ export class DocListSharedComponent implements OnInit {
   @Input() documents: any[] = [];
   @Input() loadedAll: boolean = false;
   @Output() scroll = new EventEmitter<void>();
+  userId : string | undefined;
 
   constructor(
     private router: Router,
@@ -40,7 +41,14 @@ export class DocListSharedComponent implements OnInit {
     private messageService: MessageService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId && userId !== 'Unknown UID') {
+        this.userId = userId
+    }
+  });
+
+  }
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
@@ -61,7 +69,7 @@ export class DocListSharedComponent implements OnInit {
   starDocument(doc: any, event: Event) {
     event.stopPropagation();
     doc.starred = !doc.starred;
-    this.apiService.starDocument(doc.id, doc.starred).subscribe({
+    this.apiService.starDocument(doc.id, doc.starred, this.userId).subscribe({
       next: () => {},
       error: (err) => {
         console.error(err);

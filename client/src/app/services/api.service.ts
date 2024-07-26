@@ -128,10 +128,10 @@ export class ApiService {
     );
   }
 
-  starDocument(documentId: number, starred: boolean): Observable<any> {
+  starDocument(documentId: number, starred: boolean, userId: String | undefined): Observable<any> {
     return this.http.patch(
       this.endpoint + `/api/documents/starred/${documentId}/file`,
-      { starred }
+      { starred, userId}
     );
   }
 

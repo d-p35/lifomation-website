@@ -32,6 +32,7 @@ export class DocListComponent implements OnInit {
   @Input() loadedAll: boolean = false;
   @Output() scroll = new EventEmitter<void>();
   @Output() documentDeleted = new EventEmitter<any[]>();
+  userId : string | undefined;
 
   constructor(
     private router: Router,
@@ -41,7 +42,14 @@ export class DocListComponent implements OnInit {
     private messageService: MessageService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      if (userId && userId !== 'Unknown UID') {
+        this.userId = userId
+    }
+  });
+  }
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
@@ -82,7 +90,7 @@ export class DocListComponent implements OnInit {
   starDocument(doc: any, event: Event) {
     event.stopPropagation();
     doc.starred = !doc.starred;
-    this.apiService.starDocument(doc.id, doc.starred).subscribe({
+    this.apiService.starDocument(doc.id, doc.starred, this.userId).subscribe({
       next: () => {},
       error: (err) => {
         console.error(err);

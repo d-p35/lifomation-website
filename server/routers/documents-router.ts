@@ -362,12 +362,12 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
 
 DocumentsRouter.get("/star", async (req: Request, res: Response) => {
   try {
-    const ownerId = req.body.userId;
+    const ownerId = req.query.userId;
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
     let email = await getEmailFromUserId(ownerId as string);
 
-    let whereClause = { document: { email: email }, starred: true } as any;
+    let whereClause = { email, starred: true } as any;
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -388,6 +388,8 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
       const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.lastOpened.toISOString();
     }
+    console.log(email);
+    console.log(documents);
 
     const result = documents.map((doc) => {
       return {
@@ -431,7 +433,9 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
 
 
     let email = await getEmailFromUserId(ownerId as String);
-    let whereClause = { document: { email: email } } as any;
+    let whereClause = { email } as any;
+
+    
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -447,11 +451,13 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
       where: whereClause,
     });
 
+
     let nextCursor: string | null = null;
     if (documents.length == rows) {
       const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.lastOpened.toISOString();
     }
+
 
     const result = documents.map((doc) => {
       return {
@@ -698,9 +704,16 @@ DocumentsRouter.patch(
   async (req: Request, res: Response) => {
     try {
       const id: number = parseInt(req.params.id);
+      const userId = req.body.userId;
       const starred = req.body.starred;
+
+      const userEmail = await getEmailFromUserId(userId);
+      if (!userEmail) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const document = await documentPermissionRepository.findOne({
-        where: { id: id },
+        where: { documentId: id, email: userEmail },
         relations: { document: true },
       });
 

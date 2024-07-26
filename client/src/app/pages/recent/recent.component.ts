@@ -94,6 +94,7 @@ export class RecentComponent implements OnInit {
             fileSize: this.getFileSize(doc.document.size),
           }))
         );
+        console.log(this.documents);
         this.nextDocument = res.nextCursor;
         if (!this.nextDocument) {
           this.loadedAll = true;
