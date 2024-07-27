@@ -90,7 +90,66 @@ const checkPermission = (requiredAccessLevel: string) => {
   };
 };
 
+
+
 export const editDocument = (wss: WebSocketServer) => {
+  DocumentsRouter.delete("/:id/delkey-info", async (req: Request, res: Response) => {
+    try {
+      console.log("Deleting key info");
+      const documentId: number = parseInt(req.params.id);
+      const key = req.body.key;
+      const userId = req.body.userId;
+  
+      const document = await documentRepository.findOne({ where: { id: documentId } });
+  
+      if (!document) {
+        return res.status(404).json({ error: 'Document not found' });
+      }
+
+      console.log("Document", document)
+  
+      if (document.keyInfo && document.keyInfo[key]) {
+        delete document.keyInfo[key];
+        const updatedDocument = await documentRepository.save(document);
+
+        const editorEmail = await getEmailFromUserId(userId);
+
+  
+        if (!editorEmail) {
+          return res.status(404).json({ message: "Editor not found"
+          });
+        }
+
+        const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
+        
+        let getemails = getAllSharedUsers.map((user) => user.email)
+        for (let i = 0; i < getemails.length; i++) {
+          const sharedUserId = await getUserIdFromEmail(getemails[i]);
+          if(userId===sharedUserId)continue;
+          if (!sharedUserId) {
+            return res.status(404).json({ message: "User not found" });
+          }
+          notifyUser(sharedUserId as string, {
+            type: "delete",
+            documentId,
+            document: updatedDocument,
+            key,
+            senderEmail: editorEmail,
+          });
+        }
+
+        
+       
+  
+        res.status(200).json({ document: updatedDocument });
+      } else {
+        res.status(404).json({ error: 'Key not found' });
+      }
+    } catch (error) {
+      console.error('Error deleting key info:', error);
+      res.status(500).json({ error: 'Failed to delete key info' });
+    }
+  });
 
   DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
     try {
@@ -112,21 +171,31 @@ export const editDocument = (wss: WebSocketServer) => {
       document.keyInfo[key] = newValue;
       const updatedDocument = await documentRepository.save(document);
 
-      const editorId = await getEmailFromUserId(userId);
+      const editorEmail = await getEmailFromUserId(userId);
 
-      if (!editorId) {
+      if (!editorEmail) {
         return res.status(404).json({ message: "Editor not found"
         });
       }
-
-      notifyUser(document.ownerId, {
-        type: "edit",
-        documentId,
-        documentTitle: document.document.originalname,
-        key,
-        value: newValue,
-        senderEmail: editorId,
-      });
+      const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
+      console.log("getAllSharedUsers", getAllSharedUsers)
+      
+      let getemails = getAllSharedUsers.map((user) => user.email)
+      for (let i = 0; i < getemails.length; i++) {
+        const sharedUserId = await getUserIdFromEmail(getemails[i]);
+        if(userId===sharedUserId)continue;
+        if (!sharedUserId) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        notifyUser(sharedUserId as string, {
+          type: "edit",
+          document: updatedDocument,
+          key,
+          value: newValue,
+          senderEmail: editorEmail,
+        });
+      }
+      
 
       res.status(200).json({ document: updatedDocument });
     } catch (err: any) {
@@ -158,66 +227,38 @@ export const editDocument = (wss: WebSocketServer) => {
       document.keyInfo[key] = value;
       const updatedDocument = await documentRepository.save(document);
 
-      const editorId = await getEmailFromUserId(userId);
+      const editorEmail = await getEmailFromUserId(userId);
 
-      if (!editorId) {
+      if (!editorEmail) {
         return res.status(404).json({ message: "Editor not found" });
       }
 
-      notifyUser(document.ownerId, {
-        type: "add",
-        documentId,
-        documentTitle: document.document.originalname,
-        key,
-        value,
-        senderEmail: editorId,
-      });
+
+      const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
+      console.log("getAllSharedUsers", getAllSharedUsers)
+      
+      let getemails = getAllSharedUsers.map((user) => user.email)
+      for (let i = 0; i < getemails.length; i++) {
+        const sharedUserId = await getUserIdFromEmail(getemails[i]);
+        if(userId===sharedUserId)continue;
+        if (!sharedUserId) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        notifyUser(sharedUserId as string, {
+          type: "add",
+          document: updatedDocument,
+          key,
+          value: value,
+          senderEmail: editorEmail,
+        });
+      }
 
       res.status(200).json({ document: updatedDocument });
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
   });
-  DocumentsRouter.delete("/:id/delkey-info", async (req: Request, res: Response) => {
-    try {
-      const documentId: number = parseInt(req.params.id);
-      const key = req.body.key;
-      const userId = req.body.userId;
 
-      const document = await documentRepository.findOne({ where: { id: documentId } });
-
-      if (!document) {
-        return res.status(404).json({ error: 'Document not found' });
-      }
-
-      if (document.keyInfo && document.keyInfo[key]) {
-        delete document.keyInfo[key];
-        const updatedDocument = await documentRepository.save(document);
-
-        const editorId = await getEmailFromUserId(userId);
-
-        if (!editorId) {
-          return res.status(404).json({ message: "Editor not found"
-          });
-        }
-        
-        notifyUser(document.ownerId, {
-          type: "delete",
-          documentId,
-          documentTitle: document.document.originalname,
-          key,
-          senderEmail: editorId,
-        });
-
-        res.status(200).json({ document: updatedDocument });
-      } else {
-        res.status(404).json({ error: 'Key not found' });
-      }
-    } catch (error) {
-      console.error('Error deleting key info:', error);
-      res.status(500).json({ error: 'Failed to delete key info' });
-    }
-  });
 }
 
 //------------------------------------------------------------------------------------------------

@@ -102,13 +102,13 @@
               </button>
               <!-- Delete Button -->
               <button
-                *ngIf="(!editingKey || editingKey !== key) && !editDisabled"
-                class="delete-button"
-                (click)="deleteKeyInfo(key)"
-              >
-                <i class="pi pi-trash"></i>
-                <!-- PrimeNG trash icon -->
-              </button>
+              *ngIf="(!editingKey || editingKey !== key ) && !editDisabled"
+              class="delete-button"
+              (click)="deleteKeyInfo(key)"
+            >
+              <i class="pi pi-trash"></i>
+              <!-- PrimeNG trash icon -->
+            </button>
             </div>
           </div>
         </div>

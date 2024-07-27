@@ -36,6 +36,7 @@ const initWebSocketServer = (server: Server) => {
 };
 
 const notifyUser = (userId: string, message: any) => {
+  console.log('Notifying user:', userId);
   const connection = connections.find((conn) => conn.userId === userId);
   if (connection) {
     connection.ws.send(JSON.stringify(message));
