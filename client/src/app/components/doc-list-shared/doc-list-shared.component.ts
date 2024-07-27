@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { CommonModule, NgFor } from '@angular/common';
+import { CommonModule, NgFor, DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { LazyLoadEvent, MessageService } from 'primeng/api';
 import { DataService } from '../../services/data.service';
@@ -26,6 +26,7 @@ import { ToastModule } from 'primeng/toast';
   ],
   templateUrl: './doc-list-shared.component.html',
   styleUrls: ['./doc-list-shared.component.scss'],
+  providers: [DatePipe],
 })
 export class DocListSharedComponent implements OnInit {
   @Input() documents: any[] = [];

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { CommonModule, NgFor } from '@angular/common';
+import { CommonModule, NgFor, DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { LazyLoadEvent, MessageService } from 'primeng/api';
 import { DataService } from '../../services/data.service';
@@ -26,13 +26,14 @@ import { ToastModule } from 'primeng/toast';
   ],
   templateUrl: './doc-list.component.html',
   styleUrls: ['./doc-list.component.scss'],
+  providers: [DatePipe],
 })
 export class DocListComponent implements OnInit {
   @Input() documents: any[] = [];
   @Input() loadedAll: boolean = false;
   @Output() scroll = new EventEmitter<void>();
   @Output() documentDeleted = new EventEmitter<any[]>();
-  userId : string | undefined;
+  userId: string | undefined;
 
   constructor(
     private router: Router,
@@ -43,12 +44,11 @@ export class DocListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.userId = userId
-    }
-  });
+        this.userId = userId;
+      }
+    });
   }
 
   getIcon(mimetype: string): string {

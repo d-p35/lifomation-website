@@ -42,8 +42,8 @@ tr:hover {
   background-color: #f1f1f1;
 }
 
-tbody{
-overflow-y: auto;
+tbody {
+  overflow-y: auto;
 }
 
 .delete-button {
@@ -71,5 +71,6 @@ overflow-y: auto;
 
 .star-icon {
   cursor: pointer;
+  padding: 0.4rem 1rem 0.6rem;
   margin-right: 20px;
 }
