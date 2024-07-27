@@ -35,7 +35,7 @@ services:
       - meili_data:/meili_data
 
   server:
-    image: ghcr.io/adam-badar/project-lifomation-server:latest
+    image: ghcr.io/utsc-cscc09-programming-on-the-web/project-lifomation-server:dev
     container_name: express-server
     environment:
       DB_HOST: ${DB_HOST} # Use the service name for database connection
@@ -56,7 +56,7 @@ services:
       - ./server/logs:/usr/src/app/logs # Optional: For storing logs
 
   client:
-    image: ghcr.io/adam-badar/project-lifomation-client:latest
+    image: ghcr.io/utsc-cscc09-programming-on-the-web/project-lifomation-client:dev
     container_name: angular-client
     expose:
       - 80
