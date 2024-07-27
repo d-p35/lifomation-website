@@ -8,6 +8,8 @@ import { ImageModule } from 'primeng/image';
 import { FormsModule } from '@angular/forms';
 import { WebSocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-doc-view',
@@ -18,6 +20,7 @@ import { Subscription } from 'rxjs';
     ImageModule,
     CommonModule,
     FormsModule,
+    ToastModule,
   ],
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
@@ -47,7 +50,8 @@ export class DocViewComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
-    private wsService: WebSocketService
+    private wsService: WebSocketService,
+    private messageService : MessageService
   ) {}
 
   ngOnInit() {
@@ -100,9 +104,33 @@ export class DocViewComponent implements OnInit, OnDestroy {
         });
 
         this.wsSubscription = this.wsService.messages$.subscribe((message) => {
-          if (message && message.type === 'edit' && message.documentId === this.document.id) {
+          console.log('Received message:', message);
+          if (message && message.type === 'edit' && message.document) {
+            if (message.document.id === this.document.id) {
             this.keyInfo[message.key] = message.value;
             this.cdr.detectChanges();
+            if (this.userId !== message.document.ownerId) {
+            this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} updated to ${message.value}`});
+            }
+        }
+        }
+
+          if (message && message.type === 'delete' && message.document.id === this.document.id) {
+            delete this.keyInfo[message.key];
+            this.cdr.detectChanges();
+            if (this.userId !== message.document.ownerId) {
+              this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} deleted`});
+            }
+          }
+
+          if (message && message.type === 'add' && message.document.id === this.document.id) {
+            console.log('Adding key:', message.key);
+            this.keyInfo[message.key] = message.value;
+            this.cdr.detectChanges();
+            if (this.userId !== message.document.ownerId) {
+              this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} added with value ${message.value}`});
+            }
+          
           }
         });
       } else {
@@ -205,8 +233,9 @@ export class DocViewComponent implements OnInit, OnDestroy {
     }, 3000);
   }
   deleteKeyInfo(key: string) {
-    this.apiService.deleteKeyInfoApi(this.document.id, key, 'userId')
+    this.apiService.deleteKeyInfoApi(this.document.id, key, this.userId)
       .subscribe(() => {
+        console.log('Deleted key:', key);
         delete this.keyInfo[key];
       });
   }
