@@ -1,8 +1,12 @@
 
 /node_modules
+/acme
 
 # Build output
 /dist
+/certs
+/meili_data
+/postgres_data
 
 # Environment variables
 /.env
@@ -21,3 +25,4 @@ Thumbs.db
 /uploads
 /meili_data
 /postgres_data
+/acme/yashank.bhola%40mail.utoronto.ca

@@ -1,7 +1,7 @@
 # Stage 1: Build the Angular application
 FROM node:18-alpine as build
 
-WORKDIR /client/src
+WORKDIR /app
 
 # Install Angular CLI globally
 RUN npm install -g @angular/cli
@@ -19,11 +19,11 @@ COPY . .
 RUN npm run build
 
 # Expose port 4200
-EXPOSE 4200
+# EXPOSE 4200
 
 # Serve these static files with NGINX.
 FROM nginx:1.21.6-alpine
-COPY --from=build /client/src/dist/client /usr/share/nginx/html
+COPY --from=build /app/dist/client/browser /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 

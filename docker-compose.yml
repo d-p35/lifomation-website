@@ -20,7 +20,7 @@ services:
       - "9998:9998"
     environment:
       VIRTUAL_HOST: tika.lifomation.tech
-      LETSENCRYPT_HOST:	tika.lifomation.tech
+      LETSENCRYPT_HOST: tika.lifomation.tech
 
   meilisearch:
     image: getmeili/meilisearch:v1.9
@@ -45,7 +45,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       PORT: 3000
       VIRTUAL_HOST: server.lifomation.tech
-      LETSENCRYPT_HOST:	server.lifomation.tech
+      LETSENCRYPT_HOST: server.lifomation.tech
     ports:
       - "3000:3000"
     depends_on:
@@ -59,7 +59,7 @@ services:
     image: ghcr.io/adam-badar/project-lifomation-client:latest
     container_name: angular-client
     expose:
-      - "80"
+      - 80
     restart: always
     depends_on:
       - server
