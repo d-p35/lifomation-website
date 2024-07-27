@@ -31,6 +31,7 @@ export class HeaderComponent {
   items: any[] | undefined;
   @Input() documents: any[] = [];
   dropdownOpen = false;
+  userId: string | undefined;
   constructor(
     public auth: AuthService,
     private apiService: ApiService,
@@ -41,11 +42,13 @@ export class HeaderComponent {
   ) {}
 
   ngOnInit() {
+
+    this.apiService.getUserId().subscribe((userId) => {
+      this.userId = userId;
+    });
     this.fetchDocumentsNames();
     this.webSocketService.messages$.subscribe((message) => {
-      console.log('Message received:', message);
       if (message && message.type === 'share') {
-        console.log('Trigger');
         this.messageService.add({
           key:"template",
           severity: 'success',
@@ -58,17 +61,18 @@ export class HeaderComponent {
         });
       }
 
-      else if (message && message.type === 'edit') {
-        console.log('Trigger');
-        this.messageService.add({
-          key:"template",
-          severity: 'success',
-          summary: 'Document Edited', 
-          detail: `${message.senderEmail} edited ${message.documentTitle}.`,
-        });
-      }
-   
+      else if (message && message.type === 'edit' && this.userId === message.document.ownerId ) {
+          this.messageService.add({key: 'template', severity:'info', summary:'Your Document was Updated', detail: `${message.senderEmail} edited ${message.document.document.originalname}.`});
       
+      }
+
+      else if (message && message.type === 'delete' && this.userId === message.document.ownerId) {
+        this.messageService.add({key: 'template', severity:'warn', summary:'Your Document was Deleted', detail: `${message.senderEmail} deleted ${message.document.document.originalname}.`});
+      }
+
+      else if (message && message.type === 'add' && this.userId === message.document.ownerId) {
+        this.messageService.add({key: 'template', severity:'info', summary:'Your Document was Updated', detail: `${message.senderEmail} added a new key to ${message.document.document.originalname}.`});
+      }
     });
     
   }

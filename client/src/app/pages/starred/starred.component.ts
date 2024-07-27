@@ -87,7 +87,6 @@ export class StarredComponent implements OnInit {
   ) {
     this.apiService.getStarredDocuments(next, itemsPerPage, userId).subscribe({
       next: (res) => {
-        console.log('res', res);
         this.documents = this.documents.concat(
           res.documents.map((doc: any) => ({
             ...doc,

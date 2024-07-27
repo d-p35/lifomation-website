@@ -8,6 +8,10 @@ import { ImageModule } from 'primeng/image';
 import { FormsModule } from '@angular/forms';
 import { WebSocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+
 @Component({
   selector: 'app-doc-view',
   standalone: true,
@@ -17,11 +21,13 @@ import { Subscription } from 'rxjs';
     ImageModule,
     CommonModule,
     FormsModule,
+    ToastModule,
+    DialogModule,
   ],
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })
-export class DocViewComponent {
+export class DocViewComponent implements OnInit {
   documentUrl: any = '';
   documentType: string | null = null;
   loading = true;
@@ -30,20 +36,27 @@ export class DocViewComponent {
   copiedKey: string | null = null;
   editingKey: string | null = null;
   editValue: string = '';
+  newKey: string = '';
+  newValue: string = '';
   editDisabled: boolean = false;
-
+  displayAddKeyInfoModal: boolean = false;
+  displayShareDocumentModal: boolean = false;
   shareemail: string = '';
   shareAccessLevel: string = 'read';
   shareMessage: string | null = null;
   shareSuccess: boolean = false;
   wsSubscription: Subscription | undefined;
-  userId : string | undefined;
+  userId: string | undefined;
+  oldKey: string | undefined;
+  oldValue: string | undefined;
+
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
-    private wsService: WebSocketService
+    private wsService: WebSocketService,
+    private messageService : MessageService
   ) {}
 
   ngOnInit() {
@@ -70,7 +83,7 @@ export class DocViewComponent {
 
                 this.apiService.getDocumentPermissions(i, userId).subscribe({
                   next: (res: any) => {
-                    if(res.permissions.accessLevel==='read'){
+                    if (res.permissions.accessLevel === 'read') {
                       this.editDisabled = true;
                     }
                   },
@@ -97,9 +110,35 @@ export class DocViewComponent {
         });
 
         this.wsSubscription = this.wsService.messages$.subscribe((message) => {
-          if (message && message.type === 'edit' && message.documentId === this.document.id) {
+          if (
+            message &&
+            message.type === 'edit' &&
+            message.document.id === this.document.id
+          ) {
+            if (message.key!==message.originalKey){delete this.keyInfo[message.originalKey];}
             this.keyInfo[message.key] = message.value;
             this.cdr.detectChanges();
+            if (this.userId !== message.document.ownerId) {
+            this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} updated to ${message.value}`});
+            }
+        }
+        
+
+          if (message && message.type === 'delete' && message.document.id === this.document.id) {
+            delete this.keyInfo[message.key];
+            this.cdr.detectChanges();
+            if (this.userId !== message.document.ownerId) {
+              this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} deleted`});
+            }
+          }
+
+          if (message && message.type === 'add' && message.document.id === this.document.id) {
+            this.keyInfo[message.key] = message.value;
+            this.cdr.detectChanges();
+            if (this.userId !== message.document.ownerId) {
+              this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} added with value ${message.value}`});
+            }
+          
           }
         });
       } else {
@@ -109,10 +148,9 @@ export class DocViewComponent {
   }
 
   ngOnDestroy() {
-    // Unsubscribe to avoid memory leaks
-    // if (this.wsSubscription) {
-    //   this.wsSubscription.unsubscribe();
-    // }
+    if (this.wsSubscription) {
+      this.wsSubscription.unsubscribe();
+    }
   }
 
   keyInfoKeys() {
@@ -132,32 +170,55 @@ export class DocViewComponent {
   startEdit(key: string) {
     this.editingKey = key;
     this.editValue = this.keyInfo[key];
+    this.newValue = this.keyInfo[key];
+    this.newKey = key; // Set the key for editing
   }
 
   saveEdit(key: string) {
     if (this.editValue !== null) {
-      this.apiService.editKeyInfo(this.document.id, key, this.editValue, this.userId).subscribe({
-        next: () => {
-          this.keyInfo[key] = this.editValue;
-          this.editingKey = null;
-          // this.wsService.sendMessage({
-          //   type: 'edit',
-          //   documentId: this.document.id,
-          //   key: key,
-          //   value: this.editValue,
-          // });
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+      
+      this.apiService
+        .editKeyInfo(this.document.id, this.newKey, this.newValue, this.userId, this.editValue, this.editingKey)
+        .subscribe({
+          next: () => {
+            // If the key is changed, update the key and its value
+            if (this.newKey !== key) {
+              delete this.keyInfo[key];
+            }
+            this.keyInfo[this.newKey] = this.editValue;
+            this.editingKey = null;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error(err);
+          },
+        });
     }
   }
 
   cancelEdit() {
     this.editingKey = null;
     this.editValue = '';
+    this.newKey = ''; // Reset new key
+  }
+
+  addKeyInfo() {
+    if (this.newKey && this.newValue) {
+      this.apiService
+        .addKeyInfo(this.document.id, this.newKey, this.newValue, this.userId)
+        .subscribe({
+          next: () => {
+            this.keyInfo[this.newKey] = this.newValue;
+            this.newKey = '';
+            this.newValue = '';
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error(err);
+          },
+        });
+    }
+    this.displayAddKeyInfoModal = false;
   }
 
   shareDocument() {
@@ -165,19 +226,23 @@ export class DocViewComponent {
       return;
     }
 
-    this.apiService.shareDocument(this.document.id, this.shareemail, this.shareAccessLevel).subscribe({
-      next: () => {
-        this.shareSuccess = true;
-        this.shareMessage = 'Document shared successfully!';
-        this.clearShareMessage();
-      },
-      error: (err) => {
-        console.error(err);
-        this.shareSuccess = false;
-        this.shareMessage = 'Failed to share document: ' + (err.error?.message || err.message);
-        this.clearShareMessage();
-      },
-    });
+    this.apiService
+      .shareDocument(this.document.id, this.shareemail, this.shareAccessLevel)
+      .subscribe({
+        next: () => {
+          this.shareSuccess = true;
+          this.shareMessage = 'Document shared successfully!';
+          this.clearShareMessage();
+        },
+        error: (err) => {
+          console.error(err);
+          this.shareSuccess = false;
+          this.shareMessage =
+            'Failed to share document: ' + (err.error?.message || err.message);
+          this.clearShareMessage();
+        },
+      });
+    this.displayShareDocumentModal = false;
   }
 
   clearShareMessage() {
@@ -185,5 +250,11 @@ export class DocViewComponent {
       this.shareMessage = null;
       this.cdr.detectChanges();
     }, 3000);
+  }
+  deleteKeyInfo(key: string) {
+    this.apiService.deleteKeyInfoApi(this.document.id, key, this.userId)
+      .subscribe(() => {
+        delete this.keyInfo[key];
+      });
   }
 }

@@ -21,11 +21,9 @@ export class ApiService {
   get isAuthenticated$() {
     // return this.auth.isAuthenticated$;
     return this.auth.user$.subscribe((user) => {
-      console.log('user', user);
       if (user) {
         // Extract the user_id from the user profile
         this.userId = user.sub;
-        console.log('User ID:', this.userId);
       }
     });
   }
@@ -200,12 +198,34 @@ export class ApiService {
     documentId: number,
     key: string,
     newValue: string,
+    userId: string | undefined,
+    editValue : string,
+    editkey: string | null
+  ): Observable<any> {
+    userId = userId ?? '';
+    editValue = editValue ?? '';
+    return this.http.put(
+      `${this.endpoint}/api/documents/${documentId}/key-info`,
+      { key, newValue, userId, editValue, editkey }
+    );
+  }
+  addKeyInfo(
+    documentId: number,
+    key: string,
+    value: string,
     userId: string | undefined
   ): Observable<any> {
     userId = userId ?? '';
-    return this.http.put(
-      `${this.endpoint}/api/documents/${documentId}/key-info`,
-      { key, newValue, userId}
+    return this.http.post(
+      `${this.endpoint}/api/documents/${documentId}/addkey-info`,
+      { key, value, userId }
+    );
+  }
+  deleteKeyInfoApi(documentId: number, key: string, userId: string | undefined): Observable<any> {
+    userId = userId ?? '';
+    return this.http.delete(
+      `${this.endpoint}/api/documents/${documentId}/delkey-info`,
+      { body: { key, userId } }
     );
   }
 }
