@@ -12,11 +12,16 @@ import {
 import MeiliSearch from "meilisearch";
 import synonyms from "./synonyms.json";
 import { initWebSocketServer } from "./services/websocket";
+import * as dotenv from "dotenv";
+dotenv.config({
+  path: `${__dirname}/../../.env`,
+});
+
 const app = express();
 
 app.use(express.json());
 const corsOptions = {
-  origin: "http://localhost:4200",
+  origin: process.env.NODE_ENV=='production'?'https://lifomation.tech':"http://localhost:4200",
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -28,7 +33,7 @@ dataSource
   .then(() => {
     console.log("Database connection established.");
 
-    const client = new MeiliSearch({ host: "http://meilisearch:7700" });
+    const client = new MeiliSearch({ host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://meilisearch:7700" });
     const index = client.index("documents");
 
     index.updateFilterableAttributes(["ownerId", "sharedUsers"]).then(() => {

@@ -2,6 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { ApiService } from './api.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,7 @@ export class WebSocketService {
 
 
   connect(userId: string) {
-    this.socket = new WebSocket('ws://localhost:3000'); // Use your backend URL
+    this.socket = new WebSocket(environment.production ?'ws://server.lifomation.tech':'ws://localhost:3000'); // Use your backend URL
 
     this.socket.onopen = () => {
       if (!this.socket) return;

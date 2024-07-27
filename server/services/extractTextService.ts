@@ -10,7 +10,7 @@ import MeiliSearch from "meilisearch";
 
 import { classifyText } from "./watsonTextClassificationService";
 import { geminiTextClassification } from "./geminiTextClassificationService";
-const client = new MeiliSearch({ host: "http://meilisearch:7700" });
+const client = new MeiliSearch({ host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://meilisearch:7700"});
 const index = client.index("documents");
 
 export async function processImageFile(

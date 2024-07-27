@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { environmentProd } from '../../environments/environment.prod';
 import { AuthService } from '@auth0/auth0-angular';
 import { map } from 'rxjs/operators';
 
@@ -9,10 +10,12 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class ApiService {
-  endpoint = environment.apiEndpoint;
+  endpoint = environment.production ? environmentProd.apiEndpoint : environment.apiEndpoint;
+
   userId: string | undefined;
 
   constructor(private http: HttpClient, private auth: AuthService) {
+    console.log('API Endpoint:', this.endpoint);
     // Existing constructor code
   }
   get isAuthenticated$() {
