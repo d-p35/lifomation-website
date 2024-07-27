@@ -52,7 +52,6 @@ export class SearchBarComponent implements OnInit {
         .subscribe({
           next: (res) => {
             this.suggestions = res;
-            console.log('Suggestions:', this.suggestions);
           },
           error: (err) => {
             console.error(err);

@@ -163,13 +163,6 @@ export class HomeComponent implements OnInit {
   userId: string | undefined;
 
   ngOnInit(): void {
-    // this.apiService.isAuthenticated$.subscribe((isAuthenticated) => {
-    //   if (isAuthenticated) {
-    //     console.log('User is authenticated');
-    //     // print user id
-    //     this.router.navigate(['/dashboard']);
-    //   }
-    // });
 
     combineLatest([
       this.apiService.getUserId(),

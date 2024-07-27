@@ -43,36 +43,34 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
 // Middleware to check permissions
 const checkPermission = (requiredAccessLevel: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    console.log("Middleware executed");
+
 
     const documentId = parseInt(req.params.id);
     let email = req.body.email || req.query.email || req.headers["email"];
     const userId = req.body.userId || req.query.userId || req.headers["userId"];
-    console.log(`Email: ${email}, User ID: ${userId}`);
 
     if (!email && userId) {
       email = await getEmailFromUserId(userId);
     }
-    console.log(`Email: ${email}, User ID: ${userId}`);
+
     if (!email) {
       return res.status(400).json({ message: "Email or User ID is required" });
     }
-    console.log(`Email: ${email}, User ID: ${userId}`);
+
 
     const document = await documentRepository.findOne({
       where: { id: documentId },
       relations: ["permissions"],
     });
 
-    // console.log(`Document: ${JSON.stringify(document)}`);
+
 
     if (!document) {
-      console.log("Document not found");
       return res.status(404).json({ message: "Document not found" });
     }
 
     const permission = document.permissions.find((p) => p.email === email);
-    console.log(`Found permission: ${JSON.stringify(permission)}`);
+
 
     const accessLevels = ["read", "edit", "full"];
     const userAccessLevelIndex = accessLevels.indexOf(
@@ -80,11 +78,8 @@ const checkPermission = (requiredAccessLevel: string) => {
     );
     const requiredAccessLevelIndex = accessLevels.indexOf(requiredAccessLevel);
 
-    console.log(`User access level index: ${userAccessLevelIndex}`);
-    console.log(`Required access level index: ${requiredAccessLevelIndex}`);
 
     if (userAccessLevelIndex < requiredAccessLevelIndex) {
-      console.log("Permission denied: Insufficient access level");
       return res.status(403).json({ message: "Permission denied" });
     }
 
@@ -92,16 +87,78 @@ const checkPermission = (requiredAccessLevel: string) => {
   };
 };
 
+
+
 export const editDocument = (wss: WebSocketServer) => {
+  DocumentsRouter.delete("/:id/delkey-info", async (req: Request, res: Response) => {
+    try {
+
+      const documentId: number = parseInt(req.params.id);
+      const key = req.body.key;
+      const userId = req.body.userId;
+  
+      const document = await documentRepository.findOne({ where: { id: documentId } });
+  
+      if (!document) {
+        return res.status(404).json({ error: 'Document not found' });
+      }
+
+  
+      if (document.keyInfo && document.keyInfo[key]) {
+        delete document.keyInfo[key];
+        const updatedDocument = await documentRepository.save(document);
+
+        const editorEmail = await getEmailFromUserId(userId);
+
+  
+        if (!editorEmail) {
+          return res.status(404).json({ message: "Editor not found"
+          });
+        }
+
+        const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
+        
+        let getemails = getAllSharedUsers.map((user) => user.email)
+
+        const getUserIds = await UserRepository.find({where: {email: In(getemails)}})
+        for (let i = 0; i < getUserIds.length; i++) {
+          const sharedUserId = getUserIds[i].id;
+          if(userId===sharedUserId)continue;
+          if (!sharedUserId) {
+            return res.status(404).json({ message: "User not found" });
+          }
+          notifyUser(sharedUserId as string, {
+            type: "delete",
+            documentId,
+            document: updatedDocument,
+            key,
+            senderEmail: editorEmail,
+          });
+        }
+
+        
+       
+  
+        res.status(200).json({ document: updatedDocument });
+      } else {
+        res.status(404).json({ error: 'Key not found' });
+      }
+    } catch (error) {
+      console.error('Error deleting key info:', error);
+      res.status(500).json({ error: 'Failed to delete key info' });
+    }
+  });
+
   DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
     try {
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
       const newValue = req.body.newValue;
       const userId = req.body.userId;
-      console.log(
-        `Updating key ${key} to ${newValue} for document ${documentId}`
-      );
+
+      const originalValue = req.body.editValue;
+      const originalKey = req.body.editkey;
+
       const document = await documentRepository.findOne({
         where: { id: documentId },
       });
@@ -110,30 +167,103 @@ export const editDocument = (wss: WebSocketServer) => {
         return res.status(404).json({ message: "Document not found" });
       }
 
+      if (key!=originalKey) {
+        delete document.keyInfo[originalKey];
+      }
       document.keyInfo[key] = newValue;
+
       const updatedDocument = await documentRepository.save(document);
 
-      const editorId = await getEmailFromUserId(userId);
+      const editorEmail = await getEmailFromUserId(userId);
 
-      if (!editorId) {
-        return res.status(404).json({ message: "Editor not found" });
+      if (!editorEmail) {
+        return res.status(404).json({ message: "Editor not found"
+        });
       }
+      const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
 
-      notifyUser(document.ownerId, {
-        type: "edit",
-        documentId,
-        documentTitle: document.document.originalname,
-        key,
-        value: newValue,
-        senderEmail: editorId,
-      });
+      
+      let getemails = getAllSharedUsers.map((user) => user.email)
+
+      const getUserIds = await UserRepository.find({where: {email: In(getemails)}})
+      for (let i = 0; i < getUserIds.length; i++) {
+          const sharedUserId = getUserIds[i].id;
+        if(userId===sharedUserId)continue;
+        if (!sharedUserId) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        notifyUser(sharedUserId as string, {
+          type: "edit",
+          document: updatedDocument,
+          key,
+          value: newValue,
+          senderEmail: editorEmail,
+          originalKey
+        });
+      }
+      
 
       res.status(200).json({ document: updatedDocument });
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
   });
-};
+  DocumentsRouter.post("/:id/addkey-info", async (req: Request, res: Response) => {
+    try {
+      const documentId: number = parseInt(req.params.id);
+      const key = req.body.key;
+      const value = req.body.value;
+      const userId = req.body.userId;
+
+      const document = await documentRepository.findOne({
+        where: { id: documentId },
+      });
+
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      if (document.keyInfo[key]) {
+        return res.status(400).json({ message: "Key already exists" });
+      }
+
+      document.keyInfo[key] = value;
+      const updatedDocument = await documentRepository.save(document);
+
+      const editorEmail = await getEmailFromUserId(userId);
+
+      if (!editorEmail) {
+        return res.status(404).json({ message: "Editor not found" });
+      }
+
+
+      const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
+
+      
+      let getemails = getAllSharedUsers.map((user) => user.email)
+      const getUserIds = await UserRepository.find({where: {email: In(getemails)}})
+      for (let i = 0; i < getUserIds.length; i++) {
+        const sharedUserId = getUserIds[i].id;
+        if(userId===sharedUserId)continue;
+        if (!sharedUserId) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        notifyUser(sharedUserId as string, {
+          type: "add",
+          document: updatedDocument,
+          key,
+          value: value,
+          senderEmail: editorEmail,
+        });
+      }
+
+      res.status(200).json({ document: updatedDocument });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+}
 
 //------------------------------------------------------------------------------------------------
 //-------------------------SharedComponent-------------------------------------------------------
@@ -286,7 +416,7 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
     }
 
     let email = await getEmailFromUserId(userId);
-    console.log(`Email: ${email}`);
+
 
     let whereClause = { email: email } as any;
 
@@ -404,8 +534,7 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
       const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.lastOpened.toISOString();
     }
-    console.log(email);
-    console.log(documents);
+
 
     const result = documents.map((doc) => {
       return {

@@ -45,7 +45,7 @@ export const classifyText = async (input: string): Promise<any> => {
     text: input,
     features: features,
   };
-  console.log("Analysis parameters:", analyzeParams);
+
 
   try {
     // Perform the analysis
@@ -57,9 +57,6 @@ export const classifyText = async (input: string): Promise<any> => {
       .catch((err) => {
         console.log("error:", err);
       });
-
-    // console.log("Analysis result:", response.result);
-    // return response.result;
   } catch (error) {
     console.error("Error while analyzing text:", error);
     throw error;

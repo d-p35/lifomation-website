@@ -32,7 +32,6 @@ var fs = require('fs');
 const json = JSON.stringify(combinedSynonyms);
 const callback = (err) => {
   if (err) throw err;
-  console.log('The file has been saved!');
 };
 
 
