@@ -14,7 +14,7 @@ import synonyms from "./synonyms.json";
 import { initWebSocketServer } from "./services/websocket";
 import * as dotenv from "dotenv";
 dotenv.config({
-  path: `${__dirname}/../../.env`,
+  path: `${__dirname}/../.env`,
 });
 
 const app = express();
