@@ -2,7 +2,21 @@
   <div class="main-container">
     <main class="main-content">
       <div *ngIf="!loading">
-        <h2>{{ document.document.originalname }}</h2>
+        <div class="header">
+          <span class="document-name">{{
+            document.document.originalname
+          }}</span>
+          <div class="modal-icons">
+            <!-- Share Document Icon -->
+            <i
+              class="pi pi-share-alt"
+              (click)="displayShareDocumentModal = true"
+              style="cursor: pointer"
+              *ngIf="document.ownerId==userId"
+            ></i>
+            <!-- Add New Key-Info Pair Icon -->
+          </div>
+        </div>
 
         <!-- Document Display -->
         <div *ngIf="documentType !== 'pdf'">
@@ -25,29 +39,55 @@
 
         <!-- Key Information Display -->
         <div class="key-info-container">
-          <h3>Key Information</h3>
+          <div class="key-info-header">
+            <h3>Key Information</h3>
+            <i
+              class="pi pi-plus"
+              (click)="displayAddKeyInfoModal = true"
+              style="cursor: pointer"
+              *ngIf="!editDisabled"
+            ></i>
+          </div>
           <div *ngIf="keyInfo">
             <div *ngFor="let key of keyInfoKeys()" class="key-info-item">
-              <strong>{{ key }}:</strong>
-              <span *ngIf="!editingKey || editingKey !== key">{{ keyInfo[key] }}</span>
+              <strong *ngIf="!editingKey || editingKey !== key">{{ key }}:</strong>
+              <span *ngIf="!editingKey || editingKey !== key">{{
+                keyInfo[key]
+              }}</span>
 
               <!-- Added inputs to edit both key and value -->
-              <input *ngIf="editingKey === key" [(ngModel)]="newKey" placeholder="Key" />
-              <input *ngIf="editingKey === key" [(ngModel)]="editValue" placeholder="Value" />
+              <input
+                *ngIf="editingKey === key"
+                [(ngModel)]="newKey"
+                placeholder="Key"
+              />
+              <input
+                *ngIf="editingKey === key"
+                [(ngModel)]="editValue"
+                placeholder="Value"
+              />
               <button
                 *ngIf="!editingKey || editingKey !== key"
                 (click)="copyToClipboard(keyInfo[key], key)"
                 class="copy-button"
                 [disabled]="copiedKey === key"
               >
-                {{ copiedKey === key ? 'Copied!' : 'Copy' }}
+                {{ copiedKey === key ? "Copied!" : "Copy" }}
               </button>
 
-              <button *ngIf="editingKey === key" (click)="saveEdit(key)" class="save-button">
+              <button
+                *ngIf="editingKey === key"
+                (click)="saveEdit(key)"
+                class="save-button"
+              >
                 <i class="pi pi-check"></i>
                 <!-- PrimeNG check icon -->
               </button>
-              <button *ngIf="editingKey === key" (click)="cancelEdit()" class="cancel-button">
+              <button
+                *ngIf="editingKey === key"
+                (click)="cancelEdit()"
+                class="cancel-button"
+              >
                 <i class="pi pi-times"></i>
                 <!-- PrimeNG cross icon -->
               </button>
@@ -72,55 +112,96 @@
             </div>
           </div>
         </div>
-        
-        <!-- Add New Key-Info Pair -->
-        <div class="add-key-info-container">
-          <h3>Add New Key-Info Pair</h3>
-          <form (ngSubmit)="addKeyInfo()">
-            <div class="form-group">
-              <label for="newKey">Key:</label>
-              <input id="newKey" [(ngModel)]="newKey" name="newKey" required />
-            </div>
-            <div class="form-group">
-              <label for="newValue">Value:</label>
-              <input id="newValue" [(ngModel)]="newValue" name="newValue" required />
-            </div>
-            <button type="submit" class="add-button">Add</button>
-          </form>
-        </div>
 
-        <!-- Share -->
-        <div class="share-document-container">
-          <h3>Share Document</h3>
-          <form (ngSubmit)="shareDocument()">
-            <div class="form-group">
-              <label for="shareemail">User Email:</label>
-              <input
-                id="shareemail"
-                [(ngModel)]="shareemail"
-                name="shareemail"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="shareAccessLevel">Access Level:</label>
-              <select
-                id="shareAccessLevel"
-                [(ngModel)]="shareAccessLevel"
-                name="shareAccessLevel"
-                required
+        <!-- Add New Key-Info Pair Modal -->
+        <p-dialog
+          header="Add New Key-Info Pair"
+          [(visible)]="displayAddKeyInfoModal"
+          [modal]="true"
+          [closable]="false"
+        >
+          <div class="add-key-info-container">
+            <form (ngSubmit)="addKeyInfo()">
+              <div class="form-group">
+                <label for="newKey">Key:</label>
+                <input
+                  id="newKey"
+                  [(ngModel)]="newKey"
+                  name="newKey"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="newValue">Value:</label>
+                <input
+                  id="newValue"
+                  [(ngModel)]="newValue"
+                  name="newValue"
+                  required
+                />
+              </div>
+              <button type="submit" class="add-button">Add</button>
+              <button
+                type="button"
+                class="cancel-button"
+                (click)="displayAddKeyInfoModal = false"
               >
-                <option value="read">Read</option>
-                <option value="full">Full</option>
-                <option value="edit">Edit</option>
-              </select>
-            </div>
-            <button type="submit" class="share-button">Share</button>
-          </form>
-          <div *ngIf="shareMessage" class="share-message" [ngClass]="{'success': shareSuccess, 'error': !shareSuccess}">
-            {{ shareMessage }}
+                Cancel
+              </button>
+            </form>
           </div>
-        </div>
+        </p-dialog>
+
+        <!-- Share Document Modal -->
+        <p-dialog
+          header="Share Document"
+          [(visible)]="displayShareDocumentModal"
+          [modal]="true"
+          [closable]="false"
+        >
+          <div class="share-document-container">
+            <form (ngSubmit)="shareDocument()">
+              <div class="form-group">
+                <label for="shareemail">User Email:</label>
+                <input
+                  id="shareemail"
+                  [(ngModel)]="shareemail"
+                  name="shareemail"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="shareAccessLevel">Access Level:</label>
+                <select
+                  id="shareAccessLevel"
+                  [(ngModel)]="shareAccessLevel"
+                  name="shareAccessLevel"
+                  required
+                >
+                  <option value="read">Read</option>
+                  <option value="full">Full</option>
+                  <option value="edit">Edit</option>
+                </select>
+              </div>
+              <button type="submit" class="share-button">Share</button>
+              <button
+                type="button"
+                class="cancel-button"
+                (click)="displayShareDocumentModal = false"
+              >
+                Cancel
+              </button>
+            </form>
+            <div
+              *ngIf="shareMessage"
+              class="share-message"
+              [ngClass]="{ success: shareSuccess, error: !shareSuccess }"
+            >
+              {{ shareMessage }}
+            </div>
+          </div>
+        </p-dialog>
       </div>
       <div *ngIf="loading">
         <p>Loading document...</p>
