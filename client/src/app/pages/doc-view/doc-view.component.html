@@ -62,7 +62,7 @@
               </button>
               <!-- Delete Button -->
               <button
-              *ngIf="!editingKey || editingKey !== key"
+              *ngIf="(!editingKey || editingKey !== key ) && !editDisabled"
               class="delete-button"
               (click)="deleteKeyInfo(key)"
             >
