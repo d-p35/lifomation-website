@@ -38,8 +38,8 @@
             {{ doc.document.originalname }}
           </td>
 
-          <td>{{ doc.uploadedAtLocal }}</td>
-          <td>{{ doc.lastOpenedLocal }}</td>
+          <td>{{ doc.uploadedAtLocal | date : "d MMM, yyyy, h:mm a" }}</td>
+          <td>{{ doc.lastOpenedLocal | date : "d MMM, yyyy, h:mm a" }}</td>
           <td>{{ doc.fileSize }}</td>
           <td>
             <i
