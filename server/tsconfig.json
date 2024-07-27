@@ -12,8 +12,8 @@
     "resolveJsonModule": true,
     "target": "es2017",
     "module": "commonjs",
-    // "outDir": "./dist",
-    // "rootDir": "./",
+    "outDir": "./dist",
+    "rootDir": "./",
 
     /* Language and Environment */
     // "target": "es2017",                               /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
@@ -110,5 +110,6 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
-  }
+  },
+  "include": ["./**/*.ts"],
 }

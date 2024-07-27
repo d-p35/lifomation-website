@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    container_name: lifomation-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  tika:
+    image: logicalspark/docker-tikaserver
+    container_name: tika-server
+    ports:
+      - "9998:9998"
+    environment:
+      VIRTUAL_HOST: tika.lifomation.tech
+      LETSENCRYPT_HOST: tika.lifomation.tech
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.9
+    container_name: meilisearch
+    environment:
+      MEILI_ENV: ${MEILI_ENV}
+      VIRTUAL_HOST: meilisearch.lifomation.tech
+      LETSENCRYPT_HOST: meilisearch.lifomation.tech
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili_data:/meili_data
+
+  server:
+    image: ghcr.io/adam-badar/project-lifomation-server:latest
+    container_name: express-server
+    environment:
+      DB_HOST: ${DB_HOST} # Use the service name for database connection
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      PORT: 3000
+      VIRTUAL_HOST: server.lifomation.tech
+      LETSENCRYPT_HOST: server.lifomation.tech
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - tika
+      - meilisearch
+    volumes:
+      - ./server/logs:/usr/src/app/logs # Optional: For storing logs
+
+  client:
+    image: ghcr.io/adam-badar/project-lifomation-client:latest
+    container_name: angular-client
+    expose:
+      - 80
+    restart: always
+    depends_on:
+      - server
+    environment:
+        - VIRTUAL_HOST=lifomation.tech
+        - LETSENCRYPT_HOST=lifomation.tech
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+      - ./vhost:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+
+  nginx-proxy-acme:
+    image: nginxproxy/acme-companion
+    container_name: nginx-proxy-acme
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+      - ./vhost:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - ./acme:/etc/acme.sh
+    environment:
+        - NGINX_PROXY_CONTAINER=nginx-proxy
+        - DEFAULT_EMAIL=yashank.bhola@mail.utoronto.ca
+
+volumes:
+  postgres_data:
+  meili_data:

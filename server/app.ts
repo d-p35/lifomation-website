@@ -4,15 +4,24 @@ import bodyParser from "body-parser";
 import { port } from "./config/config";
 import { dataSource } from "./db/database";
 import { UsersRouter } from "./routers/users-router";
-import { DocumentsRouter, shareDocument, editDocument } from "./routers/documents-router";
+import {
+  DocumentsRouter,
+  shareDocument,
+  editDocument,
+} from "./routers/documents-router";
 import MeiliSearch from "meilisearch";
 import synonyms from "./synonyms.json";
 import { initWebSocketServer } from "./services/websocket";
+import * as dotenv from "dotenv";
+dotenv.config({
+  path: `${__dirname}/../../.env`,
+});
+
 const app = express();
 
 app.use(express.json());
 const corsOptions = {
-  origin: "http://localhost:4200",
+  origin: process.env.NODE_ENV=='production'?'https://lifomation.tech':"http://localhost:4200",
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -24,7 +33,7 @@ dataSource
   .then(() => {
 
 
-    const client = new MeiliSearch({ host: "http://localhost:7700" });
+    const client = new MeiliSearch({ host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://meilisearch:7700" });
     const index = client.index("documents");
 
     index.updateFilterableAttributes(["ownerId", "sharedUsers"]).then(() => {
@@ -35,15 +44,15 @@ dataSource
           app.use("/api/users", UsersRouter);
           app.use("/api/documents", DocumentsRouter);
 
-          const server = app.listen(port, () => {
-            console.log(`Server started on port ${port}`);
-          });
+            const server = app.listen(port, () => {
+              console.log(`Server started on port ${port}`);
+            });
 
-          // Initialize WebSocket server
-          const wss = initWebSocketServer(server);
-          shareDocument(wss);
-          editDocument(wss);
-        });
+            // Initialize WebSocket server
+            const wss = initWebSocketServer(server);
+            shareDocument(wss);
+            editDocument(wss);
+          });
       });
     });
   })
