@@ -27,7 +27,7 @@ import { DialogModule } from 'primeng/dialog';
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
 })
-export class DocViewComponent implements OnInit, OnDestroy {
+export class DocViewComponent implements OnInit {
   documentUrl: any = '';
   documentType: string | null = null;
   loading = true;
@@ -119,7 +119,7 @@ export class DocViewComponent implements OnInit, OnDestroy {
             this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} updated to ${message.value}`});
             }
         }
-        }
+        
 
           if (message && message.type === 'delete' && message.document.id === this.document.id) {
             delete this.keyInfo[message.key];
