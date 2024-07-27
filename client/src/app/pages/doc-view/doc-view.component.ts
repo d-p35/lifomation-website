@@ -8,6 +8,7 @@ import { ImageModule } from 'primeng/image';
 import { FormsModule } from '@angular/forms';
 import { WebSocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-doc-view',
@@ -18,6 +19,7 @@ import { Subscription } from 'rxjs';
     ImageModule,
     CommonModule,
     FormsModule,
+    DialogModule,
   ],
   templateUrl: './doc-view.component.html',
   styleUrl: './doc-view.component.scss',
@@ -34,7 +36,8 @@ export class DocViewComponent implements OnInit, OnDestroy {
   newKey: string = '';
   newValue: string = '';
   editDisabled: boolean = false;
-
+  displayAddKeyInfoModal: boolean = false;
+  displayShareDocumentModal: boolean = false;
   shareemail: string = '';
   shareAccessLevel: string = 'read';
   shareMessage: string | null = null;
@@ -63,7 +66,8 @@ export class DocViewComponent implements OnInit, OnDestroy {
           next: (blob: Blob) => {
             this.documentType = blob.type === 'application/pdf' ? 'pdf' : null;
             const objectUrl = URL.createObjectURL(blob);
-            this.documentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
+            this.documentUrl =
+              this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
 
             this.apiService.getDocument(i, userId).subscribe({
               next: (res: any) => {
@@ -100,7 +104,11 @@ export class DocViewComponent implements OnInit, OnDestroy {
         });
 
         this.wsSubscription = this.wsService.messages$.subscribe((message) => {
-          if (message && message.type === 'edit' && message.documentId === this.document.id) {
+          if (
+            message &&
+            message.type === 'edit' &&
+            message.documentId === this.document.id
+          ) {
             this.keyInfo[message.key] = message.value;
             this.cdr.detectChanges();
           }
@@ -139,20 +147,22 @@ export class DocViewComponent implements OnInit, OnDestroy {
 
   saveEdit(key: string) {
     if (this.editValue !== null) {
-      this.apiService.editKeyInfo(this.document.id, this.newKey, this.editValue, this.userId).subscribe({
-        next: () => {
-          // If the key is changed, update the key and its value
-          if (this.newKey !== key) {
-            delete this.keyInfo[key];
-          }
-          this.keyInfo[this.newKey] = this.editValue;
-          this.editingKey = null;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+      this.apiService
+        .editKeyInfo(this.document.id, this.newKey, this.editValue, this.userId)
+        .subscribe({
+          next: () => {
+            // If the key is changed, update the key and its value
+            if (this.newKey !== key) {
+              delete this.keyInfo[key];
+            }
+            this.keyInfo[this.newKey] = this.editValue;
+            this.editingKey = null;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error(err);
+          },
+        });
     }
   }
 
@@ -164,18 +174,21 @@ export class DocViewComponent implements OnInit, OnDestroy {
 
   addKeyInfo() {
     if (this.newKey && this.newValue) {
-      this.apiService.addKeyInfo(this.document.id, this.newKey, this.newValue, this.userId).subscribe({
-        next: () => {
-          this.keyInfo[this.newKey] = this.newValue;
-          this.newKey = '';
-          this.newValue = '';
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
+      this.apiService
+        .addKeyInfo(this.document.id, this.newKey, this.newValue, this.userId)
+        .subscribe({
+          next: () => {
+            this.keyInfo[this.newKey] = this.newValue;
+            this.newKey = '';
+            this.newValue = '';
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error(err);
+          },
+        });
     }
+    this.displayAddKeyInfoModal = false;
   }
 
   shareDocument() {
@@ -183,19 +196,23 @@ export class DocViewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.apiService.shareDocument(this.document.id, this.shareemail, this.shareAccessLevel).subscribe({
-      next: () => {
-        this.shareSuccess = true;
-        this.shareMessage = 'Document shared successfully!';
-        this.clearShareMessage();
-      },
-      error: (err) => {
-        console.error(err);
-        this.shareSuccess = false;
-        this.shareMessage = 'Failed to share document: ' + (err.error?.message || err.message);
-        this.clearShareMessage();
-      },
-    });
+    this.apiService
+      .shareDocument(this.document.id, this.shareemail, this.shareAccessLevel)
+      .subscribe({
+        next: () => {
+          this.shareSuccess = true;
+          this.shareMessage = 'Document shared successfully!';
+          this.clearShareMessage();
+        },
+        error: (err) => {
+          console.error(err);
+          this.shareSuccess = false;
+          this.shareMessage =
+            'Failed to share document: ' + (err.error?.message || err.message);
+          this.clearShareMessage();
+        },
+      });
+    this.displayShareDocumentModal = false;
   }
 
   clearShareMessage() {
@@ -205,10 +222,10 @@ export class DocViewComponent implements OnInit, OnDestroy {
     }, 3000);
   }
   deleteKeyInfo(key: string) {
-    this.apiService.deleteKeyInfoApi(this.document.id, key, 'userId')
+    this.apiService
+      .deleteKeyInfoApi(this.document.id, key, 'userId')
       .subscribe(() => {
         delete this.keyInfo[key];
       });
   }
-
 }
