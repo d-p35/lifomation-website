@@ -1,4 +1,4 @@
-<div class="sidebar">
+<div class="sidebar" *ngIf="!isMobileView">
   <div class="logo">
     <div class="logo-icon">
       <img src="../../..//public/logo.png" alt="Logo" class="logo-img" />
@@ -33,5 +33,40 @@
         <i class="material-icons">star</i> Starred
       </li></a
     >
+  </ul>
+</div>
+
+<!-- Add a button to toggle dropdown for mobile view -->
+<button class="menu-toggle" (click)="toggleDropdown()">
+  <i class="material-icons">menu</i>
+</button>
+
+<div class="dropdown-menu" *ngIf="isMobileView && isDropdownOpen">
+  <ul class="menu">
+    <a routerLink="/dashboard" (click)="closeDropdown()">
+      <li [class.active]="isRouteActive('/dashboard')" class="sidebar-item">
+        <i class="material-icons">home</i> Home
+      </li>
+    </a>
+    <a routerLink="/documents" (click)="closeDropdown()">
+      <li [class.active]="isRouteActive('/documents')" class="sidebar-item">
+        <i class="material-icons">folder</i> My Drive
+      </li>
+    </a>
+    <a routerLink="/shared" (click)="closeDropdown()">
+      <li [class.active]="isRouteActive('/shared')" class="sidebar-item">
+        <i class="material-icons">people</i> Shared with me
+      </li>
+    </a>
+    <a routerLink="/recent" (click)="closeDropdown()">
+      <li [class.active]="isRouteActive('/recent')" class="sidebar-item">
+        <i class="material-icons">access_time</i> Recent
+      </li>
+    </a>
+    <a routerLink="/starred" (click)="closeDropdown()">
+      <li [class.active]="isRouteActive('/starred')" class="sidebar-item">
+        <i class="material-icons">star</i> Starred
+      </li>
+    </a>
   </ul>
 </div>

@@ -37,58 +37,34 @@ export class DashboardComponent implements OnInit {
     {
       icon: 'pi-users',
       title: 'Family and Relationships',
-      date: 'Sep 25, 2022',
-      sharedUsers: 80,
-      insideFiles: 3985,
     },
     {
       icon: 'pi-file-pdf',
       title: 'Personal',
-      date: 'Sep 25, 2022',
-      sharedUsers: 5,
-      insideFiles: 499,
     },
     {
       icon: 'pi-heart',
       title: 'Health',
-      date: 'Sep 25, 2022',
-      sharedUsers: 3,
-      insideFiles: 256,
     },
     {
       icon: 'pi-book',
       title: 'Education and Career',
-      date: 'Sep 25, 2022',
-      sharedUsers: 52,
-      insideFiles: 1225,
     },
     {
       icon: 'pi-building',
       title: 'Government and Utilities',
-      date: 'Sep 25, 2022',
-      sharedUsers: 22,
-      insideFiles: 2265,
     },
     {
       icon: 'pi-credit-card',
       title: 'Finance',
-      date: 'Sep 25, 2022',
-      sharedUsers: 12,
-      insideFiles: 597,
     },
     {
       icon: 'pi-credit-card',
       title: 'Social and Leisure',
-      date: 'Sep 25, 2022',
-      sharedUsers: 12,
-      insideFiles: 597,
     },
     {
       icon: 'pi-credit-card',
       title: 'Warranties and Memberships',
-      date: 'Sep 25, 2022',
-      sharedUsers: 12,
-      insideFiles: 597,
     },
   ];
 

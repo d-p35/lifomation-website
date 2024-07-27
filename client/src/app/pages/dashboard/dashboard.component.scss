@@ -17,6 +17,10 @@ $header-height: 0px;
   margin-left: $sidebar-width;
   width: calc(100% - $sidebar-width);
   margin-top: $header-height; /* Adjust margin to account for the header */
+  @media (max-width: 768px) { /* Adjust the max-width value as needed */
+    margin-left: 0;
+    width: 100%;
+  }
 }
 
 .main-content {
@@ -177,3 +181,5 @@ $header-height: 0px;
     }
   }
 }
+
+

@@ -26,13 +26,11 @@ $header-height: 0px;
   text-align: center;
   margin: 50px auto;
   margin-left: 25%;
-  // width: 70%;
   border: 1px solid #ccc;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
-  // flex-direction: column;
   align-items: center;
 }
 
@@ -97,6 +95,18 @@ $header-height: 0px;
         background-color: #0056b3;
       }
     }
+    .cancel-button {
+      border-radius: 4px; /* Rounded corners */
+      border: none; /* Remove border color */
+      background-color: transparent;
+      color: red;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .cancel-button:hover {
+      background-color: #e0e0e0; /* Add hover background color */
+    }
   }
 
   .share-message {
@@ -117,7 +127,17 @@ $header-height: 0px;
     }
   }
 }
+@media (max-width: 768px) {
+  .main-container {
+    margin-left: 0;
+    width: 100%;
+  }
 
+  .document-view-container {
+    margin-left: 0;
+    width: 100%;
+  }
+}
 .key-info-container {
   margin-top: 20px;
   width: 100%;
@@ -134,6 +154,7 @@ $header-height: 0px;
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    word-break: break-word;
   }
 
   .key-info-item strong {
@@ -142,6 +163,7 @@ $header-height: 0px;
     word-wrap: break-word;
     hyphens: auto;
     max-width: 900px; /* Adjust as needed */
+    word-break: break-word;
   }
 
   .key-info-item span {
@@ -150,6 +172,7 @@ $header-height: 0px;
     word-wrap: break-word;
     hyphens: auto;
     max-width: 900px; /* Adjust as needed */
+    word-break: break-word;
   }
 
   .key-info-item input {
@@ -206,10 +229,7 @@ $header-height: 0px;
     background-color: transparent;
   }
 
-  .cancel-button {
-    color: red;
-    background-color: transparent;
-  }
+
   .delete-button {
     color: red;
     background-color: transparent;

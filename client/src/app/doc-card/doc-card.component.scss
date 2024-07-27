@@ -78,21 +78,30 @@
 
 @media (max-width: 768px) {
   .document-card {
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center; /* Center items vertically */
   }
-
   .document-info {
     margin-left: 0;
-    margin-top: 1rem;
+    display: flex;
+    align-items: center; /* Center items vertically */
+    .document-title {
+      margin-left: 1rem; /* Add padding between title and icon */
+    }
+    .document-details {
+      display: none; /* Hide document details */
+    }
   }
-
-  .document-details {
-    text-align: center; /* Center align details on smaller screens */
+  .document-icon {
+    width: 30px; /* Adjust icon width for smaller view */
+    height: 30px; /* Adjust icon height for smaller view */
   }
-
+  .delete-button {
+    padding: 0.25rem 0.5rem; /* Make the delete button smaller */
+    font-size: 12px; /* Adjust font size for smaller view */
+  }
   .document-actions {
     margin-left: 0;
-    margin-top: 1rem;
     text-align: center;
   }
 }
