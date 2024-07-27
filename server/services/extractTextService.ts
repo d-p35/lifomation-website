@@ -10,7 +10,7 @@ import MeiliSearch from "meilisearch";
 
 import { classifyText } from "./watsonTextClassificationService";
 import { geminiTextClassification } from "./geminiTextClassificationService";
-const client = new MeiliSearch({ host: "http://localhost:7700" });
+const client = new MeiliSearch({ host: "http://meilisearch:7700" });
 const index = client.index("documents");
 
 export async function processImageFile(
@@ -23,13 +23,16 @@ export async function processImageFile(
   } = await tesseract.recognize(filePath, "eng");
 
   //   const classificationResult = await classifyText(OCRtext);
-  const {categories, keyInfo} = await geminiTextClassification(OCRtext);
+  const { categories, keyInfo } = await geminiTextClassification(OCRtext);
 
   const document = new Document();
   document.document = file;
   document.ownerId = ownerId;
   document.keyInfo = keyInfo;
-  document.category = categories.split(",").map((category: string) => category.trim()).join(",");
+  document.category = categories
+    .split(",")
+    .map((category: string) => category.trim())
+    .join(",");
 
   // const doc = await client.getIndexes({ limit: 3 })
   // console.log(doc);
@@ -70,10 +73,15 @@ export async function processPdfFile(
     document.ownerId = ownerId;
 
     // await index.addDocuments([{ id: document.id, text: combinedText, ownerId }]);
-     const {categories, keyInfo}  = await geminiTextClassification(combinedText);
-     document.keyInfo = keyInfo;
-    document.category = categories.split(",").map((category: string) => category.trim()).join(",");
-    
+    const { categories, keyInfo } = await geminiTextClassification(
+      combinedText
+    );
+    document.keyInfo = keyInfo;
+    document.category = categories
+      .split(",")
+      .map((category: string) => category.trim())
+      .join(",");
+
     return { document, text: combinedText, classificationResult: categories };
   } else {
     throw new Error("Error processing document with Tika");
@@ -91,7 +99,7 @@ async function createDirectories(paths: string[]) {
 async function sendToTika(parsingData: fs.ReadStream) {
   return await axios({
     method: "PUT",
-    url: "http://localhost:9998/unpack/all",
+    url: "http://tika-server:9998/unpack/all",
     data: parsingData,
     responseType: "stream",
     headers: {
@@ -147,7 +155,7 @@ async function handleTikaResponse(
         await fs.promises.writeFile(textdataFilePath, extractedText);
         const combinedText = extractedText + OCRText;
         // const classificationResult = await classifyText(combinedText);
-       
+
         resolve(combinedText);
       })
       .on("error", (err: Error) => {

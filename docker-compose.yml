@@ -28,3 +28,27 @@ services:
       - "7700:7700"
     volumes:
       - ./meili_data:/meili_data
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: express-server
+    environment:
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - tika
+      - meilisearch
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: angular-client
+    ports:
+      - "80:80"
+    depends_on:
+      - server

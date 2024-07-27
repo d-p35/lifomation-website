@@ -31,12 +31,14 @@ import { notifyUser } from "../services/websocket";
 require("dotenv").config();
 
 const upload = multer({ dest: "uploads/" });
-const client = new MeiliSearch({ host: "http://localhost:7700" });
+const client = new MeiliSearch({ host: "http://meilisearch:7700" });
 const index = client.index("documents");
 export const DocumentsRouter = Router();
-const documentRepository: Repository<Document> = dataSource.getRepository(Document);
-const documentPermissionRepository: Repository<DocumentPermission> = dataSource.getRepository(DocumentPermission);
-const UserRepository:Repository<User>  = dataSource.getRepository(User);
+const documentRepository: Repository<Document> =
+  dataSource.getRepository(Document);
+const documentPermissionRepository: Repository<DocumentPermission> =
+  dataSource.getRepository(DocumentPermission);
+const UserRepository: Repository<User> = dataSource.getRepository(User);
 
 // Middleware to check permissions
 const checkPermission = (requiredAccessLevel: string) => {
@@ -91,49 +93,47 @@ const checkPermission = (requiredAccessLevel: string) => {
 };
 
 export const editDocument = (wss: WebSocketServer) => {
-
-DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
-  try {
-    const documentId: number = parseInt(req.params.id);
-    const key = req.body.key;
-    const newValue = req.body.newValue;
-    const userId = req.body.userId;
-    console.log(
-      `Updating key ${key} to ${newValue} for document ${documentId}`
-    );
-    const document = await documentRepository.findOne({
-      where: { id: documentId },
-    });
-
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-
-    document.keyInfo[key] = newValue;
-    const updatedDocument = await documentRepository.save(document);
-
-    const editorId = await getEmailFromUserId(userId);
-
-    if (!editorId) {
-      return res.status(404).json({ message: "Editor not found"
+  DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
+    try {
+      const documentId: number = parseInt(req.params.id);
+      const key = req.body.key;
+      const newValue = req.body.newValue;
+      const userId = req.body.userId;
+      console.log(
+        `Updating key ${key} to ${newValue} for document ${documentId}`
+      );
+      const document = await documentRepository.findOne({
+        where: { id: documentId },
       });
+
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      document.keyInfo[key] = newValue;
+      const updatedDocument = await documentRepository.save(document);
+
+      const editorId = await getEmailFromUserId(userId);
+
+      if (!editorId) {
+        return res.status(404).json({ message: "Editor not found" });
+      }
+
+      notifyUser(document.ownerId, {
+        type: "edit",
+        documentId,
+        documentTitle: document.document.originalname,
+        key,
+        value: newValue,
+        senderEmail: editorId,
+      });
+
+      res.status(200).json({ document: updatedDocument });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
     }
-
-    notifyUser(document.ownerId, {
-      type: "edit",
-      documentId,
-      documentTitle: document.document.originalname,
-      key,
-      value: newValue,
-      senderEmail: editorId,
-    });
-
-    res.status(200).json({ document: updatedDocument });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
-}
+  });
+};
 
 //------------------------------------------------------------------------------------------------
 //-------------------------SharedComponent-------------------------------------------------------
@@ -142,86 +142,85 @@ DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
 // Add a permission to a document
 
 export const shareDocument = (wss: WebSocketServer) => {
-DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
-  try {
-    const documentId: number = parseInt(req.params.id);
-    const { email, accessLevel } = req.body;
+  DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
+    try {
+      const documentId: number = parseInt(req.params.id);
+      const { email, accessLevel } = req.body;
 
-    // Validate request body
-    if (!email || !accessLevel) {
-      return res
-        .status(400)
-        .json({ message: "userId and accessLevel are required" });
-    }
-
-    const document = await documentRepository.findOne({
-      where: { id: documentId },
-    });
-    if (!document) {
-      return res.status(404).json({ message: "Document not found" });
-    }
-    // Check if a DocumentPermission already exists for this documentId and userId
-    let existingPermission = await documentPermissionRepository.findOne({
-      where: { documentId, email },
-    });
-
-    const userId  = await getUserIdFromEmail(email);
-
-    if (!userId) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    index.getDocument(documentId).then((document) => {
-      if (!document) {
+      // Validate request body
+      if (!email || !accessLevel) {
         return res
-          .status(404)
-          .json({ message: "Document not found in MeiliSearch" });
+          .status(400)
+          .json({ message: "userId and accessLevel are required" });
       }
-      let sharedUsers = document.sharedUsers || [];
-      //add is not already in it
-      if (!sharedUsers.includes(userId)) {
-        sharedUsers.push(userId);
+
+      const document = await documentRepository.findOne({
+        where: { id: documentId },
+      });
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
       }
-      index.updateDocuments(
-        [{ id: documentId, sharedUsers: [...sharedUsers] }],
-        { primaryKey: "id" }
-      );
-    });
+      // Check if a DocumentPermission already exists for this documentId and userId
+      let existingPermission = await documentPermissionRepository.findOne({
+        where: { documentId, email },
+      });
 
+      const userId = await getUserIdFromEmail(email);
 
-    if (existingPermission) {
-      // Update the existing permission
-      existingPermission.accessLevel = accessLevel;
-      await documentPermissionRepository.save(existingPermission);
-      return res.status(200).json({ message: "Permission updated" });
-    } else {
-      // Create a new permission
-
-      const recieverId = await getUserIdFromEmail(email);
-
-      if (!recieverId) {
+      if (!userId) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      notifyUser(recieverId as string, {
-        type: 'share',
-        documentId,
-        accessLevel,
-        senderEmail: email,
+      index.getDocument(documentId).then((document) => {
+        if (!document) {
+          return res
+            .status(404)
+            .json({ message: "Document not found in MeiliSearch" });
+        }
+        let sharedUsers = document.sharedUsers || [];
+        //add is not already in it
+        if (!sharedUsers.includes(userId)) {
+          sharedUsers.push(userId);
+        }
+        index.updateDocuments(
+          [{ id: documentId, sharedUsers: [...sharedUsers] }],
+          { primaryKey: "id" }
+        );
       });
-      
-      const newPermission = new DocumentPermission();
-      newPermission.documentId = documentId;
-      newPermission.email = email;
-      newPermission.accessLevel = accessLevel;
-      await documentPermissionRepository.save(newPermission);
-      return res.status(201).json({ message: "Permission added" });
+
+      if (existingPermission) {
+        // Update the existing permission
+        existingPermission.accessLevel = accessLevel;
+        await documentPermissionRepository.save(existingPermission);
+        return res.status(200).json({ message: "Permission updated" });
+      } else {
+        // Create a new permission
+
+        const recieverId = await getUserIdFromEmail(email);
+
+        if (!recieverId) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        notifyUser(recieverId as string, {
+          type: "share",
+          documentId,
+          accessLevel,
+          senderEmail: email,
+        });
+
+        const newPermission = new DocumentPermission();
+        newPermission.documentId = documentId;
+        newPermission.email = email;
+        newPermission.accessLevel = accessLevel;
+        await documentPermissionRepository.save(newPermission);
+        return res.status(201).json({ message: "Permission added" });
+      }
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
     }
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
-}
+  });
+};
 
 // Get permissions for a document
 DocumentsRouter.get("/:id/permissions", async (req: Request, res: Response) => {
@@ -295,7 +294,7 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
       let cursorDate = new Date(cursor);
       whereClause.lastOpened = LessThan(cursorDate);
     }
-    
+
     // Step 1: Find all document permissions for the user
     const permissions = await documentPermissionRepository.find({
       take: rows,
@@ -448,11 +447,8 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
     const cursor = req.query.cursor as string;
     const rows = parseInt(req.query.rows as string) || 10;
 
-
     let email = await getEmailFromUserId(ownerId as String);
     let whereClause = { email } as any;
-
-    
 
     if (cursor) {
       let cursorDate = new Date(cursor);
@@ -468,13 +464,11 @@ DocumentsRouter.get("/recent", async (req: Request, res: Response) => {
       where: whereClause,
     });
 
-
     let nextCursor: string | null = null;
     if (documents.length == rows) {
       const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.lastOpened.toISOString();
     }
-
 
     const result = documents.map((doc) => {
       return {
@@ -496,7 +490,7 @@ DocumentsRouter.get(
   async (req: Request, res: Response) => {
     try {
       const id: number = parseInt(req.params.id);
-      const document = await documentRepository.findOne({ where: { id: id }});
+      const document = await documentRepository.findOne({ where: { id: id } });
 
       if (!document) {
         return res.status(404).json({ message: "Document not found" });
@@ -598,15 +592,13 @@ DocumentsRouter.post(
           { primaryKey: "id" }
         );
 
-        res
-          .status(201)
-          .json({
-            document: {
-              ...newDocument,
-              lastOpened: newDefaultPermission.lastOpened,
-              starred: newDefaultPermission.starred,
-            },
-          });
+        res.status(201).json({
+          document: {
+            ...newDocument,
+            lastOpened: newDefaultPermission.lastOpened,
+            starred: newDefaultPermission.starred,
+          },
+        });
       } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Failed to save document" });
