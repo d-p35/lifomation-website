@@ -163,10 +163,6 @@ export const editDocument = (wss: WebSocketServer) => {
       const originalValue = req.body.editValue;
       const originalKey = req.body.editkey;
 
-      console.log(originalKey)
-      console.log(
-        `Updating key ${key} to ${newValue} for document ${documentId}`
-      );
       const document = await documentRepository.findOne({
         where: { id: documentId },
       });
@@ -176,7 +172,6 @@ export const editDocument = (wss: WebSocketServer) => {
       }
 
       if (key!=originalKey) {
-        console.log("originalKey", originalKey)
         delete document.keyInfo[originalKey];
       }
       document.keyInfo[key] = newValue;
