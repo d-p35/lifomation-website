@@ -123,8 +123,10 @@ export const editDocument = (wss: WebSocketServer) => {
         const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
         
         let getemails = getAllSharedUsers.map((user) => user.email)
-        for (let i = 0; i < getemails.length; i++) {
-          const sharedUserId = await getUserIdFromEmail(getemails[i]);
+
+        const getUserIds = await UserRepository.find({where: {email: In(getemails)}})
+        for (let i = 0; i < getUserIds.length; i++) {
+          const sharedUserId = getUserIds[i].id;
           if(userId===sharedUserId)continue;
           if (!sharedUserId) {
             return res.status(404).json({ message: "User not found" });
@@ -157,6 +159,11 @@ export const editDocument = (wss: WebSocketServer) => {
       const key = req.body.key;
       const newValue = req.body.newValue;
       const userId = req.body.userId;
+
+      const originalValue = req.body.editValue;
+      const originalKey = req.body.editkey;
+
+      console.log(originalKey)
       console.log(
         `Updating key ${key} to ${newValue} for document ${documentId}`
       );
@@ -168,7 +175,12 @@ export const editDocument = (wss: WebSocketServer) => {
         return res.status(404).json({ message: "Document not found" });
       }
 
+      if (key!=originalKey) {
+        console.log("originalKey", originalKey)
+        delete document.keyInfo[originalKey];
+      }
       document.keyInfo[key] = newValue;
+
       const updatedDocument = await documentRepository.save(document);
 
       const editorEmail = await getEmailFromUserId(userId);
@@ -181,8 +193,10 @@ export const editDocument = (wss: WebSocketServer) => {
       console.log("getAllSharedUsers", getAllSharedUsers)
       
       let getemails = getAllSharedUsers.map((user) => user.email)
-      for (let i = 0; i < getemails.length; i++) {
-        const sharedUserId = await getUserIdFromEmail(getemails[i]);
+
+      const getUserIds = await UserRepository.find({where: {email: In(getemails)}})
+      for (let i = 0; i < getUserIds.length; i++) {
+          const sharedUserId = getUserIds[i].id;
         if(userId===sharedUserId)continue;
         if (!sharedUserId) {
           return res.status(404).json({ message: "User not found" });
@@ -193,6 +207,7 @@ export const editDocument = (wss: WebSocketServer) => {
           key,
           value: newValue,
           senderEmail: editorEmail,
+          originalKey
         });
       }
       
@@ -238,8 +253,9 @@ export const editDocument = (wss: WebSocketServer) => {
       console.log("getAllSharedUsers", getAllSharedUsers)
       
       let getemails = getAllSharedUsers.map((user) => user.email)
-      for (let i = 0; i < getemails.length; i++) {
-        const sharedUserId = await getUserIdFromEmail(getemails[i]);
+      const getUserIds = await UserRepository.find({where: {email: In(getemails)}})
+      for (let i = 0; i < getUserIds.length; i++) {
+        const sharedUserId = getUserIds[i].id;
         if(userId===sharedUserId)continue;
         if (!sharedUserId) {
           return res.status(404).json({ message: "User not found" });

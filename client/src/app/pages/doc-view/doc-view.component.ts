@@ -47,6 +47,8 @@ export class DocViewComponent implements OnInit {
   shareSuccess: boolean = false;
   wsSubscription: Subscription | undefined;
   userId: string | undefined;
+  oldKey: string | undefined;
+  oldValue: string | undefined;
 
   constructor(
     private apiService: ApiService,
@@ -108,11 +110,13 @@ export class DocViewComponent implements OnInit {
         });
 
         this.wsSubscription = this.wsService.messages$.subscribe((message) => {
+          console.log('Message received:', message);
           if (
             message &&
             message.type === 'edit' &&
             message.document.id === this.document.id
           ) {
+            if (message.key!==message.originalKey){delete this.keyInfo[message.originalKey];}
             this.keyInfo[message.key] = message.value;
             this.cdr.detectChanges();
             if (this.userId !== message.document.ownerId) {
@@ -168,13 +172,15 @@ export class DocViewComponent implements OnInit {
   startEdit(key: string) {
     this.editingKey = key;
     this.editValue = this.keyInfo[key];
+    this.newValue = this.keyInfo[key];
     this.newKey = key; // Set the key for editing
   }
 
   saveEdit(key: string) {
     if (this.editValue !== null) {
+      
       this.apiService
-        .editKeyInfo(this.document.id, this.newKey, this.editValue, this.userId)
+        .editKeyInfo(this.document.id, this.newKey, this.newValue, this.userId, this.editValue, this.editingKey)
         .subscribe({
           next: () => {
             // If the key is changed, update the key and its value

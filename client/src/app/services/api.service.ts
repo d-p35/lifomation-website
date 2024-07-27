@@ -197,12 +197,15 @@ export class ApiService {
     documentId: number,
     key: string,
     newValue: string,
-    userId: string | undefined
+    userId: string | undefined,
+    editValue : string,
+    editkey: string | null
   ): Observable<any> {
     userId = userId ?? '';
+    editValue = editValue ?? '';
     return this.http.put(
       `${this.endpoint}/api/documents/${documentId}/key-info`,
-      { key, newValue, userId}
+      { key, newValue, userId, editValue, editkey }
     );
   }
   addKeyInfo(
