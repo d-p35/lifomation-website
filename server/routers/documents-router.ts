@@ -41,36 +41,34 @@ const UserRepository:Repository<User>  = dataSource.getRepository(User);
 // Middleware to check permissions
 const checkPermission = (requiredAccessLevel: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    console.log("Middleware executed");
+
 
     const documentId = parseInt(req.params.id);
     let email = req.body.email || req.query.email || req.headers["email"];
     const userId = req.body.userId || req.query.userId || req.headers["userId"];
-    console.log(`Email: ${email}, User ID: ${userId}`);
 
     if (!email && userId) {
       email = await getEmailFromUserId(userId);
     }
-    console.log(`Email: ${email}, User ID: ${userId}`);
+
     if (!email) {
       return res.status(400).json({ message: "Email or User ID is required" });
     }
-    console.log(`Email: ${email}, User ID: ${userId}`);
+
 
     const document = await documentRepository.findOne({
       where: { id: documentId },
       relations: ["permissions"],
     });
 
-    // console.log(`Document: ${JSON.stringify(document)}`);
+
 
     if (!document) {
-      console.log("Document not found");
       return res.status(404).json({ message: "Document not found" });
     }
 
     const permission = document.permissions.find((p) => p.email === email);
-    console.log(`Found permission: ${JSON.stringify(permission)}`);
+
 
     const accessLevels = ["read", "edit", "full"];
     const userAccessLevelIndex = accessLevels.indexOf(
@@ -78,11 +76,8 @@ const checkPermission = (requiredAccessLevel: string) => {
     );
     const requiredAccessLevelIndex = accessLevels.indexOf(requiredAccessLevel);
 
-    console.log(`User access level index: ${userAccessLevelIndex}`);
-    console.log(`Required access level index: ${requiredAccessLevelIndex}`);
 
     if (userAccessLevelIndex < requiredAccessLevelIndex) {
-      console.log("Permission denied: Insufficient access level");
       return res.status(403).json({ message: "Permission denied" });
     }
 
@@ -95,7 +90,7 @@ const checkPermission = (requiredAccessLevel: string) => {
 export const editDocument = (wss: WebSocketServer) => {
   DocumentsRouter.delete("/:id/delkey-info", async (req: Request, res: Response) => {
     try {
-      console.log("Deleting key info");
+
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
       const userId = req.body.userId;
@@ -106,7 +101,6 @@ export const editDocument = (wss: WebSocketServer) => {
         return res.status(404).json({ error: 'Document not found' });
       }
 
-      console.log("Document", document)
   
       if (document.keyInfo && document.keyInfo[key]) {
         delete document.keyInfo[key];
@@ -185,7 +179,7 @@ export const editDocument = (wss: WebSocketServer) => {
         });
       }
       const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
-      console.log("getAllSharedUsers", getAllSharedUsers)
+
       
       let getemails = getAllSharedUsers.map((user) => user.email)
 
@@ -218,9 +212,6 @@ export const editDocument = (wss: WebSocketServer) => {
       const key = req.body.key;
       const value = req.body.value;
       const userId = req.body.userId;
-      console.log(
-        `Adding key ${key} with value ${value} for document ${documentId}`
-      );
 
       const document = await documentRepository.findOne({
         where: { id: documentId },
@@ -245,7 +236,7 @@ export const editDocument = (wss: WebSocketServer) => {
 
 
       const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
-      console.log("getAllSharedUsers", getAllSharedUsers)
+
       
       let getemails = getAllSharedUsers.map((user) => user.email)
       const getUserIds = await UserRepository.find({where: {email: In(getemails)}})
@@ -424,7 +415,7 @@ DocumentsRouter.get("/shared", async (req: Request, res: Response) => {
     }
 
     let email = await getEmailFromUserId(userId);
-    console.log(`Email: ${email}`);
+
 
     let whereClause = { email: email } as any;
 
@@ -542,8 +533,7 @@ DocumentsRouter.get("/star", async (req: Request, res: Response) => {
       const lastDocument = documents[rows - 1];
       nextCursor = lastDocument.lastOpened.toISOString();
     }
-    console.log(email);
-    console.log(documents);
+
 
     const result = documents.map((doc) => {
       return {

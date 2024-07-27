@@ -110,7 +110,6 @@ export class DocViewComponent implements OnInit {
         });
 
         this.wsSubscription = this.wsService.messages$.subscribe((message) => {
-          console.log('Message received:', message);
           if (
             message &&
             message.type === 'edit' &&
@@ -134,7 +133,6 @@ export class DocViewComponent implements OnInit {
           }
 
           if (message && message.type === 'add' && message.document.id === this.document.id) {
-            console.log('Adding key:', message.key);
             this.keyInfo[message.key] = message.value;
             this.cdr.detectChanges();
             if (this.userId !== message.document.ownerId) {
@@ -256,7 +254,6 @@ export class DocViewComponent implements OnInit {
   deleteKeyInfo(key: string) {
     this.apiService.deleteKeyInfoApi(this.document.id, key, this.userId)
       .subscribe(() => {
-        console.log('Deleted key:', key);
         delete this.keyInfo[key];
       });
   }

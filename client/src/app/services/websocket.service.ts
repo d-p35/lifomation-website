@@ -36,7 +36,6 @@ export class WebSocketService {
     };
 
     this.socket.onclose = () => {
-      console.log('WebSocket connection closed. Reconnecting...');
       setTimeout(() => this.connect(userId), 1000);
     };
   }
@@ -46,30 +45,4 @@ export class WebSocketService {
     this.socket.send(JSON.stringify(message));
   }
 
-  // constructor() {
-  //   this.socket = new WebSocket('ws://localhost:8080');
-  //   this.socket.onmessage = (event) => {
-  //     this.subject.next(JSON.parse(event.data));
-  //   };
-
-  //   this.socket.onopen = () => {
-  //     console.log('WebSocket connection opened');
-  //   };
-
-  //   this.socket.onerror = (error) => {
-  //     console.error('WebSocket error:', error);
-  //   };
-
-  //   this.socket.onclose = () => {
-  //     console.log('WebSocket connection closed');
-  //   };
-  // }
-
-  // sendMessage(message: any) {
-  //   this.socket.send(JSON.stringify(message));
-  // }
-
-  // getMessages(): Observable<any> {
-  //   return this.subject.asObservable();
-  // }
 }

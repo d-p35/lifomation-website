@@ -18,11 +18,9 @@ export class ApiService {
   get isAuthenticated$() {
     // return this.auth.isAuthenticated$;
     return this.auth.user$.subscribe((user) => {
-      console.log('user', user);
       if (user) {
         // Extract the user_id from the user profile
         this.userId = user.sub;
-        console.log('User ID:', this.userId);
       }
     });
   }
@@ -222,7 +220,6 @@ export class ApiService {
   }
   deleteKeyInfoApi(documentId: number, key: string, userId: string | undefined): Observable<any> {
     userId = userId ?? '';
-    console.log('___________________________________________________', userId);
     return this.http.delete(
       `${this.endpoint}/api/documents/${documentId}/delkey-info`,
       { body: { key, userId } }

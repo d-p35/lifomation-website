@@ -22,15 +22,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 dataSource
   .initialize()
   .then(() => {
-    console.log("Database connection established.");
+
 
     const client = new MeiliSearch({ host: "http://localhost:7700" });
     const index = client.index("documents");
 
     index.updateFilterableAttributes(["ownerId", "sharedUsers"]).then(() => {
-      console.log("Filterable attributes updated.");
+
       index.updateSynonyms(synonyms).then(() => {
-        console.log("Synonyms updated.");
+
         index.updateSearchableAttributes(["title", "text", "category"]).then(() => {
           app.use("/api/users", UsersRouter);
           app.use("/api/documents", DocumentsRouter);

@@ -31,8 +31,6 @@ export async function processImageFile(
   document.keyInfo = keyInfo;
   document.category = categories.split(",").map((category: string) => category.trim()).join(",");
 
-  // const doc = await client.getIndexes({ limit: 3 })
-  // console.log(doc);
 
   return { document, text: OCRtext, classificationResult: categories };
 }

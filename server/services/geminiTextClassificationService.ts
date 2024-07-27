@@ -38,11 +38,11 @@ export const geminiTextClassification = async (
 
       // Parse the response to extract the top 3 categories
       const responseText = await res.response.text();
-      // console.log("responseText", responseText);
+
       const startIndex = responseText.indexOf('{');
       const endIndex = responseText.lastIndexOf('}') + 1;
       const jsonText = responseText.substring(startIndex, endIndex);
-      // console.log("jsonText", jsonText);
+
       let result: { categories: string; keyInfo: Record<string, any> } = { categories: "", keyInfo: {} };
 
       try {
@@ -51,7 +51,6 @@ export const geminiTextClassification = async (
         console.error("Error parsing JSON response:", parseError);
         return { categories: '', keyInfo: {} };
       }
-      // console.log("result", result);
       return result;
     } catch (error) {
       console.error("Error during text classification:", error);
