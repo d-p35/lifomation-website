@@ -19,6 +19,8 @@ dotenv.config({
 
 const app = express();
 
+const PORT = process.env.PORT || 3000;
+
 
 
 app.use(express.json());
@@ -47,8 +49,10 @@ dataSource
           app.use("/api/users", UsersRouter);
           app.use("/api/documents", DocumentsRouter);
 
-            const server = app.listen(port, () => {
-              console.log(`Server started on port ${port}`);
+          console.log("PORT", port);
+
+            const server = app.listen(PORT, () => {
+              console.log(`Server started on port ${PORT}`);
             });
 
             // Initialize WebSocket server
