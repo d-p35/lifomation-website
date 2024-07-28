@@ -7,8 +7,10 @@
       <p class="hero-description">
         Your secure solution for managing and accessing important documents
         anytime, anywhere.
-      </p>
-      <a (click)="auth.loginWithRedirect()" class="hero-button">Get Started</a>
+      </p>        
+      <!-- <button class="btn login-btn" (click)="login()">
+        Get Started
+      </button> -->
     </div>
   </section>
 
@@ -49,7 +51,7 @@
   </section>
 
   <!-- Pricing Section -->
-  <section class="pricing">
+  <section class="blog">
     <h2 class="section-title">Pricing Plans</h2>
     <div class="pricing-grid">
       <div class="pricing-plan" *ngFor="let plan of pricingPlans">
@@ -58,7 +60,9 @@
         <ul class="plan-features">
           <li *ngFor="let feature of plan.features">{{ feature }}</li>
         </ul>
-        <a href="#" class="plan-button">Choose Plan</a>
+        <div class="plan-button-container">
+          <button class="btn login-btn">Choose Plan</button>
+        </div>
       </div>
     </div>
   </section>
@@ -72,7 +76,7 @@
         <div class="blog-content">
           <h3 class="blog-title">{{ post.title }}</h3>
           <p class="blog-excerpt">{{ post.excerpt }}</p>
-          <a href="#" class="blog-button">Read More</a>
+          <button class="btn login-btn">Learn More</button>
         </div>
       </div>
     </div>
@@ -85,9 +89,8 @@
       Join thousands of users who trust Lifomation for their document management
       needs.
     </p>
-    <a href="#" class="cta-button">Sign Up Now</a>
+    <!-- <button class="btn login-btn">Sign up now</button> -->
   </section>
-
 
 
   <!-- FAQ Section -->
