@@ -31,6 +31,7 @@ export class HeaderComponent {
   items: any[] | undefined;
   @Input() documents: any[] = [];
   dropdownOpen = false;
+  isDropdownOpen: boolean = false;
   userId: string | undefined;
   constructor(
     public auth: AuthService,
@@ -78,7 +79,7 @@ export class HeaderComponent {
   }
 
   toggleDropdown() {
-    this.dropdownOpen = !this.dropdownOpen;
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
   
 

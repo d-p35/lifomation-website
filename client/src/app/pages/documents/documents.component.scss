@@ -99,6 +99,18 @@ $header-height: 0px;
   }
 }
 
+@media (max-width: 768px) {
+  .main-container {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .document-list-container {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
 .progress {
   height: inherit; /* Full viewport height */
   display: flex;

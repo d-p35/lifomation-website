@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 // Import the AuthService type from the SDK
 import { AuthService, User } from '@auth0/auth0-angular';
 import { CommonModule } from '@angular/common';
@@ -28,16 +28,30 @@ import { Sidebar } from 'primeng/sidebar';
 export class SidebarComponent implements OnInit {
   isActive: boolean = false;
   activeRoute: string = '';
+  isMobileView: boolean = false;
+  isDropdownOpen: boolean = false;
   constructor(
     public auth: AuthService,
     private router: Router,
   ) {}
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.isMobileView = window.innerWidth <= 768;
+  }
+  ngOnInit(): void {}
+
   toggleSidebar() {
     this.isActive = !this.isActive;
   }
 
-  ngOnInit(): void {}
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+  
+  closeDropdown() {
+    this.isDropdownOpen = false;
+  }
 
   isRouteActive(route: string): boolean {
     return this.router.url === route;
