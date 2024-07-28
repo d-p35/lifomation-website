@@ -30,17 +30,17 @@ export class HomeComponent implements OnInit {
     {
       title: 'Organized',
       description: 'Keep your documents well-organized.',
-      icon: '../../..//public/organized-icon.png',
+      icon: '/organized-icon.png',
     },
     {
       title: 'Advanced Search',
       description: 'Find documents quickly and easily.',
-      icon: '../../..//public/advanced-search.png',
+      icon: '/advanced-search.png',
     },
     {
       title: 'Secure Sharing',
       description: 'Share documents securely.',
-      icon: '../../..//public/share-icon.png',
+      icon: '/share-icon.png',
     },
   ];
 
@@ -119,18 +119,18 @@ export class HomeComponent implements OnInit {
   blogPosts = [
     {
       title: 'How to Keep Your Documents Secure',
-      image: '../../..//public/blogging.png',
+      image: '/blogging.png',
       excerpt:
         'Learn the best practices for keeping your documents secure in the digital age.',
     },
     {
       title: 'The Benefits of Digital Document Management',
-      image: '../../..//public/blogging.png',
+      image: '/blogging.png',
       excerpt: 'Discover the advantages of managing your documents digitally.',
     },
     {
       title: 'Top Features of Lifomation',
-      image: '../../..//public/blogging.png',
+      image: '/blogging.png',
       excerpt:
         'Explore the top features that make Lifomation the best choice for document management.',
     },

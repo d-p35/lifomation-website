@@ -32,7 +32,7 @@ export class DocListSharedComponent implements OnInit {
   @Input() documents: any[] = [];
   @Input() loadedAll: boolean = false;
   @Output() scroll = new EventEmitter<void>();
-  userId : string | undefined;
+  userId: string | undefined;
 
   constructor(
     private router: Router,
@@ -45,17 +45,16 @@ export class DocListSharedComponent implements OnInit {
   ngOnInit(): void {
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.userId = userId
-    }
-  });
-
+        this.userId = userId;
+      }
+    });
   }
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
-      return '../../..//public/img-icon.png';
+      return '/img-icon.png';
     } else if (mimetype.includes('pdf')) {
-      return '../../..//public/pdf-icon.png';
+      return '/pdf-icon.png';
     }
     return '';
   }
