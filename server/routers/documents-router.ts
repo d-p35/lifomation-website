@@ -31,7 +31,7 @@ import { notifyUser } from "../services/websocket";
 require("dotenv").config();
 
 const upload = multer({ dest: "uploads/" });
-const client = new MeiliSearch({host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://meilisearch:7700" });
+const client = new MeiliSearch({host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://localhost:7700" });
 const index = client.index("documents");
 export const DocumentsRouter = Router();
 const documentRepository: Repository<Document> =

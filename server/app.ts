@@ -19,6 +19,8 @@ dotenv.config({
 
 const app = express();
 
+
+
 app.use(express.json());
 const corsOptions = {
   origin: process.env.NODE_ENV=='production'?'https://lifomation.tech':"http://localhost:4200",
@@ -31,9 +33,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 dataSource
   .initialize()
   .then(() => {
+    console.log(process.env.NODE_ENV=='production'?'App running in production':"App running locally" );
 
 
-    const client = new MeiliSearch({ host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://meilisearch:7700" });
+    const client = new MeiliSearch({ host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://localhost:7700" });
     const index = client.index("documents");
 
     index.updateFilterableAttributes(["ownerId", "sharedUsers"]).then(() => {

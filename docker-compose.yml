@@ -1,3 +1,4 @@
+# Production Docker Compose file for Lifomation project
 version: "3.8"
 
 services:

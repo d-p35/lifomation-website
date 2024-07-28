@@ -7,10 +7,15 @@ import extract from "extract-zip";
 import { Response } from "express";
 import { Document } from "../models/document";
 import MeiliSearch from "meilisearch";
+import * as dotenv from "dotenv";
+dotenv.config({
+  path: `${__dirname}/../../.env`,
+});
+
 
 import { classifyText } from "./watsonTextClassificationService";
 import { geminiTextClassification } from "./geminiTextClassificationService";
-const client = new MeiliSearch({ host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://meilisearch:7700"});
+const client = new MeiliSearch({ host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://localhost:7700"});
 const index = client.index("documents");
 
 export async function processImageFile(
@@ -97,7 +102,7 @@ async function createDirectories(paths: string[]) {
 async function sendToTika(parsingData: fs.ReadStream) {
   return await axios({
     method: "PUT",
-    url: "http://tika-server:9998/unpack/all",
+     url: process.env.NODE_ENV=='production'?'https://tika.lifomation.tech/unpack/all':"http://localhost:9998/unpack/all",
     data: parsingData,
     responseType: "stream",
     headers: {
