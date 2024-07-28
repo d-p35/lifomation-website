@@ -20,12 +20,12 @@ export class HomeComponent implements OnInit {
     {
       title: 'Secure Storage',
       description: 'Keep your documents safe and secure.',
-      icon: '../../..//public/secure-icon.png',
+      icon: '/secure-icon.png',
     },
     {
       title: 'Easy Access',
       description: 'Access your documents from anywhere.',
-      icon: '../../..//public/access-icon.png',
+      icon: '/access-icon.png',
     },
     {
       title: 'Organized',
