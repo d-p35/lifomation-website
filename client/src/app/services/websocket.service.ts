@@ -22,7 +22,7 @@ export class WebSocketService {
 
 
   connect(userId: string) {
-    this.socket = new WebSocket(environment.production ?'ws://server.lifomation.tech':'ws://localhost:3000'); // Use your backend URL
+    this.socket = new WebSocket(environment.production ?'wss://server.lifomation.tech':'ws://localhost:3000'); // Use your backend URL
 
     this.socket.onopen = () => {
       if (!this.socket) return;
