@@ -18,8 +18,6 @@ export class ApiService {
 
   constructor(private http: HttpClient, private auth: AuthService) {
     console.log('API Endpoint:', this.endpoint);
-    console.log('ENV', environment);
-    console.log('ENV PROD', environmentProd);
     // Existing constructor code
   }
   get isAuthenticated$() {
