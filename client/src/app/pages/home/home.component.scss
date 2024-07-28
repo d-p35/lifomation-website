@@ -123,20 +123,54 @@ body {
       }
     }
   }
+  .pricing-grid {
+    display: flex;
+    flex-wrap: wrap;
+  }
 
   .pricing-plan {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    // flex: 1 1 30%; /* Adjust the width as needed */
+    // box-sizing: border-box;
+  
+    .plan-title {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+  
     .plan-price {
       font-size: 2em;
       margin-bottom: 20px;
+      align-items: center;
     }
-
+  
     .plan-features {
       list-style: none;
       padding: 0;
       margin: 0 0 20px;
-
+  
       li {
         margin-bottom: 10px;
+      }
+    }
+  
+    .plan-button-container {
+      display: flex;
+      justify-content: center; /* Center the button horizontally */
+      margin-top: auto; /* Push the button to the bottom */
+    }
+  
+    .btn.login-btn {
+      background: #0073e6;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s;
+      &:hover {
+        background: #005bb5;
       }
     }
   }
@@ -219,5 +253,45 @@ body {
 
   p {
     margin: 0;
+  }
+}
+
+.btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  &.logout-btn {
+    background-color: #006dd3;
+    color: #ffffff;
+    padding: 8px 44px;
+
+    &:hover {
+      background-color: rgb(6, 177, 244);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.login-btn {
+    background-color: #006dd3;
+    color: #ffffff;
+
+    &:hover {
+      background-color: rgb(6, 177, 244);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.signup-btn {
+    background-color: #4285f4;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #3367d6;
+      transform: translateY(-2px);
+    }
   }
 }

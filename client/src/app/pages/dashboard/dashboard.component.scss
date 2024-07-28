@@ -27,7 +27,8 @@ $header-height: 0px;
   padding: 20px;
   background-color: #f4f5f7;
   border-radius: 20px;
-
+  min-height: 100vh;
+  
   .files-section,
   .suggestions-section,
   .recent-files-section {

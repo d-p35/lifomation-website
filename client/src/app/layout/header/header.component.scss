@@ -100,11 +100,22 @@ header {
         display: flex;
       }
 
-      .welcome {
-        font-size: 16px;
-        color: #5f6368;
-        margin-bottom: 10px;
-      }
+
+    }
+    .welcome {
+      font-size: 16px;
+      color: #5f6368;
+      margin-bottom: 10px;
+      // word-break: break-all;
+      // word-wrap: break-word;
+      // overflow: hidden;
+      padding: 10px;
+      overflow: hidden;
+      word-wrap: break-word;
+      hyphens: auto;
+      max-width: auto; /* Adjust as needed */
+      // word-break: break-word;
+      // inline
     }
   }
 }
@@ -114,7 +125,7 @@ header {
     margin-left: 0;
     width: 100%;
     .search-container {
-      width: 100%;
+      width: auto;
     }
     .welcome {
       display: none;
