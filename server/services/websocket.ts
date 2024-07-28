@@ -12,11 +12,13 @@ const connections: Connection[] = [];
 const initWebSocketServer = (server: Server) => {
   const wss = new WebSocketServer({ server });
 
+
   wss.on('connection', (ws) => {
     ws.on('message', (message) => {
       const data = JSON.parse(message.toString());
       if (data.type === 'init' && data.userId) {
         connections.push({ userId: data.userId, ws });
+        console.log('New connection', data.userId);
       }
     });
 
@@ -32,6 +34,7 @@ const initWebSocketServer = (server: Server) => {
 };
 
 const notifyUser = (userId: string, message: any) => {
+  console.log('notifyUser', userId, message);
   const connection = connections.find((conn) => conn.userId === userId);
   if (connection) {
     connection.ws.send(JSON.stringify(message));

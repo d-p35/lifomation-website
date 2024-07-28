@@ -48,11 +48,12 @@ export class HeaderComponent {
     });
     this.fetchDocumentsNames();
     this.webSocketService.messages$.subscribe((message) => {
+      console.log(message);
       if (message && message.type === 'share') {
         this.messageService.add({
           key:"template",
           severity: 'success',
-          summary: 'Document Shared', 
+          summary: 'Document Shared',
           detail: `${message.senderEmail} shared a document with you.`,
         });
         this.dataService.notifyOther({
