@@ -185,6 +185,11 @@ export class HomeComponent implements OnInit {
     );
   }
 
+  login(){
+    this.auth.loginWithRedirect();
+    this.router.navigate(['/dashboard']);
+  }
+
   initThreeJS() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
