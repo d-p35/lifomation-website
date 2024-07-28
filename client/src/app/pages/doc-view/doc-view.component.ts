@@ -186,7 +186,7 @@ export class DocViewComponent implements OnInit {
             if (this.newKey !== key) {
               delete this.keyInfo[key];
             }
-            this.keyInfo[this.newKey] = this.editValue;
+            this.keyInfo[this.newKey] = this.newValue;
             this.editingKey = null;
             this.cdr.detectChanges();
           },
