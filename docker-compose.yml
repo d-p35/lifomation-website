@@ -47,6 +47,12 @@ services:
       PORT: 3000
       VIRTUAL_HOST: server.lifomation.tech
       LETSENCRYPT_HOST: server.lifomation.tech
+      NODE_ENV: ${NODE_ENV}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      MEILI_ENV: ${MEILI_ENV}
+      SERVICE_URL: ${SERVICE_URL}
+      API_KEY: ${API_KEY}
+
     ports:
       - "3000:3000"
     depends_on:
