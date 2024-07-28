@@ -19,7 +19,7 @@ export class DashboardComponent implements OnInit {
     public auth: AuthService,
     private router: Router,
     private apiService: ApiService,
-    private dataService: DataService,
+    private dataService: DataService
   ) {}
 
   documents = [];
@@ -70,21 +70,21 @@ export class DashboardComponent implements OnInit {
 
   suggestions = [
     {
-      icon: '../../..//public/doc-icon.png',
+      icon: '/doc-icon.png',
       title: 'Driver License.doc',
       sharedUsers: 12,
       size: '2.8 MB',
       lastModified: 'Dec 13, 2022',
     },
     {
-      icon: '../../..//public/doc-icon.png',
+      icon: '/doc-icon.png',
       title: 'Tax2020.pdf',
       sharedUsers: 5,
       size: '242 MB',
       lastModified: 'Dec 12, 2022',
     },
     {
-      icon: '../../..//public/pdf-icon.png',
+      icon: '/pdf-icon.png',
       title: 'dsfd.png',
       sharedUsers: 0,
       size: '1.8 MB',
@@ -93,15 +93,15 @@ export class DashboardComponent implements OnInit {
   ];
 
   recentFiles = [
-    { icon: '../../..//public/doc-icon.png' },
-    { icon: '../../..//public/doc-icon.png' },
-    { icon: '../../..//public/doc-icon.png' },
-    { icon: '../../..//public/pdf-icon.png' },
-    { icon: '../../..//public/pdf-icon.png' },
-    { icon: '../../..//public/doc-icon.png' },
-    { icon: '../../..//public/pdf-icon.png' },
-    { icon: '../../..//public/doc-icon.png' },
-    { icon: '../../..//public/pdf-icon.png' },
+    { icon: '/doc-icon.png' },
+    { icon: '/doc-icon.png' },
+    { icon: '/doc-icon.png' },
+    { icon: '/pdf-icon.png' },
+    { icon: '/pdf-icon.png' },
+    { icon: '/doc-icon.png' },
+    { icon: '/pdf-icon.png' },
+    { icon: '/doc-icon.png' },
+    { icon: '/pdf-icon.png' },
   ];
 
   fetchDocuments() {
@@ -124,10 +124,8 @@ export class DashboardComponent implements OnInit {
   }
 
   OnFolderClick(folderName: String) {
-    this.router.navigate(['/documents'],
-      {
-        queryParams: {folder: folderName}
-      }
-    );
+    this.router.navigate(['/documents'], {
+      queryParams: { folder: folderName },
+    });
   }
 }

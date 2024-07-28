@@ -53,9 +53,9 @@ export class DocListComponent implements OnInit {
 
   getIcon(mimetype: string): string {
     if (mimetype.includes('image')) {
-      return '../../..//public/img-icon.png';
+      return '/img-icon.png';
     } else if (mimetype.includes('pdf')) {
-      return '../../..//public/pdf-icon.png';
+      return '/pdf-icon.png';
     }
     return '';
   }
