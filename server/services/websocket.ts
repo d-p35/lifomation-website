@@ -24,6 +24,7 @@ const initWebSocketServer = (server: Server) => {
 
     ws.on('close', () => {
       const index = connections.findIndex((conn) => conn.ws === ws);
+      console.log('Connection closed', index);
       if (index !== -1) {
         connections.splice(index, 1);
       }

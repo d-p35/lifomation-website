@@ -27,6 +27,7 @@ export class WebSocketService {
     this.socket.onopen = () => {
       if (!this.socket) return;
       this.socket.send(JSON.stringify({ type: 'init', userId }));
+      console.log('Connected to server');
     };
 
     this.socket.onmessage = (event) => {
@@ -37,13 +38,17 @@ export class WebSocketService {
     };
 
     this.socket.onclose = () => {
+      console.log('Disconnected from server');
       setTimeout(() => this.connect(userId), 1000);
+
+      
     };
   }
 
   sendMessage(message: any) {
     if (!this.socket) return;
     this.socket.send(JSON.stringify(message));
+    console.log('Message sent', message);
   }
 
 }
