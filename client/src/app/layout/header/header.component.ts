@@ -48,7 +48,6 @@ export class HeaderComponent {
     });
     this.fetchDocumentsNames();
     this.webSocketService.messages$.subscribe((message) => {
-      console.log(message);
       if (message && message.type === 'share') {
         this.messageService.add({
           key:"template",

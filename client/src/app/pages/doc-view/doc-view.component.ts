@@ -110,7 +110,6 @@ export class DocViewComponent implements OnInit {
         });
 
         this.wsSubscription = this.wsService.messages$.subscribe((message) => {
-          console.log(message);
           if (
             message &&
             message.type === 'edit' &&
@@ -234,6 +233,7 @@ export class DocViewComponent implements OnInit {
           this.shareSuccess = true;
           this.shareMessage = 'Document shared successfully!';
           this.clearShareMessage();
+          this.displayShareDocumentModal = false;
         },
         error: (err) => {
           console.error(err);
@@ -243,7 +243,7 @@ export class DocViewComponent implements OnInit {
           this.clearShareMessage();
         },
       });
-    this.displayShareDocumentModal = false;
+    
   }
 
   clearShareMessage() {

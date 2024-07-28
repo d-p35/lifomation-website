@@ -16,7 +16,7 @@ const initWebSocketServer = (server: Server) => {
   wss.on('connection', (ws) => {
     ws.on('message', (message) => {
       const data = JSON.parse(message.toString());
-      if (data.type === 'init' && data.userId) {
+      if (data.type === 'init' && data.userId ) {
         connections.push({ userId: data.userId, ws });
         console.log('New connection', data.userId);
       }
@@ -24,7 +24,6 @@ const initWebSocketServer = (server: Server) => {
 
     ws.on('close', () => {
       const index = connections.findIndex((conn) => conn.ws === ws);
-      console.log('Connection closed', index);
       if (index !== -1) {
         connections.splice(index, 1);
       }
@@ -35,7 +34,6 @@ const initWebSocketServer = (server: Server) => {
 };
 
 const notifyUser = (userId: string, message: any) => {
-  console.log('notifyUser', userId, message);
   const connection = connections.find((conn) => conn.userId === userId);
   if (connection) {
     connection.ws.send(JSON.stringify(message));

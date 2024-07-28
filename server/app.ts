@@ -49,8 +49,6 @@ dataSource
           app.use("/api/users", UsersRouter);
           app.use("/api/documents", DocumentsRouter);
 
-          console.log("PORT", port);
-
             const server = app.listen(PORT, () => {
               console.log(`Server started on port ${PORT}`);
             });
