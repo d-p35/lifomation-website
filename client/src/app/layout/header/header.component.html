@@ -10,7 +10,7 @@
       <div class="profile-container" (click)="toggleDropdown()">
         <i class="material-icons profile-icon">account_circle</i>
         <div class="dropdown-menu" [class.show]="dropdownOpen">
-          <!-- <span class="welcome">Hi, {{ user.name }}</span> -->
+          <span class="welcome">Hi, {{ user.name }}</span>
           <button class="btn logout-btn" (click)="auth.logout()">Log out</button>
         </div>
       </div>
