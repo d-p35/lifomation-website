@@ -187,7 +187,6 @@ export class HomeComponent implements OnInit {
 
   login(){
     this.auth.loginWithRedirect();
-    this.router.navigate(['/dashboard']);
   }
 
   initThreeJS() {
