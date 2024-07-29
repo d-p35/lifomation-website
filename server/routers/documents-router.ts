@@ -275,7 +275,8 @@ export const shareDocument = (wss: WebSocketServer) => {
   DocumentsRouter.post("/:id/share", async (req: Request, res: Response) => {
     try {
       const documentId: number = parseInt(req.params.id);
-      const { email, accessLevel } = req.body;
+      const { email, senderEmail, accessLevel } = req.body;
+
 
       // Validate request body
       if (!email || !accessLevel) {
@@ -336,7 +337,7 @@ export const shareDocument = (wss: WebSocketServer) => {
           type: "share",
           documentId,
           accessLevel,
-          senderEmail: email,
+          senderEmail,
         });
 
         const newPermission = new DocumentPermission();

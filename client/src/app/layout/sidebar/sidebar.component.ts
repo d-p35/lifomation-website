@@ -39,7 +39,10 @@ export class SidebarComponent implements OnInit {
   onResize(event: any) {
     this.isMobileView = window.innerWidth <= 768;
   }
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.isMobileView = window.innerWidth <= 768;
+    this.isDropdownOpen = false;
+  }
 
   toggleSidebar() {
     this.isActive = !this.isActive;

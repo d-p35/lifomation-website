@@ -49,6 +49,7 @@ export class DocViewComponent implements OnInit {
   userId: string | undefined;
   oldKey: string | undefined;
   oldValue: string | undefined;
+  userEmail: string | undefined;
 
   constructor(
     private apiService: ApiService,
@@ -64,6 +65,9 @@ export class DocViewComponent implements OnInit {
     if (!index) {
       return;
     }
+    this.apiService.getUserEmail().subscribe((email: string | undefined) => {
+      this.userEmail = email;
+    });
     const i = parseInt(index, 10);
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
@@ -225,9 +229,10 @@ export class DocViewComponent implements OnInit {
     if (!this.document || !this.shareemail || !this.shareAccessLevel) {
       return;
     }
+    const lowerCaseEmail = this.shareemail.toLowerCase();
 
     this.apiService
-      .shareDocument(this.document.id, this.shareemail, this.shareAccessLevel)
+      .shareDocument(this.document.id, lowerCaseEmail, this.userEmail, this.shareAccessLevel)
       .subscribe({
         next: () => {
           this.shareSuccess = true;
