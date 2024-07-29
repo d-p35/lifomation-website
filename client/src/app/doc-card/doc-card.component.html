@@ -20,6 +20,7 @@
   </div>
   <div class="document-actions">
     <button
+      *ngIf="currentUserId === document.ownerId"
       type="button"
       class="delete-button"
       (click)="deleteDocument(document.id, $event)"

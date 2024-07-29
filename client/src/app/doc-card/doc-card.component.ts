@@ -20,6 +20,7 @@ export class DocCardComponent implements OnInit {
   @Input() document: any;
   uploadedAtLocal!: string;
   lastOpenedLocal!: string;
+  currentUserId: string | undefined;
 
   constructor(
     private router: Router,
@@ -35,6 +36,9 @@ export class DocCardComponent implements OnInit {
     this.lastOpenedLocal = this.convertToUserTimezone(
       new Date(this.document.lastOpened)
     );
+    this.apiService.getUserId().subscribe((userId: string | undefined) => {
+      this.currentUserId = userId;
+    });
   }
 
   convertToUserTimezone(date: Date): string {
@@ -45,6 +49,8 @@ export class DocCardComponent implements OnInit {
   }
 
   getDocumentName(): string {
+    console.log(this.document);
+    console.log(this.currentUserId);
     return this.document?.document?.originalname || 'Unknown';
   }
 

@@ -229,9 +229,10 @@ export class DocViewComponent implements OnInit {
     if (!this.document || !this.shareemail || !this.shareAccessLevel) {
       return;
     }
+    const lowerCaseEmail = this.shareemail.toLowerCase();
 
     this.apiService
-      .shareDocument(this.document.id, this.shareemail, this.userEmail, this.shareAccessLevel)
+      .shareDocument(this.document.id, lowerCaseEmail, this.userEmail, this.shareAccessLevel)
       .subscribe({
         next: () => {
           this.shareSuccess = true;
