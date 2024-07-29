@@ -1,0 +1,18 @@
+<p-autoComplete
+  [(ngModel)]="selectedItem"
+  [suggestions]="suggestions"
+  (completeMethod)="search($event)"
+  (onSelect)="onSuggestionSelect($event)"
+  field="title"
+  placeholder="Search for files"
+  size="50"
+>
+  <ng-template let-item pTemplate="item">
+    <div>
+      <!-- Display the title -->
+      <div style="font-size: 18px; font-weight: bold">
+        {{ item.title }}
+      </div>
+    </div>
+  </ng-template>
+</p-autoComplete>

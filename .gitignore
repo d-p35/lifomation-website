@@ -1,13 +1,15 @@
 
-server/node_modules/
+/node_modules
+/acme
 
 # Build output
-client/dist/
-server/dist/
+/dist
+/certs
+/meili_data
+/postgres_data
 
 # Environment variables
-client/.env
-server/.env
+/.env
 
 # Logs
 *.log
@@ -18,3 +20,9 @@ Thumbs.db
 
 # Editor Configurations
 .vscode/
+
+# Data
+/uploads
+/meili_data
+/postgres_data
+/acme/yashank.bhola%40mail.utoronto.ca

@@ -1,0 +1,31 @@
+<!-- doc-card.component.html -->
+
+<div class="document-card" (click)="viewDocument(document.id)">
+  <div class="document-icon">
+    <img
+      [src]="getIcon(document.document.mimetype)"
+      alt="Document Icon"
+      class="icon"
+    />
+  </div>
+  <div class="document-info">
+    <div class="document-title">
+      {{ getDocumentName() }}
+    </div>
+    <div class="document-details">
+      <p>Uploaded: {{ uploadedAtLocal }}</p>
+      <p>Last Opened: {{ lastOpenedLocal }}</p>
+      <p>Size: {{ getFileSize(document.document.size) }}</p>
+    </div>
+  </div>
+  <div class="document-actions">
+    <button
+      *ngIf="currentUserId === document.ownerId"
+      type="button"
+      class="delete-button"
+      (click)="deleteDocument(document.id, $event)"
+    >
+      Delete
+    </button>
+  </div>
+</div>

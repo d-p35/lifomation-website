@@ -1,18 +1,25 @@
-import { Entity } from 'typeorm';
-import { PrimaryGeneratedColumn, Column } from 'typeorm';
-
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Document } from "./document";
+import { DocumentPermission } from "./documentPermission";
 
 interface UserAttributes {
-    id: number;
-    username: string;}
+  id: string;
+  documents: Document[];
+  permissions: DocumentPermission[];
+  email: string;
+}
 
 @Entity()
 export class User implements UserAttributes {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryColumn()
+  id: string;
 
-    @Column()
-    username: string;
+  @Column()
+  email: string;
+
+  @OneToMany(() => Document, (document) => document.owner)
+  documents: Document[];
+
+  @OneToMany(() => DocumentPermission, (permission) => permission.user)
+  permissions: DocumentPermission[];
 }
-
-

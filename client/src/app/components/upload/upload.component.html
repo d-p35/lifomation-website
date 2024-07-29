@@ -1,0 +1,116 @@
+<p-toast
+  key="template"
+  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }"
+></p-toast>
+<p-toast
+  key="bottomright"
+  position="bottom-right"
+  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }"
+></p-toast>
+<p-toast
+  key="custom"
+  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }"
+>
+  <ng-template let-message pTemplate="message">
+    <div class="p-toast-message-content" [attr.data-pc-section]="'content'">
+      <ng-container>
+        <span
+          class="p-toast-message-icon"
+          [attr.aria-hidden]="true"
+          [attr.data-pc-section]="'icon'"
+        >
+          <ng-container>
+            <InfoCircleIcon
+              [attr.aria-hidden]="true"
+              [attr.data-pc-section]="'icon'"
+            />
+          </ng-container>
+        </span>
+        <div class="p-toast-message-text" [attr.data-pc-section]="'text'">
+          <div class="p-toast-summary" [attr.data-pc-section]="'summary'">
+            {{ message.summary }}
+          </div>
+          <div class="p-toast-detail" [attr.data-pc-section]="'detail'">
+            {{ message.detail }}
+          </div>
+          <p-dropdown
+            appendTo="body"
+            *ngIf="!changeCategoryIsProcessing"
+            [options]="categories"
+            [(ngModel)]="selectedCategory"
+          ></p-dropdown>
+          <button
+            *ngIf="!changeCategoryIsProcessing"
+            (click)="changeCategory(message.data)"
+            pRipple
+            pButton
+            type="button"
+            class="p-button-raised p-button-rounded btn"
+            label="Change Category"
+            style="margin-top: 5px"
+          ></button>
+          <div *ngIf="changeCategoryIsProcessing" class="progress">
+            <p-progressSpinner strokeWidth="1"></p-progressSpinner>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-template>
+</p-toast>
+
+<button
+  pButton
+  pRipple
+  (click)="showDialog()"
+  label="Upload"
+  class="btn"
+></button>
+<p-dialog
+  header="Upload Document"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '30rem' }"
+  [breakpoints]="{ '960px': '75vw', '640px': '100vw' }"
+  [style]="{ width: '50vw' }"
+>
+  <div class="upload-container" *ngIf="!documentisProcessing">
+    <input
+      id="fileInput"
+      type="file"
+      #fileInput
+      accept=".pdf,image/*"
+      (change)="onFileSelected($event)"
+    />
+    <div class="flex justify-content-end gap-2 mt-3">
+      <button
+        pButton
+        pRipple
+        label="Cancel"
+        severity="secondary"
+        (click)="visible = false"
+        class="cancelbtn"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Upload"
+        (click)="uploadFile()"
+        [disabled]="!selectedFile"
+        class="btn"
+      ></button>
+    </div>
+  </div>
+
+  <div *ngIf="documentisProcessing" class="progress">
+    <p-progressSpinner strokeWidth="1"></p-progressSpinner>
+  </div>
+</p-dialog>
+
+<p-dialog
+  header="Change Category"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [breakpoints]="{ '960px': '75vw', '640px': '100vw' }"
+  [style]="{ width: '50vw' }"
+>
+</p-dialog>

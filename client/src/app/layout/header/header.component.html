@@ -1,0 +1,21 @@
+<header>
+  <div class="container">
+    <div class="search-container">
+      <app-search-bar></app-search-bar>
+    </div>
+  </div>
+  <div class="container-2">
+    <app-upload></app-upload>
+    <div *ngIf="auth.user$ | async as user" class="user-menu">
+      <div class="profile-container" (click)="toggleDropdown()">
+        <i class="material-icons profile-icon">account_circle</i>
+        <div class="dropdown-menu" [class.show]="dropdownOpen">
+          <span class="welcome">Hi, {{ user.name }}</span>
+          <button #logoutBtn class="btn logout-btn" (click)="auth.logout()">
+            Log out
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

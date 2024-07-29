@@ -1,0 +1,117 @@
+<home-header-component></home-header-component>
+<div>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h2 class="hero-title">Welcome to Lifomation</h2>
+      <p class="hero-description">
+        Your secure solution for managing and accessing important documents
+        anytime, anywhere.
+      </p>
+      <!-- <button class="btn login-btn" (click)="login()">
+        Get Started
+      </button> -->
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2 class="section-title">Features</h2>
+    <div class="feature-grid">
+      <div class="feature" *ngFor="let feature of features">
+        <div class="feature-icon">
+          <img [src]="feature.icon" alt="{{ feature.title }}" />
+        </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="steps">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps-list">
+      <div class="step" *ngFor="let step of steps; let i = index">
+        <h3 class="step-title">{{ i + 1 }}. {{ step.title }}</h3>
+        <p class="step-description">{{ step.description }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <h2 class="section-title">What Our Users Say</h2>
+    <div class="testimonial-grid">
+      <div class="testimonial" *ngFor="let testimonial of testimonials">
+        <p class="testimonial-text">{{ testimonial.text }}</p>
+        <p class="testimonial-author">- {{ testimonial.author }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="blog">
+    <h2 class="section-title">Pricing Plans</h2>
+    <div class="pricing-grid">
+      <div class="pricing-plan" *ngFor="let plan of pricingPlans">
+        <h3 class="plan-title">{{ plan.title }}</h3>
+        <p class="plan-price">{{ plan.price }}</p>
+        <ul class="plan-features">
+          <li *ngFor="let feature of plan.features">{{ feature }}</li>
+        </ul>
+        <div class="plan-button-container">
+          <button class="btn login-btn">Choose Plan</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Section -->
+  <section class="blog">
+    <h2 class="section-title">Latest from Our Blog</h2>
+    <div class="blog-grid">
+      <div class="blog-post" *ngFor="let post of blogPosts">
+        <img [src]="post.image" alt="{{ post.title }}" class="blog-image" />
+        <div class="blog-content">
+          <h3 class="blog-title">{{ post.title }}</h3>
+          <p class="blog-excerpt">{{ post.excerpt }}</p>
+          <button class="btn login-btn">Learn More</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Section -->
+  <section class="call-to-action">
+    <h2 class="cta-title">Ready to Get Started?</h2>
+    <p class="cta-description">
+      Join thousands of users who trust Lifomation for their document management
+      needs.
+    </p>
+    <!-- <button class="btn login-btn">Sign up now</button> -->
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="faq-item" *ngFor="let faq of faqs">
+      <h3 class="faq-question">{{ faq.question }}</h3>
+      <p class="faq-answer">{{ faq.answer }}</p>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a [routerLink]="['/credits']">Credits</a>
+        <!-- Add this line -->
+      </div>
+      <p>&copy; 2024 Lifomation. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

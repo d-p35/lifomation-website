@@ -1,0 +1,23 @@
+
+/node_modules
+
+# Build output
+/dist
+
+# Environment variables
+/.env
+
+# Logs
+*.log
+
+# Operating System files
+Thumbs.db
+.DS_Store
+
+# Editor Configurations
+.vscode/
+
+# Data
+/uploads
+/meili_data
+/postgres_data
