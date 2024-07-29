@@ -12,7 +12,7 @@
               class="pi pi-share-alt"
               (click)="displayShareDocumentModal = true"
               style="cursor: pointer"
-              *ngIf="document.ownerId==userId"
+              *ngIf="document.ownerId == userId"
             ></i>
             <!-- Add New Key-Info Pair Icon -->
           </div>
@@ -50,7 +50,9 @@
           </div>
           <div *ngIf="keyInfo">
             <div *ngFor="let key of keyInfoKeys()" class="key-info-item">
-              <strong *ngIf="!editingKey || editingKey !== key">{{ key }}:</strong>
+              <strong *ngIf="!editingKey || editingKey !== key"
+                >{{ key }}:</strong
+              >
               <span *ngIf="!editingKey || editingKey !== key">{{
                 keyInfo[key]
               }}</span>
@@ -102,13 +104,13 @@
               </button>
               <!-- Delete Button -->
               <button
-              *ngIf="(!editingKey || editingKey !== key ) && !editDisabled"
-              class="delete-button"
-              (click)="deleteKeyInfo(key)"
-            >
-              <i class="pi pi-trash"></i>
-              <!-- PrimeNG trash icon -->
-            </button>
+                *ngIf="(!editingKey || editingKey !== key) && !editDisabled"
+                class="delete-button"
+                (click)="deleteKeyInfo(key)"
+              >
+                <i class="pi pi-trash"></i>
+                <!-- PrimeNG trash icon -->
+              </button>
             </div>
           </div>
         </div>

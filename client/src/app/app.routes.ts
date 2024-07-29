@@ -14,6 +14,7 @@ import { RecentComponent } from './pages/recent/recent.component';
 import { StarredComponent } from './pages/starred/starred.component';
 import { TrashComponent } from './pages/trash/trash.component';
 import { SharedComponent } from './pages/shared/shared.component';
+import { CreditsComponent } from './pages/credits/credits.component';
 
 export const routes: Routes = [
   // Add your routes here
@@ -52,6 +53,10 @@ export const routes: Routes = [
     path: 'trash',
     component: TrashComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'credits',
+    component: CreditsComponent,
   },
 ];
 @NgModule({

@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Renderer2 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
@@ -27,10 +27,11 @@ import { ToastModule } from 'primeng/toast';
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
   items: any[] | undefined;
   @Input() documents: any[] = [];
   dropdownOpen = false;
+  private clickListener?: () => void;
   userId: string | undefined;
   constructor(
     public auth: AuthService,
@@ -39,18 +40,25 @@ export class HeaderComponent {
     private webSocketService: WebSocketService,
     private messageService: MessageService,
     private dataService: DataService,
+    private renderer: Renderer2,
   ) {}
 
   ngOnInit() {
-
     this.apiService.getUserId().subscribe((userId) => {
       this.userId = userId;
     });
+    this.clickListener = this.renderer.listen(
+      'document',
+      'click',
+      (event: Event) => {
+        this.onDocumentClick(event);
+      },
+    );
     this.fetchDocumentsNames();
     this.webSocketService.messages$.subscribe((message) => {
       if (message && message.type === 'share') {
         this.messageService.add({
-          key:"template",
+          key: 'template',
           severity: 'success',
           summary: 'Document Shared',
           detail: `${message.senderEmail} shared a document with you.`,
@@ -59,28 +67,52 @@ export class HeaderComponent {
           refresh: true,
           type: 'share',
         });
-      }
-
-      else if (message && message.type === 'edit' && this.userId === message.document.ownerId ) {
-          this.messageService.add({key: 'template', severity:'info', summary:'Your Document was Updated', detail: `${message.senderEmail} edited ${message.document.document.originalname}.`});
-      
-      }
-
-      else if (message && message.type === 'delete' && this.userId === message.document.ownerId) {
-        this.messageService.add({key: 'template', severity:'warn', summary:'Your Document was Deleted', detail: `${message.senderEmail} deleted ${message.document.document.originalname}.`});
-      }
-
-      else if (message && message.type === 'add' && this.userId === message.document.ownerId) {
-        this.messageService.add({key: 'template', severity:'info', summary:'Your Document was Updated', detail: `${message.senderEmail} added a new key to ${message.document.document.originalname}.`});
+      } else if (
+        message &&
+        message.type === 'edit' &&
+        this.userId === message.document.ownerId
+      ) {
+        this.messageService.add({
+          key: 'template',
+          severity: 'info',
+          summary: 'Your Document was Updated',
+          detail: `${message.senderEmail} edited ${message.document.document.originalname}.`,
+        });
+      } else if (
+        message &&
+        message.type === 'delete' &&
+        this.userId === message.document.ownerId
+      ) {
+        this.messageService.add({
+          key: 'template',
+          severity: 'warn',
+          summary: 'Your Document was Deleted',
+          detail: `${message.senderEmail} deleted ${message.document.document.originalname}.`,
+        });
+      } else if (
+        message &&
+        message.type === 'add' &&
+        this.userId === message.document.ownerId
+      ) {
+        this.messageService.add({
+          key: 'template',
+          severity: 'info',
+          summary: 'Your Document was Updated',
+          detail: `${message.senderEmail} added a new key to ${message.document.document.originalname}.`,
+        });
       }
     });
-    
+  }
+
+  ngOnDestroy(): void {
+    if (this.clickListener) {
+      this.clickListener();
+    }
   }
 
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
   }
-  
 
   fetchDocumentsNames() {
     this.apiService.getDocuments().subscribe({
@@ -124,6 +156,19 @@ export class HeaderComponent {
     const selectedDocument = event;
     if (selectedDocument && selectedDocument.value.id) {
       this.viewDocument(selectedDocument.value.id);
+    }
+  }
+  private onDocumentClick(event: Event): void {
+    const targetElement = event.target as HTMLElement;
+    const profileContainer = document.querySelector('.profile-container');
+    const welcome = document.querySelector('.welcome');
+    console.log('targetElement', targetElement);
+    if (
+      profileContainer &&
+      !profileContainer.contains(targetElement) &&
+      targetElement !== welcome
+    ) {
+      this.dropdownOpen = false;
     }
   }
 }

@@ -39,7 +39,7 @@ export class DocListSharedComponent implements OnInit {
     private apiService: ApiService,
     private dataService: DataService,
     private route: ActivatedRoute,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {}
 
   ngOnInit(): void {

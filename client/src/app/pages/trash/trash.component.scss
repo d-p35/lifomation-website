@@ -106,7 +106,7 @@ $header-height: 0px;
 
 .dashboard {
   // display: flex;
-  background-color: #f8fafd;  
+  background-color: #f8fafd;
   height: 100%; /* Ensures the background covers the entire viewport height */
   width: 100%; /* Ensures the background covers the entire viewport width */
   position: fixed; /* Fixes the background in place */
@@ -133,8 +133,6 @@ $header-height: 0px;
     margin-bottom: 20px;
   }
 
-
-  
   .recent-files-section {
     h2 {
       margin: 0 0 20px;
@@ -187,8 +185,4 @@ $header-height: 0px;
       }
     }
   }
-
-
 }
-
-

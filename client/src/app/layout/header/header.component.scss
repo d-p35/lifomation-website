@@ -57,7 +57,9 @@ header {
     text-decoration: none;
     color: #5f6368;
     font-weight: 500;
-    transition: color 0.3s ease, transform 0.3s ease;
+    transition:
+      color 0.3s ease,
+      transform 0.3s ease;
 
     &:hover {
       color: #202124;
@@ -102,7 +104,6 @@ header {
         display: flex;
       }
 
-
       .welcome {
         font-size: 16px;
         color: #5f6368;
@@ -113,7 +114,7 @@ header {
         padding: 10px;
         overflow: hidden;
         word-wrap: break-word;
-        hyphens: auto;  
+        hyphens: auto;
         white-space: nowrap;
         // max-width: 70%; /* Adjust as needed */
         // word-break: break-word;
@@ -133,7 +134,7 @@ header {
     .welcome {
       display: none;
     }
-    .user-menu{
+    .user-menu {
       gap: 10px;
     }
   }
@@ -147,13 +148,15 @@ header {
   border-radius: 4px;
   cursor: pointer;
   display: flex;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
   white-space: nowrap;
   &.logout-btn {
     background-color: #006dd3;
     color: #ffffff;
     padding: 8px 44px;
-    
+
     &:hover {
       background-color: rgb(6, 177, 244);
       transform: translateY(-2px);
@@ -180,7 +183,6 @@ header {
     }
   }
 }
-
 
 @media (max-width: 768px) {
   header {

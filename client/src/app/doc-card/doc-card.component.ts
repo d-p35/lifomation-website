@@ -26,15 +26,15 @@ export class DocCardComponent implements OnInit {
     private router: Router,
     private apiService: ApiService,
     private messageService: MessageService,
-    private dataService: DataService
+    private dataService: DataService,
   ) {}
 
   ngOnInit(): void {
     this.uploadedAtLocal = this.convertToUserTimezone(
-      new Date(this.document.uploadedAt)
+      new Date(this.document.uploadedAt),
     );
     this.lastOpenedLocal = this.convertToUserTimezone(
-      new Date(this.document.lastOpened)
+      new Date(this.document.lastOpened),
     );
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       this.currentUserId = userId;
@@ -43,7 +43,7 @@ export class DocCardComponent implements OnInit {
 
   convertToUserTimezone(date: Date): string {
     const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000
+      date.getTime() - date.getTimezoneOffset() * 60000,
     );
     return localDate.toLocaleString();
   }

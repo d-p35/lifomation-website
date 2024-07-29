@@ -23,7 +23,7 @@ export class RecentComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private dataService: DataService
+    private dataService: DataService,
   ) {}
 
   ngOnInit(): void {
@@ -44,7 +44,7 @@ export class RecentComponent implements OnInit {
       if (res && res.refresh && res.document) {
         if (res.type == 'delete') {
           this.documents = this.documents.filter(
-            (doc) => doc.id !== res.document.id
+            (doc) => doc.id !== res.document.id,
           );
           this.onDocumentDeleted(this.documents); // Check if no documents left
         } else if (res.type == 'upload') {
@@ -52,10 +52,10 @@ export class RecentComponent implements OnInit {
             {
               ...res.document,
               uploadedAtLocal: this.convertToUserTimezone(
-                new Date(res.document.uploadedAt)
+                new Date(res.document.uploadedAt),
               ),
               lastOpenedLocal: this.convertToUserTimezone(
-                new Date(res.document.lastOpened)
+                new Date(res.document.lastOpened),
               ),
               fileSize: this.getFileSize(res.document.document.size),
             },
@@ -71,14 +71,14 @@ export class RecentComponent implements OnInit {
     this.fetchDocumentsByPage(
       this.nextDocument,
       this.itemsPerPage,
-      this.userId
+      this.userId,
     );
   }
 
   fetchDocumentsByPage(
     next: String | undefined,
     itemsPerPage: number,
-    userId: string
+    userId: string,
   ) {
     this.apiService.getRecentDocuments(next, itemsPerPage, userId).subscribe({
       next: (res) => {
@@ -86,13 +86,13 @@ export class RecentComponent implements OnInit {
           res.documents.map((doc: any) => ({
             ...doc,
             uploadedAtLocal: this.convertToUserTimezone(
-              new Date(doc.uploadedAt)
+              new Date(doc.uploadedAt),
             ),
             lastOpenedLocal: this.convertToUserTimezone(
-              new Date(doc.lastOpened)
+              new Date(doc.lastOpened),
             ),
             fileSize: this.getFileSize(doc.document.size),
-          }))
+          })),
         );
         this.nextDocument = res.nextCursor;
         if (!this.nextDocument) {
@@ -116,7 +116,7 @@ export class RecentComponent implements OnInit {
 
   convertToUserTimezone(date: Date): string {
     const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000
+      date.getTime() - date.getTimezoneOffset() * 60000,
     );
     return localDate.toLocaleString();
   }

@@ -101,9 +101,11 @@ $header-height: 0px;
       background-color: transparent;
       color: red;
       cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
+      transition:
+        background-color 0.3s,
+        color 0.3s;
     }
-    
+
     .cancel-button:hover {
       background-color: #e0e0e0; /* Add hover background color */
     }
@@ -166,7 +168,8 @@ $header-height: 0px;
     word-break: break-word;
   }
 
-  .key-info-item span, input {
+  .key-info-item span,
+  input {
     flex: 1;
     margin-left: 10px;
     word-wrap: break-word;
@@ -194,7 +197,9 @@ $header-height: 0px;
     border: 1px solid #ddd;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
   }
 
   .copy-button:disabled {
@@ -208,7 +213,6 @@ $header-height: 0px;
     transform: translateY(-2px);
   }
 
-
   .edit-button,
   .save-button,
   .cancel-button,
@@ -221,7 +225,9 @@ $header-height: 0px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
   }
 
   .edit-button:hover {
@@ -240,9 +246,11 @@ $header-height: 0px;
     background-color: transparent;
     color: red;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
   }
-  
+
   .cancel-button:hover {
     background-color: #e0e0e0; /* Add hover background color */
   }

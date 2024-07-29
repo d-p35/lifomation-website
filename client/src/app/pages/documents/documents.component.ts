@@ -42,7 +42,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private apiService: ApiService,
     private dataService: DataService,
-    private wsService: WebSocketService
+    private wsService: WebSocketService,
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +59,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
           this.fetchDocumentsByPage(
             this.nextDocument,
             this.itemsPerPage,
-            userId
+            userId,
           );
         } else {
           console.error('User ID not found');
@@ -76,7 +76,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
         ) {
           if (res.type == 'delete') {
             this.documents = this.documents.filter(
-              (doc) => doc.id !== res.document.id
+              (doc) => doc.id !== res.document.id,
             );
             if (this.documents.length === 0) {
               this.loadedAll = true; // Ensures that the message is shown
@@ -86,10 +86,10 @@ export class DocumentsComponent implements OnInit, OnDestroy {
               {
                 ...res.document,
                 uploadedAtLocal: this.convertToUserTimezone(
-                  new Date(res.document.uploadedAt)
+                  new Date(res.document.uploadedAt),
                 ),
                 lastOpenedLocal: this.convertToUserTimezone(
-                  new Date(res.document.lastOpened)
+                  new Date(res.document.lastOpened),
                 ),
                 fileSize: this.getFileSize(res.document.document.size),
               },
@@ -106,21 +106,21 @@ export class DocumentsComponent implements OnInit, OnDestroy {
     this.fetchDocumentsByPage(
       this.nextDocument,
       this.itemsPerPage,
-      this.userId
+      this.userId,
     );
   }
 
   fetchDocumentsByPage(
     next: String | undefined,
     itemsPerPage: number,
-    userId: string
+    userId: string,
   ) {
     this.apiService
       .getDocuments(
         next,
         itemsPerPage,
         userId,
-        this.folderName == 'My Documents' ? undefined : this.folderName
+        this.folderName == 'My Documents' ? undefined : this.folderName,
       )
       .subscribe({
         next: (res) => {
@@ -128,13 +128,13 @@ export class DocumentsComponent implements OnInit, OnDestroy {
             res.documents.map((doc: any) => ({
               ...doc,
               uploadedAtLocal: this.convertToUserTimezone(
-                new Date(doc.uploadedAt)
+                new Date(doc.uploadedAt),
               ),
               lastOpenedLocal: this.convertToUserTimezone(
-                new Date(doc.lastOpened)
+                new Date(doc.lastOpened),
               ),
               fileSize: this.getFileSize(doc.document.size),
-            }))
+            })),
           );
           this.totalRecords = res.count;
           this.nextDocument = res.nextCursor;
@@ -152,7 +152,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   convertToUserTimezone(date: Date): string {
     const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000
+      date.getTime() - date.getTimezoneOffset() * 60000,
     );
     return localDate.toLocaleString();
   }

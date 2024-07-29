@@ -57,7 +57,7 @@ export class DocViewComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
     private wsService: WebSocketService,
-    private messageService : MessageService
+    private messageService: MessageService,
   ) {}
 
   ngOnInit() {
@@ -119,30 +119,53 @@ export class DocViewComponent implements OnInit {
             message.type === 'edit' &&
             message.document.id === this.document.id
           ) {
-            if (message.key!==message.originalKey){delete this.keyInfo[message.originalKey];}
+            if (message.key !== message.originalKey) {
+              delete this.keyInfo[message.originalKey];
+            }
             this.keyInfo[message.key] = message.value;
             this.cdr.detectChanges();
             if (this.userId !== message.document.ownerId) {
-            this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} updated to ${message.value}`});
-            }
-        }
-        
-
-          if (message && message.type === 'delete' && message.document.id === this.document.id) {
-            delete this.keyInfo[message.key];
-            this.cdr.detectChanges();
-            if (this.userId !== message.document.ownerId) {
-              this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} deleted`});
+              this.messageService.add({
+                key: 'template',
+                severity: 'info',
+                summary: 'Current Document was Updated',
+                detail: `Key: ${message.key} updated to ${message.value}`,
+              });
             }
           }
 
-          if (message && message.type === 'add' && message.document.id === this.document.id) {
+          if (
+            message &&
+            message.type === 'delete' &&
+            message.document.id === this.document.id
+          ) {
+            delete this.keyInfo[message.key];
+            this.cdr.detectChanges();
+            if (this.userId !== message.document.ownerId) {
+              this.messageService.add({
+                key: 'template',
+                severity: 'info',
+                summary: 'Current Document was Updated',
+                detail: `Key: ${message.key} deleted`,
+              });
+            }
+          }
+
+          if (
+            message &&
+            message.type === 'add' &&
+            message.document.id === this.document.id
+          ) {
             this.keyInfo[message.key] = message.value;
             this.cdr.detectChanges();
             if (this.userId !== message.document.ownerId) {
-              this.messageService.add({key: 'template', severity:'info', summary:'Current Document was Updated', detail: `Key: ${message.key} added with value ${message.value}`});
+              this.messageService.add({
+                key: 'template',
+                severity: 'info',
+                summary: 'Current Document was Updated',
+                detail: `Key: ${message.key} added with value ${message.value}`,
+              });
             }
-          
           }
         });
       } else {
@@ -180,9 +203,15 @@ export class DocViewComponent implements OnInit {
 
   saveEdit(key: string) {
     if (this.editValue !== null) {
-      
       this.apiService
-        .editKeyInfo(this.document.id, this.newKey, this.newValue, this.userId, this.editValue, this.editingKey)
+        .editKeyInfo(
+          this.document.id,
+          this.newKey,
+          this.newValue,
+          this.userId,
+          this.editValue,
+          this.editingKey,
+        )
         .subscribe({
           next: () => {
             // If the key is changed, update the key and its value
@@ -232,7 +261,12 @@ export class DocViewComponent implements OnInit {
     const lowerCaseEmail = this.shareemail.toLowerCase();
 
     this.apiService
-      .shareDocument(this.document.id, lowerCaseEmail, this.userEmail, this.shareAccessLevel)
+      .shareDocument(
+        this.document.id,
+        lowerCaseEmail,
+        this.userEmail,
+        this.shareAccessLevel,
+      )
       .subscribe({
         next: () => {
           this.shareSuccess = true;
@@ -248,7 +282,6 @@ export class DocViewComponent implements OnInit {
           this.clearShareMessage();
         },
       });
-    
   }
 
   clearShareMessage() {
@@ -258,7 +291,8 @@ export class DocViewComponent implements OnInit {
     }, 3000);
   }
   deleteKeyInfo(key: string) {
-    this.apiService.deleteKeyInfoApi(this.document.id, key, this.userId)
+    this.apiService
+      .deleteKeyInfoApi(this.document.id, key, this.userId)
       .subscribe(() => {
         delete this.keyInfo[key];
       });

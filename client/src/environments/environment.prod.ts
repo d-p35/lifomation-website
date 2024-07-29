@@ -1,4 +1,3 @@
-
 export const environmentProd = {
   // production: true,
   apiEndpoint: 'https://server.lifomation.tech',

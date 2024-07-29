@@ -15,14 +15,17 @@ import { FormsModule } from '@angular/forms';
 export class HomeHeaderComponent {
   isDarkMode = false;
   // Inject the authentication service into your component through the constructor
-  constructor(public auth: AuthService, public router : Router) {}
+  constructor(
+    public auth: AuthService,
+    public router: Router,
+  ) {}
 
   toggleTheme() {
     this.isDarkMode = !this.isDarkMode;
     document.body.classList.toggle('dark-theme', this.isDarkMode);
   }
 
-  login(){
+  login() {
     this.auth.loginWithRedirect();
   }
 }

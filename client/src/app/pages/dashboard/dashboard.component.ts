@@ -19,7 +19,7 @@ export class DashboardComponent implements OnInit {
     public auth: AuthService,
     private router: Router,
     private apiService: ApiService,
-    private dataService: DataService
+    private dataService: DataService,
   ) {}
 
   documents = [];

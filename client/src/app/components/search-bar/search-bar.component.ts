@@ -10,14 +10,16 @@ import { ApiService } from '../../services/api.service';
 @Component({
   selector: 'app-search-bar',
   standalone: true,
-  imports: [  AutoCompleteModule,
+  imports: [
+    AutoCompleteModule,
     FormsModule,
     CommonModule,
     RouterModule,
     UploadComponent,
-    SearchBarComponent],
+    SearchBarComponent,
+  ],
   templateUrl: './search-bar.component.html',
-  styleUrl: './search-bar.component.scss'
+  styleUrl: './search-bar.component.scss',
 })
 export class SearchBarComponent implements OnInit {
   query: string = '';
@@ -26,50 +28,48 @@ export class SearchBarComponent implements OnInit {
   // userId: string = 'google-oauth2|109181326479077174615'; // Replace with actual userId retrieval logic
   userId: string | undefined;
 
-  constructor(private apiService: ApiService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+    private authService: AuthService,
+  ) {}
 
-   getUserId() {
-    this.apiService.getUserId().subscribe((userId: string ) => {
-      if (userId ) {
+  getUserId() {
+    this.apiService.getUserId().subscribe((userId: string) => {
+      if (userId) {
         this.userId = userId;
       } else {
         console.error('User ID not found');
       }
     });
   }
-    
 
   ngOnInit() {
     this.getUserId();
   }
 
-
-
   search(event: any) {
     const query = event.query;
     if (query && this.userId) {
-      this.apiService.searchDocuments(query, this.userId)
-        .subscribe({
-          next: (res) => {
-            this.suggestions = res;
-          },
-          error: (err) => {
-            console.error(err);
-          
+      this.apiService.searchDocuments(query, this.userId).subscribe({
+        next: (res) => {
+          this.suggestions = res;
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
     }
-    });
   }
-}
 
   viewDocument(id: number) {
     const doc = this.suggestions?.find((doc) => doc.id === id);
     if (!doc) {
       return;
     }
-    this.router.navigate(['/'], { skipLocationChange: true })
-    .then(() => { this.router.navigate(['/documents', id]); }
-    );
-
+    this.router.navigate(['/'], { skipLocationChange: true }).then(() => {
+      this.router.navigate(['/documents', id]);
+    });
   }
 
   onSuggestionSelect(event: any) {
@@ -78,5 +78,4 @@ export class SearchBarComponent implements OnInit {
       this.viewDocument(selectedDocument.value.id);
     }
   }
-
 }

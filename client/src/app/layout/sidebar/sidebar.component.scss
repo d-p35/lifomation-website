@@ -44,24 +44,24 @@ $border-radius: 8px;
   }
 
   .logo-icon {
-      img {
-          width: 100%;
-      }
-      width: 50px; /* Adjust the width as needed */
-      height: auto; /* This will maintain the aspect ratio */
+    img {
+      width: 100%;
+    }
+    width: 50px; /* Adjust the width as needed */
+    height: auto; /* This will maintain the aspect ratio */
   }
 
   .logo-name {
-      font-size: 24px;
-      font-weight: 700;
-      color: #006dd3;
-      cursor: pointer;
-      padding-top: 13px;
-      transition: color 0.3s ease;
-      &:hover {
-          color: #6da1ed;
-      }
+    font-size: 24px;
+    font-weight: 700;
+    color: #006dd3;
+    cursor: pointer;
+    padding-top: 13px;
+    transition: color 0.3s ease;
+    &:hover {
+      color: #6da1ed;
     }
+  }
 
   .menu {
     list-style: none;
@@ -80,7 +80,9 @@ $border-radius: 8px;
       display: flex;
       align-items: center;
       cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
       border-radius: 0 $border-radius $border-radius 0;
       i {
         margin-right: 16px;

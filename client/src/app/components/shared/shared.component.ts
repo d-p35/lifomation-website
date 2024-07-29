@@ -3,7 +3,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 @Component({
   selector: 'app-share-document-modal',
   templateUrl: './shared.component.html',
-  styleUrls: ['./shared.component.scss']
+  styleUrls: ['./shared.component.scss'],
 })
 export class ShareDocumentModalComponent {
   shareemail: string = '';

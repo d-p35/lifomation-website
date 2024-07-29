@@ -3,7 +3,7 @@ $header-height: 0px;
 .dashboard {
   // display: flex;
   background-color: #f8fafd;
-  // border-radius: 20px;  
+  // border-radius: 20px;
   height: 100%; /* Ensures the background covers the entire viewport height */
   width: 100%; /* Ensures the background covers the entire viewport width */
   // top: 0; /* Aligns the background to the top of the viewport */
@@ -17,7 +17,8 @@ $header-height: 0px;
   margin-left: $sidebar-width;
   width: calc(100% - $sidebar-width);
   margin-top: $header-height; /* Adjust margin to account for the header */
-  @media (max-width: 768px) { /* Adjust the max-width value as needed */
+  @media (max-width: 768px) {
+    /* Adjust the max-width value as needed */
     margin-left: 0;
     width: 100%;
   }
@@ -28,7 +29,7 @@ $header-height: 0px;
   background-color: #f4f5f7;
   border-radius: 20px;
   min-height: 100vh;
-  
+
   .files-section,
   .suggestions-section,
   .recent-files-section {
@@ -183,5 +184,3 @@ $header-height: 0px;
     }
   }
 }
-
-

@@ -52,6 +52,7 @@ export class UploadComponent implements OnInit {
   selectedCategories: string[] = [];
   categories: string[] = [];
   changeCategoryIsProcessing: boolean = false;
+
   @ViewChild('fileInput') fileInput!: ElementRef;
 
   constructor(
@@ -59,13 +60,13 @@ export class UploadComponent implements OnInit {
     private messageService: MessageService,
     private dataService: DataService,
     private primengConfig: PrimeNGConfig,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
   ) {}
 
   ngOnInit(): void {
     this.primengConfig.ripple = true;
     this.categories = this.categoryService.getCategories();
-
+    document.addEventListener('click', this.handleClickOutside.bind(this));
     combineLatest([
       this.apiService.getUserId(),
       this.apiService.getUserEmail(),
@@ -82,10 +83,19 @@ export class UploadComponent implements OnInit {
         } else {
           console.error('User email not found');
         }
-      }
+      },
     );
   }
-
+  handleClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const uploadElement = document.querySelector('.upload-container');
+    if (uploadElement && !uploadElement.contains(target)) {
+      this.visible = false;
+    }
+  }
+  ngOnDestroy() {
+    document.removeEventListener('click', this.handleClickOutside.bind(this));
+  }
   showDialog() {
     this.visible = true;
   }
@@ -110,7 +120,7 @@ export class UploadComponent implements OnInit {
           .changeCategory(
             document.id,
             userId,
-            this.selectedCategories.join(',')
+            this.selectedCategories.join(','),
           )
           .subscribe({
             next: (res) => {
