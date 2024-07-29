@@ -49,8 +49,6 @@ export class DocCardComponent implements OnInit {
   }
 
   getDocumentName(): string {
-    console.log(this.document);
-    console.log(this.currentUserId);
     return this.document?.document?.originalname || 'Unknown';
   }
 
