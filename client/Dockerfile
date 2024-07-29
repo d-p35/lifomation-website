@@ -16,16 +16,19 @@ RUN npm install
 COPY . .
 
 # Build the project
-RUN npm run build
+RUN npm run build --prod
 
-# Expose port 4200
-# EXPOSE 4200
-
-# Serve these static files with NGINX.
+# Stage 2: Serve the static files with NGINX
 FROM nginx:1.21.6-alpine
-COPY --from=build /app/dist/client/browser /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
 
-# # Start the Angular application
-# CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "4200"]
+# Copy the built files from the previous stage
+COPY --from=build /app/dist/client/browser /usr/share/nginx/html
+
+# Copy the nginx configuration file
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start NGINX
+CMD ["nginx", "-g", "daemon off;"]
