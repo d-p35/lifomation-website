@@ -169,11 +169,12 @@ export class ApiService {
   shareDocument(
     documentId: number,
     email: string,
+    senderEmail: string | undefined,
     accessLevel: string
   ): Observable<any> {
     return this.http.post(
       `${this.endpoint}/api/documents/${documentId}/share`,
-      { email, accessLevel }
+      { email, senderEmail, accessLevel }
     );
   }
 
