@@ -21,6 +21,7 @@
         </div>
       </section>
 
+      <ng-container *ngIf="documents.length > 0">
       <section class="suggestions-section">
         <h2>Suggestions</h2>
        <div class="suggestions-list">
@@ -32,7 +33,7 @@
           </div>
         </div> 
       </section>
-      
+    </ng-container>
     </main>
   </div>
 </div>
