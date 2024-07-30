@@ -119,8 +119,8 @@ export class UploadComponent implements OnInit {
         this.apiService
           .changeCategory(
             document.id,
-            userId,
             this.selectedCategories.join(','),
+            userId,
           )
           .subscribe({
             next: (res) => {
