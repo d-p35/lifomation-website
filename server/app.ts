@@ -13,19 +13,33 @@ import MeiliSearch from "meilisearch";
 import synonyms from "./synonyms.json";
 import { initWebSocketServer } from "./services/websocket";
 import * as dotenv from "dotenv";
-dotenv.config({
-  path: `${__dirname}/../.env`,
-});
+import path from "path";
+
+// Specify the path to the .env file
+
+const envPath =
+  process.env.NODE_ENV === "production"
+    ? path.resolve(__dirname, "../.env")
+    : path.resolve(__dirname, "/.env");
+
+dotenv.config({ path: envPath });
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-
+console.log(
+  process.env.NODE_ENV == "production"
+    ? "App running in production"
+    : "App running locally"
+);
 
 app.use(express.json());
 const corsOptions = {
-  origin: process.env.NODE_ENV=='production'?'https://lifomation.tech':"http://localhost:4200",
+  origin:
+    process.env.NODE_ENV == "production"
+      ? "https://lifomation.tech"
+      : "http://localhost:4200",
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -35,19 +49,27 @@ app.use(bodyParser.urlencoded({ extended: true }));
 dataSource
   .initialize()
   .then(() => {
-    console.log(process.env.NODE_ENV=='production'?'App running in production':"App running locally" );
+    console.log(
+      process.env.NODE_ENV == "production"
+        ? "App running in production"
+        : "App running locally"
+    );
 
-
-    const client = new MeiliSearch({ host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://localhost:7700" });
+    const client = new MeiliSearch({
+      host:
+        process.env.NODE_ENV == "production"
+          ? "https://meilisearch.lifomation.tech"
+          : "http://localhost:7700",
+    });
     const index = client.index("documents");
 
     index.updateFilterableAttributes(["ownerId", "sharedUsers"]).then(() => {
-
       index.updateSynonyms(synonyms).then(() => {
-
-        index.updateSearchableAttributes(["title", "text", "category"]).then(() => {
-          app.use("/api/users", UsersRouter);
-          app.use("/api/documents", DocumentsRouter);
+        index
+          .updateSearchableAttributes(["title", "text", "category"])
+          .then(() => {
+            app.use("/api/users", UsersRouter);
+            app.use("/api/documents", DocumentsRouter);
 
             const server = app.listen(PORT, () => {
               console.log(`Server started on port ${PORT}`);
