@@ -6,7 +6,7 @@
     "serve": "nodemon ./app.ts",
     "build": "tsc",
     "start": "node dist/app.js",
-    "dev": "ts-node app.ts"
+     "dev": "NODE_ENV=development ts-node app.ts"
   },
   "keywords": [],
   "author": "",
