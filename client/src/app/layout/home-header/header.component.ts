@@ -26,6 +26,6 @@ export class HomeHeaderComponent {
   }
 
   login() {
-    this.auth.loginWithRedirect();
+    this.auth.loginWithPopup();
   }
 }
