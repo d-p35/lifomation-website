@@ -6,7 +6,7 @@
     "serve": "nodemon ./app.ts",
     "build": "tsc",
     "start": "node dist/app.js",
-     "dev": "NODE_ENV=development ts-node app.ts"
+    "dev": "NODE_ENV=development ts-node app.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +19,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-oauth2-jwt-bearer": "^1.6.0",
     "extract-zip": "^2.0.1",
+    "helmet": "^8.0.0",
     "ibm-watson": "^9.0.1",
     "meilisearch": "^0.41.0",
     "moment": "^2.30.1",

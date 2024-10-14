@@ -14,6 +14,8 @@ import synonyms from "./synonyms.json";
 import { initWebSocketServer } from "./services/websocket";
 import * as dotenv from "dotenv";
 import path from "path";
+import helmet from "helmet";
+import { auth } from "express-oauth2-jwt-bearer";
 
 // Specify the path to the .env file
 
@@ -26,7 +28,35 @@ dotenv.config({ path: envPath });
 
 const app = express();
 
+
+
 const PORT = process.env.PORT || 3000;
+const CLIENT_ORIGIN_URL = process.env.CLIENT_ORIGIN_URL;
+
+console.log(CLIENT_ORIGIN_URL)
+
+app.use(
+  helmet({
+    hsts: {
+      maxAge: 31536000,
+    },
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: {
+        "default-src": ["'none'"],
+        "frame-ancestors": ["'none'"],
+      },
+    },
+    frameguard: {
+      action: "deny",
+    },
+  })
+);
+
+// const jwtCheck = auth({
+//   audience: 'https://lifomation.tech',
+//   issuerBaseURL: 'https://dev-8i2xj8leal3jbezx.us.auth0.com/',
+// });
 
 console.log(
   process.env.NODE_ENV == "production"
@@ -42,9 +72,21 @@ const corsOptions = {
       : "http://localhost:4200",
   credentials: true,
 };
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+
+app.use(
+  cors({
+    origin: CLIENT_ORIGIN_URL,
+    methods: ["GET"],
+    allowedHeaders: ["Authorization", "Content-Type"],
+    maxAge: 86400,
+  })
+);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// app.use(jwtCheck);
 
 dataSource
   .initialize()
