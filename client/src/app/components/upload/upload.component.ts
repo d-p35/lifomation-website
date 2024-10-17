@@ -120,7 +120,6 @@ export class UploadComponent implements OnInit {
           .changeCategory(
             document.id,
             this.selectedCategories.join(','),
-            userId,
           )
           .subscribe({
             next: (res) => {

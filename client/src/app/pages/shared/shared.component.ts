@@ -81,31 +81,6 @@ export class SharedComponent implements OnInit {
     itemsPerPage: number,
     userId: string,
   ) {
-    this.apiService.getSharedDocuments(next, itemsPerPage, userId).subscribe({
-      next: (res) => {
-        this.documents = this.documents.concat(
-          res.documents.map((doc: any) => ({
-            ...doc,
-            uploadedAtLocal: this.convertToUserTimezone(
-              new Date(doc.uploadedAt),
-            ),
-            lastOpenedLocal: this.convertToUserTimezone(
-              new Date(doc.lastOpened),
-            ),
-            fileSize: this.getFileSize(doc.document.size),
-          })),
-        );
-        this.nextDocument = res.nextCursor;
-        if (!this.nextDocument) {
-          this.loadedAll = true;
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      },
-    });
   }
 
   convertToUserTimezone(date: Date): string {

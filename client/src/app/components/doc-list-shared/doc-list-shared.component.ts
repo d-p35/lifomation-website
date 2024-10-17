@@ -66,14 +66,5 @@ export class DocListSharedComponent implements OnInit {
   onScroll() {
     this.scroll.emit();
   }
-  starDocument(doc: any, event: Event) {
-    event.stopPropagation();
-    doc.starred = !doc.starred;
-    this.apiService.starDocument(doc.id, doc.starred, this.userId).subscribe({
-      next: () => {},
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
+
 }

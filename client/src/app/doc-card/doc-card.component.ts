@@ -78,7 +78,7 @@ export class DocCardComponent implements OnInit {
     event.stopPropagation();
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.apiService.deleteDocument(id, userId).subscribe({
+        this.apiService.deleteDocument(id).subscribe({
           next: (res) => {
             this.dataService.notifyOther({
               refresh: true,

@@ -22,28 +22,13 @@ export class TrashComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.fetchDocuments();
+    // this.fetchDocuments();
     this.dataService.notifyObservable$.subscribe((res) => {
       if (res && res.refresh) {
-        this.fetchDocuments();
+        // this.fetchDocuments();
       }
     });
   }
 
-  fetchDocuments() {
-    this.apiService.getUserId().subscribe((userId: string | undefined) => {
-      if (userId && userId !== 'Unknown UID') {
-        this.apiService.getRecentDocuments(userId).subscribe({
-          next: (res) => {
-            this.documents = res.documents;
-          },
-          error: (err) => {
-            console.error(err);
-          },
-        });
-      } else {
-        console.error('User ID not found');
-      }
-    });
-  }
+  fetchDocuments() {}
 }

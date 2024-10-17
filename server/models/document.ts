@@ -8,13 +8,11 @@ import {
 import { PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 import { User } from "./user";
 import { AllowNull } from "sequelize-typescript";
-import { DocumentPermission } from "./documentPermission";
 
-interface DocumentAttributes {
+interface DocumentAttributes{
   id: number;
   document: Express.Multer.File;
   uploadedAt: Date;
-
   owner: User;
   ownerId: string;
   category: string;
@@ -41,13 +39,9 @@ export class Document implements DocumentAttributes {
   @Column()
   ownerId: string;
 
-  @Column()
-  email: string;
-
   @ManyToOne(() => User, (user) => user.documents)
   @JoinColumn({ name: "ownerId" })
   owner: User;
 
-  @OneToMany(() => DocumentPermission, (permission) => permission.document)
-  permissions: DocumentPermission[];
+
 }

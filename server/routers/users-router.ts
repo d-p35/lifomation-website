@@ -19,7 +19,6 @@ UsersRouter.post("/", async (req: Request, res: Response) => {
       id: req.body.userId,
       email: req.body.email,
       documents: [],
-      permissions: [],
     };
     const results = await userRepo.save(newUser);
     res.status(201).json(results);
@@ -30,8 +29,9 @@ UsersRouter.post("/", async (req: Request, res: Response) => {
 
 UsersRouter.get("/", validateAccessToken, async (req: Request, res: Response) => {
   try {
+    console.log("Token"+ req.auth?.payload.sub)
     const allUsers = await userRepo.find();
-    res.status(200).json({ users: allUsers });
+    res.status(200).json({ users: req.auth });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
