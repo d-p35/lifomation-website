@@ -33,7 +33,7 @@ export class DocListComponent implements OnInit {
   @Input() loadedAll: boolean = false;
   @Output() scroll = new EventEmitter<void>();
   @Output() documentDeleted = new EventEmitter<any[]>();
-  userId: string | undefined;
+  // userId: string | undefined;
 
   constructor(
     private router: Router,
@@ -44,11 +44,11 @@ export class DocListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.apiService.getUserId().subscribe((userId: string | undefined) => {
-      if (userId && userId !== 'Unknown UID') {
-        this.userId = userId;
-      }
-    });
+    // this.apiService.getUserId().subscribe((userId: string | undefined) => {
+    //   if (userId && userId !== 'Unknown UID') {
+    //     this.userId = userId;
+    //   }
+    // });
   }
 
   getIcon(mimetype: string): string {
@@ -68,7 +68,7 @@ export class DocListComponent implements OnInit {
     event.stopPropagation();
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
-        this.apiService.deleteDocument(id, userId).subscribe({
+        this.apiService.deleteDocument(id).subscribe({
           next: () => {
             this.documents = this.documents.filter((doc) => doc.id !== id);
             // to check if no documents are left
@@ -87,14 +87,5 @@ export class DocListComponent implements OnInit {
   onScroll() {
     this.scroll.emit();
   }
-  starDocument(doc: any, event: Event) {
-    event.stopPropagation();
-    doc.starred = !doc.starred;
-    this.apiService.starDocument(doc.id, doc.starred, this.userId).subscribe({
-      next: () => {},
-      error: (err) => {
-        console.error(err);
-      },
-    });
-  }
+  
 }

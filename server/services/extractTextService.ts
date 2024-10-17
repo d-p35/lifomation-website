@@ -34,7 +34,6 @@ export async function processImageFile(
 
   const document = new Document();
   document.document = file;
-  document.ownerId = ownerId;
   document.keyInfo = keyInfo;
   document.category = categories
     .split(",")
@@ -73,9 +72,9 @@ export async function processPdfFile(
       textdataFilePath
     );
 
+
     const document = new Document();
     document.document = file;
-    document.ownerId = ownerId;
 
     // await index.addDocuments([{ id: document.id, text: combinedText, ownerId }]);
     const { categories, keyInfo } = await geminiTextClassification(

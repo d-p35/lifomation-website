@@ -30,6 +30,10 @@ export class DashboardComponent implements OnInit {
       if (res && res.refresh) {
         this.fetchDocuments();
       }
+
+      this.apiService.getUsers().subscribe((userId: string | undefined) => {
+        console.log(userId);
+      })
     });
   }
 
@@ -104,24 +108,7 @@ export class DashboardComponent implements OnInit {
     { icon: '/pdf-icon.png' },
   ];
 
-  fetchDocuments() {
-    this.apiService.getUserId().subscribe((userId: string | undefined) => {
-      if (userId && userId !== 'Unknown UID') {
-        this.apiService.getRecentDocuments(undefined, 3, userId).subscribe({
-          next: (res) => {
-            this.documents = res.documents;
-            if (this.documents.length > 3)
-              this.documents = this.documents.slice(0, 3);
-          },
-          error: (err) => {
-            console.error(err);
-          },
-        });
-      } else {
-        console.error('User ID not found');
-      }
-    });
-  }
+  fetchDocuments() { }
 
   OnFolderClick(folderName: String) {
     this.router.navigate(['/documents'], {

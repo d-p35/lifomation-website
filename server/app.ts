@@ -6,7 +6,6 @@ import { dataSource } from "./db/database";
 import { UsersRouter } from "./routers/users-router";
 import {
   DocumentsRouter,
-  shareDocument,
   editDocument,
 } from "./routers/documents-router";
 import MeiliSearch from "meilisearch";
@@ -16,6 +15,7 @@ import * as dotenv from "dotenv";
 import path from "path";
 import helmet from "helmet";
 import { auth } from "express-oauth2-jwt-bearer";
+import { validateAccessToken } from "./middleware/validateToken";
 
 // Specify the path to the .env file
 
@@ -58,6 +58,8 @@ app.use(
 //   issuerBaseURL: 'https://dev-8i2xj8leal3jbezx.us.auth0.com/',
 // });
 
+
+
 console.log(
   process.env.NODE_ENV == "production"
     ? "App running in production"
@@ -75,18 +77,16 @@ const corsOptions = {
 // app.use(cors(corsOptions));
 
 app.use(
-  cors({
-    origin: CLIENT_ORIGIN_URL,
-    methods: ["GET"],
-    allowedHeaders: ["Authorization", "Content-Type"],
-    maxAge: 86400,
-  })
+  cors(corsOptions)
 );
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // app.use(jwtCheck);
+
+
+app.use(validateAccessToken);
 
 dataSource
   .initialize()
@@ -119,7 +119,7 @@ dataSource
 
             // Initialize WebSocket server
             const wss = initWebSocketServer(server);
-            shareDocument(wss);
+
             editDocument(wss);
           });
       });

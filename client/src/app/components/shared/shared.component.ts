@@ -13,11 +13,11 @@ export class ShareDocumentModalComponent {
 
   @Output() closeModal = new EventEmitter<void>();
 
-  shareDocument() {
-    // Implement sharing logic here
-    this.shareMessage = 'Document shared successfully!';
-    this.shareSuccess = true;
-  }
+  // shareDocument() {
+  //   // Implement sharing logic here
+  //   this.shareMessage = 'Document shared successfully!';
+  //   this.shareSuccess = true;
+  // }
 
   close() {
     this.closeModal.emit();

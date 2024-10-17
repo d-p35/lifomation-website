@@ -63,55 +63,46 @@ export class ApiService {
   getDocuments(
     cursor?: String,
     rows?: number,
-    userId?: string,
     folderName?: string,
   ): Observable<any> {
     cursor = cursor ?? '';
     rows = rows ?? 10;
     folderName = folderName ?? '';
     return this.http.get(
-      `${this.endpoint}/api/documents?cursor=${cursor}&rows=${rows}&userId=${userId}&categoryName=${folderName}`,
+      `${this.endpoint}/api/documents?cursor=${cursor}&rows=${rows}&categoryName=${folderName}`,
     );
   }
-  getRecentDocuments(
-    cursor?: String,
-    rows?: number,
-    userId?: string,
-  ): Observable<any> {
-    cursor = cursor ?? '';
-    rows = rows ?? 10;
-    userId = userId ?? '';
+//   getRecentDocuments(
+//     cursor?: String,
+//     rows?: number,
+//   ): Observable<any> {
+// }
+
+  getDocument(documentId: number): Observable<any> {
     return this.http.get(
-      this.endpoint +
-        `/api/documents/recent?userId=${userId}&&cursor=${cursor}&rows=${rows}`,
+      this.endpoint + `/api/documents/${documentId}`,
     );
   }
 
-  getDocument(documentId: number, userId: String): Observable<any> {
-    return this.http.get(
-      this.endpoint + `/api/documents/${documentId}?userId=${userId}`,
-    );
-  }
-
-  deleteDocument(documentId: number, userId: String): Observable<any> {
+  deleteDocument(documentId: number): Observable<any> {
     return this.http.delete(
-      this.endpoint + `/api/documents/${documentId}?userId=${userId}`,
+      this.endpoint + `/api/documents/${documentId}`,
     );
   }
 
-  getFile(documentId: number, userId: String): Observable<Blob> {
+  getFile(documentId: number): Observable<Blob> {
     return this.http.get(
-      this.endpoint + `/api/documents/${documentId}/file?userId=${userId}`,
+      this.endpoint + `/api/documents/${documentId}/file`,
       {
         responseType: 'blob',
       },
     );
   }
 
-  updateLastOpened(documentId: number, userId: String): Observable<any> {
+  updateLastOpened(documentId: number): Observable<any> {
     return this.http.patch(
       this.endpoint +
-        `/api/documents/lastOpened/${documentId}?userId=${userId}`,
+        `/api/documents/lastOpened/${documentId}`,
       { time: new Date().toISOString() },
     );
   }
@@ -125,117 +116,80 @@ export class ApiService {
   changeCategory(
     documentId: number,
     category: string,
-    userId: String,
   ): Observable<any> {
     return this.http.patch(
-      this.endpoint + `/api/documents/category/${documentId}?userId=${userId}`,
+      this.endpoint + `/api/documents/category/${documentId}`,
       { category },
     );
   }
 
-  starDocument(
-    documentId: number,
-    starred: boolean,
-    userId: String | undefined,
-  ): Observable<any> {
-    return this.http.patch(
-      this.endpoint + `/api/documents/starred/${documentId}/file`,
-      { starred, userId },
-    );
-  }
+  // starDocument(
+  //   documentId: number,
+  //   starred: boolean,
+  //   userId: String | undefined,
+  // ): Observable<any> {
+  //   return this.http.patch(
+  //     this.endpoint + `/api/documents/starred/${documentId}/file`,
+  //     { starred, userId },
+  //   );
+  // }
 
-  getStarredDocuments(
-    cursor?: String,
-    rows?: number,
-    userId?: string,
-  ): Observable<any> {
-    cursor = cursor ?? '';
-    rows = rows ?? 10;
-    userId = userId ?? '';
-    return this.http.get(
-      this.endpoint +
-        `/api/documents/star?userId=${userId}&&cursor=${cursor}&rows=${rows}`,
-    );
-  }
+  // getStarredDocuments(
+  //   cursor?: String,
+  //   rows?: number,
+  // ): Observable<any> {
+  //   cursor = cursor ?? '';
+  //   rows = rows ?? 10;
+  //   return this.http.get(
+  //     this.endpoint +
+  //       `/api/documents/star?userId=${userId}&&cursor=${cursor}&rows=${rows}`,
+  //   );
+  // }
 
   // Get documents shared with the user
-  getSharedDocuments(
-    cursor?: String,
-    rows?: number,
-    email?: string,
-  ): Observable<any> {
-    cursor = cursor ?? '';
-    rows = rows ?? 10;
-    email = email ?? '';
-    return this.http.get(
-      `${this.endpoint}/api/documents/shared?userId=${email}&&cursor=${cursor}&rows=${rows}`,
-    );
-  }
+
 
   // Share a document with another user
-  shareDocument(
-    documentId: number,
-    email: string,
-    senderEmail: string | undefined,
-    accessLevel: string,
-  ): Observable<any> {
-    return this.http.post(
-      `${this.endpoint}/api/documents/${documentId}/share`,
-      { email, senderEmail, accessLevel },
-    );
-  }
+
 
   // Get permissions for a document
-  getDocumentPermissions(documentId: number, userId: String): Observable<any> {
-    return this.http.get(
-      `${this.endpoint}/api/documents/${documentId}/permissions?userId=${userId}`,
-    );
-  }
 
   // Remove a permission from a document
-  removeDocumentPermission(documentId: number, email: string): Observable<any> {
-    return this.http.delete(
-      `${this.endpoint}/api/documents/${documentId}/share`,
-      { body: { userId: email } },
-    );
-  }
 
   editKeyInfo(
     documentId: number,
     key: string,
     newValue: string,
-    userId: string | undefined,
     editValue: string,
     editkey: string | null,
   ): Observable<any> {
-    userId = userId ?? '';
     editValue = editValue ?? '';
     return this.http.put(
       `${this.endpoint}/api/documents/${documentId}/key-info`,
-      { key, newValue, userId, editValue, editkey },
+      { key, newValue, editValue, editkey },
     );
   }
   addKeyInfo(
     documentId: number,
     key: string,
     value: string,
-    userId: string | undefined,
   ): Observable<any> {
-    userId = userId ?? '';
     return this.http.post(
       `${this.endpoint}/api/documents/${documentId}/addkey-info`,
-      { key, value, userId },
+      { key, value },
     );
   }
   deleteKeyInfoApi(
     documentId: number,
     key: string,
-    userId: string | undefined,
   ): Observable<any> {
-    userId = userId ?? '';
     return this.http.delete(
       `${this.endpoint}/api/documents/${documentId}/delkey-info`,
-      { body: { key, userId } },
+      { body: { key } },
     );
+  }
+
+  getUsers(): Observable<any> {
+    return this.http.get(`${this.endpoint}/api/users`);
   }
 }
