@@ -119,7 +119,6 @@ export class DocumentsComponent implements OnInit, OnDestroy {
       .getDocuments(
         next,
         itemsPerPage,
-        userId,
         this.folderName == 'My Documents' ? undefined : this.folderName,
       )
       .subscribe({

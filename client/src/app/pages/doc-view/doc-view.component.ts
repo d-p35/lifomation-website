@@ -72,29 +72,18 @@ export class DocViewComponent implements OnInit {
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
         this.userId = userId;
-        this.apiService.getFile(i, userId).subscribe({
+        this.apiService.getFile(i).subscribe({
           next: (blob: Blob) => {
             this.documentType = blob.type === 'application/pdf' ? 'pdf' : null;
             const objectUrl = URL.createObjectURL(blob);
             this.documentUrl =
               this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
 
-            this.apiService.getDocument(i, userId).subscribe({
+            this.apiService.getDocument(i).subscribe({
               next: (res: any) => {
                 this.loading = false;
                 this.document = res.document;
-                this.keyInfo = res.document.keyInfo;
-
-                this.apiService.getDocumentPermissions(i, userId).subscribe({
-                  next: (res: any) => {
-                    if (res.permissions.accessLevel === 'read') {
-                      this.editDisabled = true;
-                    }
-                  },
-                  error: (err) => {
-                    console.error(err);
-                  },
-                });
+                this.keyInfo = res.document.keyInfo;;
               },
               error: (err) => {
                 console.error(err);
@@ -106,7 +95,7 @@ export class DocViewComponent implements OnInit {
           },
         });
 
-        this.apiService.updateLastOpened(i, userId).subscribe({
+        this.apiService.updateLastOpened(i).subscribe({
           next: () => {},
           error: (err) => {
             console.error(err);
@@ -208,7 +197,6 @@ export class DocViewComponent implements OnInit {
           this.document.id,
           this.newKey,
           this.newValue,
-          this.userId,
           this.editValue,
           this.editingKey,
         )
@@ -238,7 +226,7 @@ export class DocViewComponent implements OnInit {
   addKeyInfo() {
     if (this.newKey && this.newValue) {
       this.apiService
-        .addKeyInfo(this.document.id, this.newKey, this.newValue, this.userId)
+        .addKeyInfo(this.document.id, this.newKey, this.newValue)
         .subscribe({
           next: () => {
             this.keyInfo[this.newKey] = this.newValue;
@@ -254,35 +242,7 @@ export class DocViewComponent implements OnInit {
     this.displayAddKeyInfoModal = false;
   }
 
-  shareDocument() {
-    if (!this.document || !this.shareemail || !this.shareAccessLevel) {
-      return;
-    }
-    const lowerCaseEmail = this.shareemail.toLowerCase();
-
-    this.apiService
-      .shareDocument(
-        this.document.id,
-        lowerCaseEmail,
-        this.userEmail,
-        this.shareAccessLevel,
-      )
-      .subscribe({
-        next: () => {
-          this.shareSuccess = true;
-          this.shareMessage = 'Document shared successfully!';
-          this.clearShareMessage();
-          this.displayShareDocumentModal = false;
-        },
-        error: (err) => {
-          console.error(err);
-          this.shareSuccess = false;
-          this.shareMessage =
-            'Failed to share document: ' + (err.error?.message || err.message);
-          this.clearShareMessage();
-        },
-      });
-  }
+  shareDocument() {}
 
   clearShareMessage() {
     setTimeout(() => {
@@ -292,7 +252,7 @@ export class DocViewComponent implements OnInit {
   }
   deleteKeyInfo(key: string) {
     this.apiService
-      .deleteKeyInfoApi(this.document.id, key, this.userId)
+      .deleteKeyInfoApi(this.document.id, key)
       .subscribe(() => {
         delete this.keyInfo[key];
       });
