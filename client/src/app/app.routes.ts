@@ -15,6 +15,7 @@ import { StarredComponent } from './pages/starred/starred.component';
 import { TrashComponent } from './pages/trash/trash.component';
 import { SharedComponent } from './pages/shared/shared.component';
 import { CreditsComponent } from './pages/credits/credits.component';
+import { GovernmentUtilitiesComponent } from './pages/government-utilities/government-utilities.component';
 
 export const routes: Routes = [
   // Add your routes here
@@ -52,6 +53,11 @@ export const routes: Routes = [
   {
     path: 'trash',
     component: TrashComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'government-and-utilities',
+    component: GovernmentUtilitiesComponent,
     canActivate: [AuthGuard],
   },
   {
