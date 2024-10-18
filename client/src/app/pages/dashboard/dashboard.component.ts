@@ -31,9 +31,6 @@ export class DashboardComponent implements OnInit {
         this.fetchDocuments();
       }
 
-      this.apiService.getUsers().subscribe((userId: string | undefined) => {
-        console.log(userId);
-      })
     });
   }
 
@@ -72,42 +69,6 @@ export class DashboardComponent implements OnInit {
     //   icon: 'pi-credit-card',
     //   title: 'Warranties and Memberships',
     // },
-  ];
-
-  suggestions = [
-    {
-      icon: '/doc-icon.png',
-      title: 'Driver License.doc',
-      sharedUsers: 12,
-      size: '2.8 MB',
-      lastModified: 'Dec 13, 2022',
-    },
-    {
-      icon: '/doc-icon.png',
-      title: 'Tax2020.pdf',
-      sharedUsers: 5,
-      size: '242 MB',
-      lastModified: 'Dec 12, 2022',
-    },
-    {
-      icon: '/pdf-icon.png',
-      title: 'dsfd.png',
-      sharedUsers: 0,
-      size: '1.8 MB',
-      lastModified: 'Dec 12, 2022',
-    },
-  ];
-
-  recentFiles = [
-    { icon: '/doc-icon.png' },
-    { icon: '/doc-icon.png' },
-    { icon: '/doc-icon.png' },
-    { icon: '/pdf-icon.png' },
-    { icon: '/pdf-icon.png' },
-    { icon: '/doc-icon.png' },
-    { icon: '/pdf-icon.png' },
-    { icon: '/doc-icon.png' },
-    { icon: '/pdf-icon.png' },
   ];
 
   fetchDocuments() { }
