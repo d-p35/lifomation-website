@@ -5,9 +5,9 @@ import { port } from "./config/config";
 import { dataSource } from "./db/database";
 import { UsersRouter } from "./routers/users-router";
 import {
-  DocumentsRouter,
-  editDocument,
+  DocumentsRouter
 } from "./routers/documents-router";
+
 import MeiliSearch from "meilisearch";
 import synonyms from "./synonyms.json";
 import { initWebSocketServer } from "./services/websocket";
@@ -16,6 +16,7 @@ import path from "path";
 import helmet from "helmet";
 import { auth } from "express-oauth2-jwt-bearer";
 import { validateAccessToken } from "./middleware/validateToken";
+import { GovernmentRouter } from "./routers/government-router";
 
 // Specify the path to the .env file
 
@@ -112,6 +113,7 @@ dataSource
           .then(() => {
             app.use("/api/users", UsersRouter);
             app.use("/api/documents", DocumentsRouter);
+            app.use("/api/government", GovernmentRouter);
 
             const server = app.listen(PORT, () => {
               console.log(`Server started on port ${PORT}`);
@@ -120,7 +122,7 @@ dataSource
             // Initialize WebSocket server
             const wss = initWebSocketServer(server);
 
-            editDocument(wss);
+            
           });
       });
     });

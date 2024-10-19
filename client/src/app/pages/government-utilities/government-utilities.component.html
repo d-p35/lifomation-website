@@ -21,7 +21,10 @@
           </div>
           
           <div *ngIf="selectedTab === 'folder-info'">
-            <app-folder-info></app-folder-info>
+            <app-folder-info
+              [folderInfo]="folderInfo"
+              [folderName]="folderName"
+              ></app-folder-info>
           </div>
           
           <div *ngIf="selectedTab === 'documents'" class="document-view-container">

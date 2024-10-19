@@ -19,8 +19,9 @@ import { WebSocketService } from '../../services/websocket.service';
 })
 export class GovernmentUtilitiesComponent {
   documents: any[] = [];
-  folderName: string = 'My Documents';
+  folderInfo: any[]=[];
   nextDocument: String | undefined;
+  folderName: string = 'government';
   itemsPerPage: number = 10;
   totalRecords: number = 0;
   loadedAll: boolean = false;
@@ -37,48 +38,39 @@ export class GovernmentUtilitiesComponent {
   ) {}
 
   ngOnInit(): void {
-    this.dataService.notifyObservable$.subscribe((res) => {
-      if (res && res.refresh) {
-        if (
-          res.document &&
-          (res.document.category.split(',')[0] == this.folderName ||
-            this.folderName == 'My Documents')
-        ) {
-          if (res.type == 'delete') {
-            this.documents = this.documents.filter(
-              (doc) => doc.id !== res.document.id,
-            );
-            if (this.documents.length === 0) {
-              this.loadedAll = true; // Ensures that the message is shown
-            }
-          } else if (res.type == 'upload') {
-            this.documents = [
-              {
-                ...res.document,
-                uploadedAtLocal: this.convertToUserTimezone(
-                  new Date(res.document.uploadedAt),
-                ),
-                lastOpenedLocal: this.convertToUserTimezone(
-                  new Date(res.document.lastOpened),
-                ),
-                fileSize: this.getFileSize(res.document.document.size),
-              },
-              ...this.documents,
-            ];
-          }
-        }
-      }
-    });
-  }
-
-  onScroll() {
-    if (!this.userId || this.loadedAll) return;
     this.fetchDocumentsByPage(
       this.nextDocument,
       this.itemsPerPage,
-      this.userId,
+    );
+
+    this.fetchFolderInfo();
+  }
+
+  onScroll() {
+    if (this.loadedAll) return;
+    this.fetchDocumentsByPage(
+      this.nextDocument,
+      this.itemsPerPage,
     );
   }
+
+
+  fetchFolderInfo(){
+    this.apiService.getFolderInfo('government').subscribe({
+      next: (res) => {
+        for (let key in res.folderInfo){
+          this.folderInfo.push({ key, value:res.folderInfo[key]});
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      },
+    });
+  }
+
+
 
 
   switchTab(tab: string) {
@@ -88,7 +80,6 @@ export class GovernmentUtilitiesComponent {
   fetchDocumentsByPage(
     next: String | undefined,
     itemsPerPage: number,
-    userId: string,
   ) {
     this.apiService
       .getDocuments(
@@ -101,12 +92,12 @@ export class GovernmentUtilitiesComponent {
           this.documents = this.documents.concat(
             res.documents.map((doc: any) => ({
               ...doc,
-              uploadedAtLocal: this.convertToUserTimezone(
-                new Date(doc.uploadedAt),
-              ),
-              lastOpenedLocal: this.convertToUserTimezone(
-                new Date(doc.lastOpened),
-              ),
+              // uploadedAtLocal: this.convertToUserTimezone(
+              //   new Date(doc.uploadedAt),
+              // ),
+              // lastOpenedLocal: this.convertToUserTimezone(
+              //   new Date(doc.lastOpened),
+              // ),
               fileSize: this.getFileSize(doc.document.size),
             })),
           );
