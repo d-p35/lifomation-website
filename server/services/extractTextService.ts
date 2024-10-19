@@ -35,10 +35,10 @@ export async function processImageFile(
   const document = new Document();
   document.document = file;
   document.keyInfo = keyInfo;
-  document.category = categories
-    .split(",")
-    .map((category: string) => category.trim())
-    .join(",");
+  // document.category = categories
+  //   .split(",")
+  //   .map((category: string) => category.trim())
+  //   .join(",");
 
 
   return { document, text: OCRtext, classificationResult: categories };
@@ -81,10 +81,10 @@ export async function processPdfFile(
       combinedText
     );
     document.keyInfo = keyInfo;
-    document.category = categories
-      .split(",")
-      .map((category: string) => category.trim())
-      .join(",");
+    // document.category = categories
+    //   .split(",")
+    //   .map((category: string) => category.trim())
+    //   .join(",");
 
     return { document, text: combinedText, classificationResult: categories };
   } else {

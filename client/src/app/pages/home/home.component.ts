@@ -178,8 +178,13 @@ export class HomeComponent implements OnInit {
           email &&
           email !== 'Unknown Email'
         ) {
-          this.apiService.createUser(userId, email).subscribe((response) => {
-            this.router.navigate(['/dashboard']);
+          this.apiService.createUser(userId, email).subscribe({
+            next: (res) => {
+              this.router.navigate(['/']);
+            },
+            error: (err) => {
+              console.error(err);
+            },
           });
         } else {
           console.error('User ID or Email not found');
