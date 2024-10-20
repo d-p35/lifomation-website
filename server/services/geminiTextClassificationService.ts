@@ -1,11 +1,12 @@
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { categories } from "../types/categories";
 
 dotenv.config();
 
 export const geminiTextClassification = async (
   input: string
-): Promise<{ categories: string, keyInfo: Record<string, any> }> => {
+): Promise<{ category: string, keyInfo: Record<string, any> }> => {
   const apiKey = process.env.GEMINI_API_KEY; // Replace with your API key
   if (apiKey) {
     const generationConfig = {
@@ -21,8 +22,8 @@ export const geminiTextClassification = async (
     });
 
     const prompt =
-      "Which category does this text belong to? Your options are Health, Education and Career, Government and Utilities, Finance, Family and Relationships, Warranties and Memberships, Social and Leisure, Personal. Also extract any key info from the text. Return a JSON object with exactly two keys: 'categories' and 'keyInfo'.\n" +
-      "- 'categories' should be a string of categories ranked from most relevant to least, separated by commas.\n" +
+      "Which category does this text belong to? Your options are " + categories.join(", ")+ ". Also extract any key info from the text. Return a JSON object with exactly two keys: 'category' and 'keyInfo'.\n" +
+      "- 'category' should be a string of a the most appropriate category, it must be only one of the above ones.\n" +
       "- 'keyInfo' should be a JSON object of key/value where both are strings pairs representing any important information extracted from the text.\n" +
       "- 'Make sure the overall response isn't over 70 words so make sure to get the most important info for keyInfo.\n" +
       "Do not include any additional text or explanations outside the JSON object, dont include keys which dont have values, dont forget to close all JSON brackets, if you have to leave out some info to do this within the word limit, do it.\n\n" +
@@ -43,21 +44,21 @@ export const geminiTextClassification = async (
       const endIndex = responseText.lastIndexOf('}') + 1;
       const jsonText = responseText.substring(startIndex, endIndex);
 
-      let result: { categories: string; keyInfo: Record<string, any> } = { categories: "", keyInfo: {} };
+      let result: { category: string; keyInfo: Record<string, any> } = { category: "", keyInfo: {} };
 
       try {
         result = JSON.parse(jsonText);
       } catch (parseError) {
         console.error("Error parsing JSON response:", parseError);
-        return { categories: '', keyInfo: {} };
+        return { category: '', keyInfo: {} };
       }
       return result;
     } catch (error) {
       console.error("Error during text classification:", error);
-      return {categories: '', keyInfo: JSON};
+      return {category: '', keyInfo: JSON};
     }
   } else {
     console.error("API key is undefined");
-    return {categories: '', keyInfo: JSON};
+    return {category: '', keyInfo: JSON};
   }
 };

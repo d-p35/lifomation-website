@@ -462,7 +462,7 @@ DocumentsRouter.post(
     try {
       const file = req.file;
       const ownerId = req.auth?.payload.sub;
-      const category = req.body.category; 
+      // const category = req.body.category; 
 
       if (!file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -471,35 +471,38 @@ DocumentsRouter.post(
         return res.status(400).json({ message: "User is not logged in" });
       }
 
-      if (!category) {
-        return res.status(400).json({ message: "Category is required" });
-      }
+      // if (!category) {
+      //   return res.status(400).json({ message: "Category is required" });
+      // }
 
 
 
-      // const processFunction =
-      //   file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
+      const processFunction =
+        file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
       try {
-        // let { document, text, classificationResult } = await processFunction(
-        //   file,
-        //   ownerId,
-        //   res
-        // );
+        let { document, text, classificationResult } = await processFunction(
+          file,
+          ownerId,
+          res
+        );
 
-        let document = new Document();
-        document.category = category
-        document.document = file;
-         document.keyInfo = {};
+        console.log(classificationResult);
+
+        // let document = new Document();
+        // document.category = category
+        // document.document = file;
+        //  document.keyInfo = {};
        
         document.document = file;
         document.ownerId = ownerId;
 
-        document.ownerId= ownerId;
         // if (classificationResult.length === 0) {
         //   return res
         //     .status(500)
         //     .json({ message: "Failed to classify document" });
         // }
+
+        document.categoryName = classificationResult
         const newDocument = await documentRepository.save(document);
 
 
@@ -510,9 +513,9 @@ DocumentsRouter.post(
             {
               id: newDocument.id,
               title: newDocument.document.originalname,
-              text: "",
+              text: text,
               ownerId,
-              category: "",
+              category: classificationResult,
               sharedUsers: [],
             },
           ],
@@ -535,30 +538,37 @@ DocumentsRouter.post(
   }
 );
 
-// DocumentsRouter.patch(
-//   "/category/:id",
-//   async (req: Request, res: Response) => {
-//     try {
-//       const id: number = parseInt(req.params.id);
-//       const category = req.body.category;
-//       const document = await documentRepository.findOne({ where: { id: id } });
+DocumentsRouter.patch(
+  "/category/:id",
+  async (req: Request, res: Response) => {
+    try {
+      const id: number = parseInt(req.params.id);
+      const category = req.body.category;
+      const ownerId = req.auth?.payload.sub;
 
-//       if (!document) {
-//         return res.status(404).json({ message: "Document not found" });
-//       }
+      if (!ownerId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
 
-//       document.category = category;
-//       const updatedDocument = await documentRepository.save(document);
-//       index.updateDocuments([{ id: updatedDocument.id, category: category }], {
-//         primaryKey: "id",
-//       });
 
-//       res.status(200).json({ document: updatedDocument });
-//     } catch (err: any) {
-//       res.status(500).json({ message: err.message });
-//     }
-//   }
-// );
+      const document = await documentRepository.findOne({ where: { id: id, ownerId: ownerId } });
+
+      if (!document) {
+        return res.status(404).json({ message: "Document not found or not owned" });
+      }
+
+      document.categoryName = category;
+      const updatedDocument = await documentRepository.save(document);
+      index.updateDocuments([{ id: updatedDocument.id, category: category }], {
+        primaryKey: "id",
+      });
+
+      res.status(200).json({ document: updatedDocument });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
 
 // DocumentsRouter.patch(
 //   "/lastOpened/:id",
