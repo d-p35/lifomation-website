@@ -576,7 +576,7 @@ DocumentsRouter.patch(
 //     try {
 //       // Update lastOpened
 //       const id: number = parseInt(req.params.id);
-//       const document = await documentPermissionRepository.findOne({
+//       const document = await documentRepository.findOne({
 //         where: { documentId: id },
 //         relations: { document: true },
 //       });
