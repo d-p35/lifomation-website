@@ -71,7 +71,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
       if (res && res.refresh) {
         if (
           res.document &&
-          (res.document.category.split(',')[0] == this.folderName ||
+          (res.document.categoryName.split(',')[0] == this.folderName ||
             this.folderName == 'My Documents')
         ) {
           if (res.type == 'delete') {
