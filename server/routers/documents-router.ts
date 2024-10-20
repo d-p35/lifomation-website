@@ -542,9 +542,17 @@ DocumentsRouter.post(
 
       // console.log(key, iv)
 
-      const response = await uploadIntoWalrus(file.path);
+      let blobId=null
+      try{
+        const response = await uploadIntoWalrus(file.path);
+        blobId = response.newlyCreated?.blobObject?.blobId || response.alreadyCertified?.blobId;
+      }
+      catch(err){
+        console.log(err)
+      }
 
-      const blobId = response.newlyCreated?.blobObject?.blobId || response.alreadyCertified?.blobId;
+      
+
 
       // console.log(blobId);
 
