@@ -17,6 +17,7 @@ import helmet from "helmet";
 import { auth } from "express-oauth2-jwt-bearer";
 import { validateAccessToken } from "./middleware/validateToken";
 import { GovernmentRouter } from "./routers/government-router";
+import { HealthRouter } from "./routers/health-router";
 
 // Specify the path to the .env file
 
@@ -114,6 +115,7 @@ dataSource
             app.use("/api/users", UsersRouter);
             app.use("/api/documents", DocumentsRouter);
             app.use("/api/government", GovernmentRouter);
+            app.use("/api/health", HealthRouter);
 
             const server = app.listen(PORT, () => {
               console.log(`Server started on port ${PORT}`);

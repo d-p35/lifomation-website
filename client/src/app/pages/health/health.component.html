@@ -1,0 +1,43 @@
+<div class="dashboard">
+    <div class="main-container">
+      <main class="main-content">
+        <div class="section-header">
+            <h2>Health</h2>
+          </div>
+          <div class="tab-container">
+            <div 
+              class="tab" 
+              [class.active]="selectedTab === 'folder-info'" 
+              (click)="switchTab('folder-info')">
+              Folder Info
+            </div>
+          
+            <div 
+              class="tab" 
+              [class.active]="selectedTab === 'documents'" 
+              (click)="switchTab('documents')">
+              Documents
+            </div>
+          </div>
+          
+          <div *ngIf="selectedTab === 'folder-info'">
+            <app-folder-info
+              [folderInfo]="folderInfo"
+              [folderName]="folderName"
+              ></app-folder-info>
+          </div>
+          
+          <div *ngIf="selectedTab === 'documents'" class="document-view-container">
+            <h3>Documents</h3>
+            <app-doc-list
+            [documents]="documents"
+            [loadedAll]="loadedAll"
+            (scroll)="onScroll()"
+            (documentDeleted)="onDocumentDeleted($event)"
+          ></app-doc-list>
+            
+          </div>
+  
+      </main>
+    </div>
+  </div>

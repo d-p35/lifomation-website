@@ -3,80 +3,59 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { DataService } from '../../services/data.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { CommonModule, NgFor } from '@angular/common';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { DocListComponent } from '../../components/doc-list/doc-list.component';
 import { WebSocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { FolderInfoComponent } from '../../folder-info/folder-info.component';
 
 @Component({
-  selector: 'app-documents',
+  selector: 'app-health',
   standalone: true,
-  templateUrl: './documents.component.html',
-  styleUrls: ['./documents.component.scss'],
-  imports: [
+  imports: [ CommonModule,
+    FormsModule,
     NgFor,
-    TableModule,
-    ButtonModule,
-    ProgressSpinnerModule,
-    CommonModule,
-    ToastModule,
-    DocListComponent,
-  ],
+    NgIf,
+    FolderInfoComponent,
+    DocListComponent,],
+  templateUrl: './health.component.html',
+  styleUrl: './health.component.scss'
 })
-export class DocumentsComponent implements OnInit, OnDestroy {
+export class HealthComponent {
   documents: any[] = [];
-  folderName: string = 'My Documents';
+  folderInfo: any[] = [];
   nextDocument: String | undefined;
+  folderName: string = 'health';
   itemsPerPage: number = 10;
   totalRecords: number = 0;
   loadedAll: boolean = false;
   loading: boolean = true;
   userId: string | undefined;
+  selectedTab: string = 'folder-info';
 
   private wsSubscription: Subscription = new Subscription();
 
+
   constructor(
-    private route: ActivatedRoute,
     private apiService: ApiService,
     private dataService: DataService,
-    private wsService: WebSocketService,
+    private wsService: WebSocketService
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
-      this.loading = true;
-      this.folderName = params['folder'] ? params['folder'] : 'My Documents';
-      this.apiService.getUserId().subscribe((userId: string | undefined) => {
-        if (userId && userId !== 'Unknown UID') {
-          this.userId = userId;
-          this.nextDocument = undefined;
-          this.loadedAll = false;
-          this.documents = [];
-          this.totalRecords = 0;
-          this.fetchDocumentsByPage(
-            this.nextDocument,
-            this.itemsPerPage,
-            userId,
-          );
-        } else {
-          console.error('User ID not found');
-        }
-      });
-    });
-
     this.dataService.notifyObservable$.subscribe((res) => {
       if (res && res.refresh) {
         if (
           res.document &&
-          (res.document.category.split(',')[0] == this.folderName ||
-            this.folderName == 'My Documents')
+          res.document.categoryName == 'Health'
         ) {
           if (res.type == 'delete') {
             this.documents = this.documents.filter(
-              (doc) => doc.id !== res.document.id,
+              (doc) => doc.id !== res.document.id
             );
             if (this.documents.length === 0) {
               this.loadedAll = true; // Ensures that the message is shown
@@ -86,11 +65,11 @@ export class DocumentsComponent implements OnInit, OnDestroy {
               {
                 ...res.document,
                 uploadedAtLocal: this.convertToUserTimezone(
-                  new Date(res.document.uploadedAt),
+                  new Date(res.document.uploadedAt)
                 ),
-                // lastOpenedLocal: this.convertToUserTimezone(
-                //   new Date(res.document.lastOpened),
-                // ),
+                lastOpenedLocal: this.convertToUserTimezone(
+                  new Date(res.document.lastOpened)
+                ),
                 fileSize: this.getFileSize(res.document.document.size),
               },
               ...this.documents,
@@ -99,42 +78,54 @@ export class DocumentsComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage);
+
+    this.fetchFolderInfo();
   }
 
   onScroll() {
-    if (!this.userId || this.loadedAll) return;
-    this.fetchDocumentsByPage(
-      this.nextDocument,
-      this.itemsPerPage,
-      this.userId,
-    );
+    if (this.loadedAll) return;
+    this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage);
   }
 
-  fetchDocumentsByPage(
-    next: String | undefined,
-    itemsPerPage: number,
-    userId: string,
-  ) {
+  fetchFolderInfo() {
+    this.apiService.getFolderInfo('health').subscribe({
+      next: (res) => {
+        for (let key in res.folderInfo) {
+          this.folderInfo.push({ key, value: res.folderInfo[key] });
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      },
+    });
+  }
+
+  switchTab(tab: string) {
+    this.selectedTab = tab;
+  }
+
+  fetchDocumentsByPage(next: String | undefined, itemsPerPage: number) {
     this.apiService
-      .getDocuments(
-        next,
-        itemsPerPage,
-        this.folderName == 'My Documents' ? undefined : this.folderName,
-      )
+      .getDocuments(next, itemsPerPage, 'Health')
       .subscribe({
         next: (res) => {
           this.documents = this.documents.concat(
             res.documents.map((doc: any) => ({
               ...doc,
               uploadedAtLocal: this.convertToUserTimezone(
-                new Date(doc.uploadedAt),
+                new Date(doc.uploadedAt)
               ),
               // lastOpenedLocal: this.convertToUserTimezone(
-              //   new Date(doc.lastOpened),
+              //   new Date(doc.lastOpened)
               // ),
               fileSize: this.getFileSize(doc.document.size),
-            })),
+            }))
           );
+          console.log(res.documents);
           this.totalRecords = res.count;
           this.nextDocument = res.nextCursor;
           if (!this.nextDocument) {
@@ -151,7 +142,7 @@ export class DocumentsComponent implements OnInit, OnDestroy {
 
   convertToUserTimezone(date: Date): string {
     const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000,
+      date.getTime() - date.getTimezoneOffset() * 60000
     );
     return localDate.toLocaleString();
   }

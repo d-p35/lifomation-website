@@ -170,8 +170,6 @@ export class UploadComponent implements OnInit {
           });
           this.prevCategory = res.document.categoryName
           this.selectedCategory = res.document.categoryName
-
-          console.log(this.selectedCategory);
           setTimeout(() => {
             this.messageService.clear('template');
             this.messageService.add({

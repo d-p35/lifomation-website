@@ -49,7 +49,7 @@ export class GovernmentUtilitiesComponent {
       if (res && res.refresh) {
         if (
           res.document &&
-          res.document.category == 'Government and Utilities'
+          res.document.categoryName == 'Government and Utilities'
         ) {
           if (res.type == 'delete') {
             this.documents = this.documents.filter(
@@ -65,9 +65,9 @@ export class GovernmentUtilitiesComponent {
                 uploadedAtLocal: this.convertToUserTimezone(
                   new Date(res.document.uploadedAt)
                 ),
-                lastOpenedLocal: this.convertToUserTimezone(
-                  new Date(res.document.lastOpened)
-                ),
+                // lastOpenedLocal: this.convertToUserTimezone(
+                //   new Date(res.document.lastOpened)
+                // ),
                 fileSize: this.getFileSize(res.document.document.size),
               },
               ...this.documents,
