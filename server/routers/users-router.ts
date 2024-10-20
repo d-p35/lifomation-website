@@ -45,7 +45,7 @@ UsersRouter.post("/", async (req: Request, res: Response) => {
       name: "Government and Utilities",
       ownerId: returnedUser.id,
       owner: returnedUser,
-      documents: [],
+      // documents: [],
       folderKeyInfo: {}
     }
 
@@ -55,7 +55,7 @@ UsersRouter.post("/", async (req: Request, res: Response) => {
       name: "Health",
       ownerId: returnedUser.id,
       owner: returnedUser,
-      documents: [],
+      // documents: [],
       folderKeyInfo: {}
     }
 

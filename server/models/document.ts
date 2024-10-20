@@ -9,6 +9,7 @@ import { PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 import { User } from "./user";
 import { AllowNull } from "sequelize-typescript";
 import { Category } from "../types/categories";
+import { CategoryDBType, GovernmentUtils } from "./governmentutils";
 
 interface DocumentAttributes{
   id: number;
@@ -16,7 +17,7 @@ interface DocumentAttributes{
   uploadedAt: Date;
   owner: User;
   ownerId: string;
-  category: Category;
+  // category: Category;
   keyInfo: Record<string, any>;
 }
 
@@ -31,12 +32,13 @@ export class Document implements DocumentAttributes {
   @CreateDateColumn()
   uploadedAt: Date;
 
+  //TODO: Add constraint to check if its a valid categoryName
   @Column()
   categoryName: string;
 
-  @ManyToOne(() => User, (user) => user.documents)
-  @JoinColumn({ name: "categoryName" })
-  category: Category;
+  // @ManyToOne(() => CategoryDBType, (category) => category.name)
+  // @JoinColumn({ name: "categoryName" })
+  // category: Category;
 
   @Column("json", { nullable: true })
   keyInfo: Record<string, any>;

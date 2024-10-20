@@ -7,13 +7,13 @@ import { Injectable } from '@angular/core';
 export class CategoryService {
   private categories = [
     'Health',
-    'Education and Career',
+    // 'Education and Career',
     'Government and Utilities',
-    'Finance',
-    'Family and Relationships',
-    'Warranties and Memberships',
-    'Social and Leisure',
-    'Personal',
+    // 'Finance',
+    // 'Family and Relationships',
+    // 'Warranties and Memberships',
+    // 'Social and Leisure',
+    // 'Personal',
   ];
 
   public getCategories() {

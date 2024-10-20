@@ -4,3 +4,4 @@ export type Category = {
 };
 
 
+export const categories = ['Health', 'Government and Utilities']

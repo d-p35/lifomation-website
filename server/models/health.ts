@@ -11,12 +11,12 @@ import { User } from "./user";
 import { AllowNull } from "sequelize-typescript";
 import { Document } from "./document";
 import { Category } from "../types/categories";
-import { GovernmentUtilsAttributes } from "./governmentutils";
+import { CategoryDBType, GovernmentUtilsAttributes } from "./governmentutils";
 
 
 
 @Entity()
-export class Health implements GovernmentUtilsAttributes {
+export class Health extends CategoryDBType implements GovernmentUtilsAttributes {
   @PrimaryColumn()
   name: string;
 
@@ -30,7 +30,7 @@ export class Health implements GovernmentUtilsAttributes {
   @JoinColumn({ name: "ownerId" })
   owner: User;
 
-  @OneToMany(() => Document, (document) => document.category)
-  documents: Document[];
+  // @OneToMany(() => Document, (document) => document.category)
+  // documents: Document[];
 
 }

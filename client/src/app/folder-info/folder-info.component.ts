@@ -2,7 +2,7 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { ApiService } from '../../services/api.service';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-folder-info',
@@ -25,17 +25,13 @@ export class FolderInfoComponent {
       const key = this.newKey;
       const value = this.newValue;
       this.newKey = '';
-      this.newValue = '';  
-      this.apiService
-        .addFolderInfo(this.folderName, key, value)
-        .subscribe({
-          next: (res) => {
-           
-          },
-          error: (err) => {
-            console.error(err);
-          },
-        });
+      this.newValue = '';
+      this.apiService.addFolderInfo(this.folderName, key, value).subscribe({
+        next: (res) => {},
+        error: (err) => {
+          console.error(err);
+        },
+      });
     }
   }
 

@@ -13,17 +13,25 @@ import { AllowNull } from "sequelize-typescript";
 import { Document } from "./document";
 import { Category } from "../types/categories";
 
+
 export interface GovernmentUtilsAttributes extends Category{
   ownerId: string;
   folderKeyInfo: Record<string, any>;
-  documents: Document[];
+  // documents: Document[];
   owner: User;
+  name: string
+}
+
+export class CategoryDBType {
+  @PrimaryColumn()
+  name: string;
 }
 
 @Entity()
-export class GovernmentUtils implements GovernmentUtilsAttributes {
+export class GovernmentUtils implements GovernmentUtilsAttributes  {
   @PrimaryColumn()
   name: string;
+
 
   @Column("json", { nullable: true })
   folderKeyInfo: Record<string, any>;
@@ -35,7 +43,7 @@ export class GovernmentUtils implements GovernmentUtilsAttributes {
   @JoinColumn({ name: "ownerId" })
   owner: User;
 
-  @OneToMany(() => Document, (document) => document.category)
-  documents: Document[];
+  // @OneToMany(() => Document, (document) => document.category)
+  // documents: Document[];
 
 }
