@@ -26,6 +26,7 @@ import { MeiliSearch } from "meilisearch";
 import { getEmailFromUserId, getUserIdFromEmail } from "../utils/userUtils"; // Import the utility function
 import { WebSocketServer } from "ws";
 import { notifyUser } from "../services/websocket";
+import { categories } from "../types/categories";
 
 require("dotenv").config();
 
@@ -548,6 +549,10 @@ DocumentsRouter.patch(
 
       if (!ownerId) {
         return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      if (!categories.includes(category)) {
+        return res.status(400).json({ message: "Invalid category" });
       }
 
 
