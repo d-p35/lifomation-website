@@ -27,11 +27,41 @@ import { getEmailFromUserId, getUserIdFromEmail } from "../utils/userUtils"; // 
 import { WebSocketServer } from "ws";
 import { notifyUser } from "../services/websocket";
 import { categories } from "../types/categories";
+const crypto = require("crypto");
+import Cryptify from "cryptify";
 
 require("dotenv").config();
 
+const PUBLISHER_URL = "https://publisher.walrus-testnet.walrus.space/v1/store";
+const AGGREGATOR_URL = "https://aggregator.walrus-testnet.walrus.space/v1";
+
+// Encryption configuration
+const algorithm = "aes-256-cbc";
+const key = crypto.randomBytes(32);
+const iv = crypto.randomBytes(16);
+
+// Encrypt function
+function encrypt(text: Buffer) {
+  let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return encrypted;
+}
+
+// Decrypt function
+function decrypt(encryptedText: Buffer) {
+  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
+  const result = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+  return result;
+}
+
 const upload = multer({ dest: "uploads/" });
-const client = new MeiliSearch({host: process.env.NODE_ENV=='production'?'https://meilisearch.lifomation.tech':"http://localhost:7700" });
+const client = new MeiliSearch({
+  host:
+    process.env.NODE_ENV == "production"
+      ? "https://meilisearch.lifomation.tech"
+      : "http://localhost:7700",
+});
 const index = client.index("documents");
 export const DocumentsRouter = Router();
 const documentRepository: Repository<Document> =
@@ -40,10 +70,46 @@ const documentRepository: Repository<Document> =
 //   dataSource.getRepository(DocumentPermission);
 const UserRepository: Repository<User> = dataSource.getRepository(User);
 
+async function uploadIntoWalrus(filePath: string) {
+  const fileBuffer = fs.readFileSync(filePath);
+
+  // Encrypt the file content
+  // const encryptedData = encrypt(fileBuffer);
+
+  // Store the encrypted data
+  const response = await fetch(`${PUBLISHER_URL}?epochs=5`, {
+    method: "PUT",
+    body: fileBuffer.toString(),
+    headers: { "Content-Type": "text/plain" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to store data: ${response.statusText}`);
+  }
+
+  const responseData = await response.json();
+
+  return responseData;
+}
+
+async function downloadFromWalrus(blobId: string, iv: any) {
+  // Retrieve the encrypted blob
+  const response = await fetch(`${AGGREGATOR_URL}/${blobId}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to retrieve data: ${response.statusText}`);
+  }
+
+  const encryptedData = await response.text(); // Get response as text
+  // Decrypt the blob content
+  // const decryptedData = decrypt(Buffer.from(encryptedData));
+  // console.log(decryptedData);
+  return Buffer.from(encryptedData);
+}
+
 // Middleware to check permissions
 // const checkPermission = (requiredAccessLevel: string) => {
 //   return async (req: Request, res: Response, next: NextFunction) => {
-
 
 //     const documentId = parseInt(req.params.id);
 //     const userId = req.auth?.payload.sub;
@@ -51,13 +117,10 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
 //       return res.status(401).json({ message: "User not logged In" });
 //     }
 
-
 //     const document = await documentRepository.findOne({
 //       where: { id: documentId },
 //       relations: ["permissions"],
 //     });
-
-
 
 //     if (!document) {
 //       return res.status(404).json({ message: "Document not found" });
@@ -65,13 +128,11 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
 
 //     const permission = document.permissions.find((p) => p.user.id === userId);
 
-
 //     const accessLevels = ["read", "edit", "full"];
 //     const userAccessLevelIndex = accessLevels.indexOf(
 //       permission?.accessLevel || "none"
 //     );
 //     const requiredAccessLevelIndex = accessLevels.indexOf(requiredAccessLevel);
-
 
 //     if (userAccessLevelIndex < requiredAccessLevelIndex) {
 //       return res.status(403).json({ message: "Permission denied" });
@@ -81,12 +142,11 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
 //   };
 // };
 
-
-
 // export const editDocument = (wss: WebSocketServer) => {
-  DocumentsRouter.delete("/:id/delkey-info", async (req: Request, res: Response) => {
+DocumentsRouter.delete(
+  "/:id/delkey-info",
+  async (req: Request, res: Response) => {
     try {
-
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
       const ownerId = req.auth?.payload.sub;
@@ -94,65 +154,68 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
       if (!ownerId) {
         return res.status(401).json({ message: "User not logged In" });
       }
-  
-      const document = await documentRepository.findOne({ where: { id: documentId, ownerId: ownerId} });
-  
-      if (!document) {
-        return res.status(404).json({ error: 'Document not found or you don\'t own it' });
-      }
-
-  
-      if (document.keyInfo && document.keyInfo[key]) {
-        delete document.keyInfo[key];
-        const updatedDocument = await documentRepository.save(document);
-
-        
-  
-        res.status(200).json({ document: updatedDocument });
-      } else {
-        res.status(404).json({ error: 'Key not found' });
-      }
-    } catch (error) {
-      console.error('Error deleting key info:', error);
-      res.status(500).json({ error: 'Failed to delete key info' });
-    }
-  });
-
-  DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
-    try {
-      const documentId: number = parseInt(req.params.id);
-      const key = req.body.key;
-      const newValue = req.body.newValue;
-      const ownerId = req.auth?.payload.sub;
-
-      if (!ownerId) {
-        return res.status(401).json({ message: "User not logged In" });
-      }
-
-      const originalKey = req.body.editkey;
 
       const document = await documentRepository.findOne({
         where: { id: documentId, ownerId: ownerId },
       });
 
       if (!document) {
-        return res.status(404).json({ message: "Document not found" });
+        return res
+          .status(404)
+          .json({ error: "Document not found or you don't own it" });
       }
 
-      if (key!=originalKey) {
-        delete document.keyInfo[originalKey];
+      if (document.keyInfo && document.keyInfo[key]) {
+        delete document.keyInfo[key];
+        const updatedDocument = await documentRepository.save(document);
+
+        res.status(200).json({ document: updatedDocument });
+      } else {
+        res.status(404).json({ error: "Key not found" });
       }
-      document.keyInfo[key] = newValue;
-
-      const updatedDocument = await documentRepository.save(document);
-      
-
-      res.status(200).json({ document: updatedDocument });
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
+    } catch (error) {
+      console.error("Error deleting key info:", error);
+      res.status(500).json({ error: "Failed to delete key info" });
     }
-  });
-  DocumentsRouter.post("/:id/addkey-info", async (req: Request, res: Response) => {
+  }
+);
+
+DocumentsRouter.put("/:id/key-info", async (req: Request, res: Response) => {
+  try {
+    const documentId: number = parseInt(req.params.id);
+    const key = req.body.key;
+    const newValue = req.body.newValue;
+    const ownerId = req.auth?.payload.sub;
+
+    if (!ownerId) {
+      return res.status(401).json({ message: "User not logged In" });
+    }
+
+    const originalKey = req.body.editkey;
+
+    const document = await documentRepository.findOne({
+      where: { id: documentId, ownerId: ownerId },
+    });
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    if (key != originalKey) {
+      delete document.keyInfo[originalKey];
+    }
+    document.keyInfo[key] = newValue;
+
+    const updatedDocument = await documentRepository.save(document);
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+DocumentsRouter.post(
+  "/:id/addkey-info",
+  async (req: Request, res: Response) => {
     try {
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
@@ -168,7 +231,9 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
       });
 
       if (!document) {
-        return res.status(404).json({ message: "Document not found or you don't own it" });
+        return res
+          .status(404)
+          .json({ message: "Document not found or you don't own it" });
       }
 
       if (document.keyInfo[key]) {
@@ -184,10 +249,8 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
       //   return res.status(404).json({ message: "Editor not found" });
       // }
 
-
       // const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
 
-      
       // let getemails = getAllSharedUsers.map((user) => user.email)
       // const getUserIds = await UserRepository.find({where: {email: In(getemails)}})
       // for (let i = 0; i < getUserIds.length; i++) {
@@ -209,7 +272,8 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
-  });
+  }
+);
 
 // }
 
@@ -218,8 +282,6 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
 //------------------------------------------------------------------------------------------------
 
 // Add a permission to a document
-
-
 
 // Get permissions for a document
 
@@ -236,7 +298,6 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
 //     }
 
 //     let email = await getEmailFromUserId(userId);
-
 
 //     let whereClause = { email: email } as any;
 
@@ -293,21 +354,18 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     const categoryName = req.query.categoryName as string;
 
     if (categoryName) {
-      whereClause.categoryName = categoryName ;
+      whereClause.categoryName = categoryName;
     }
     if (cursor) {
       let cursorDate = new Date(cursor);
       whereClause.uploadedAt = LessThan(cursorDate);
     }
 
-
-
     const documents = await documentRepository.find({
       take: rows, // Fetch one extra row to check if there are more documents
       order: { uploadedAt: "DESC" },
       where: { ...whereClause, owner: { id: ownerId } },
     });
-
 
     let nextCursor: string | null = null;
     if (documents.length == rows) {
@@ -359,7 +417,6 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
 //       nextCursor = lastDocument.lastOpened.toISOString();
 //     }
 
-
 //     const result = documents.map((doc) => {
 //       return {
 //         ...doc.document,
@@ -397,7 +454,6 @@ DocumentsRouter.get("/search", async (req: Request, res: Response) => {
   }
 });
 
-
 //     const result = documents.map((doc) => {
 //       return {
 //         ...doc.document,
@@ -412,49 +468,53 @@ DocumentsRouter.get("/search", async (req: Request, res: Response) => {
 //   }
 // });
 
-DocumentsRouter.get(
-  "/:id",
-  async (req: Request, res: Response) => {
-    try {
-      const id: number = parseInt(req.params.id);
-      const document = await documentRepository.findOne({ where: { id: id, owner: { id: req.auth?.payload.sub } },relations:{owner: true} });
+DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const document = await documentRepository.findOne({
+      where: { id: id, owner: { id: req.auth?.payload.sub } },
+      relations: { owner: true },
+    });
 
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
-      }
-
-      
-
-      res.status(200).json({ document });
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
     }
+
+    res.status(200).json({ document });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
   }
-);
+});
 
-DocumentsRouter.get(
-  "/:id/file",
-  async (req: Request, res: Response) => {
-    try {
-      const id: number = parseInt(req.params.id);
-      const document = await documentRepository.findOne({ where: { id: id } });
+DocumentsRouter.get("/:id/file", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const document = await documentRepository.findOne({ where: { id: id } });
 
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
-      }
-
-
-      if (document.ownerId !== req.auth?.payload.sub) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      res.setHeader("Content-Type", document.document.mimetype);
-      res.sendFile(document.document.path, { root: path.resolve() });
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
     }
+
+    if (document.ownerId !== req.auth?.payload.sub) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (document.blobId) {
+      const decryptedData = await downloadFromWalrus(document.blobId, iv);
+      // Or use document.document.mimetype
+
+        // res.setHeader("Content-Type", document.document.mimetype);
+        // res.setHeader('Content-Disposition', `attachment; filename="${document.document.originalname}"`);
+        // res.send(decryptedData);
+    }
+
+    res.setHeader("Content-Type", document.document.mimetype);
+    res.sendFile(document.document.path, { root: path.resolve() });
+    
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
   }
-);
+});
 
 DocumentsRouter.post(
   "/",
@@ -463,7 +523,7 @@ DocumentsRouter.post(
     try {
       const file = req.file;
       const ownerId = req.auth?.payload.sub;
-      // const category = req.body.category; 
+      // const category = req.body.category;
 
       if (!file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -476,7 +536,17 @@ DocumentsRouter.post(
       //   return res.status(400).json({ message: "Category is required" });
       // }
 
+      // const instance = new Cryptify(file.path, key);
 
+      // const encrpted = await instance.encrypt();
+
+      // console.log(key, iv)
+
+      const response = await uploadIntoWalrus(file.path);
+
+      const blobId = response.newlyCreated?.blobObject?.blobId || response.alreadyCertified?.blobId;
+
+      // console.log(blobId);
 
       const processFunction =
         file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
@@ -493,9 +563,10 @@ DocumentsRouter.post(
         // document.category = category
         // document.document = file;
         //  document.keyInfo = {};
-       
+
         document.document = file;
         document.ownerId = ownerId;
+        document.blobId = blobId;
 
         // if (classificationResult.length === 0) {
         //   return res
@@ -503,10 +574,8 @@ DocumentsRouter.post(
         //     .json({ message: "Failed to classify document" });
         // }
 
-        document.categoryName = classificationResult
+        document.categoryName = classificationResult;
         const newDocument = await documentRepository.save(document);
-
-
 
         // Add document to MeiliSearch index
         await index.addDocuments(
@@ -539,41 +608,41 @@ DocumentsRouter.post(
   }
 );
 
-DocumentsRouter.patch(
-  "/category/:id",
-  async (req: Request, res: Response) => {
-    try {
-      const id: number = parseInt(req.params.id);
-      const category = req.body.category;
-      const ownerId = req.auth?.payload.sub;
+DocumentsRouter.patch("/category/:id", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const category = req.body.category;
+    const ownerId = req.auth?.payload.sub;
 
-      if (!ownerId) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      if (!categories.includes(category)) {
-        return res.status(400).json({ message: "Invalid category" });
-      }
-
-
-      const document = await documentRepository.findOne({ where: { id: id, ownerId: ownerId } });
-
-      if (!document) {
-        return res.status(404).json({ message: "Document not found or not owned" });
-      }
-
-      document.categoryName = category;
-      const updatedDocument = await documentRepository.save(document);
-      index.updateDocuments([{ id: updatedDocument.id, category: category }], {
-        primaryKey: "id",
-      });
-
-      res.status(200).json({ document: updatedDocument });
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
+    if (!ownerId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
+
+    if (!categories.includes(category)) {
+      return res.status(400).json({ message: "Invalid category" });
+    }
+
+    const document = await documentRepository.findOne({
+      where: { id: id, ownerId: ownerId },
+    });
+
+    if (!document) {
+      return res
+        .status(404)
+        .json({ message: "Document not found or not owned" });
+    }
+
+    document.categoryName = category;
+    const updatedDocument = await documentRepository.save(document);
+    index.updateDocuments([{ id: updatedDocument.id, category: category }], {
+      primaryKey: "id",
+    });
+
+    res.status(200).json({ document: updatedDocument });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
   }
-);
+});
 
 // DocumentsRouter.patch(
 //   "/lastOpened/:id",
@@ -600,55 +669,55 @@ DocumentsRouter.patch(
 //   }
 // );
 
-DocumentsRouter.delete(
-  "/:id",
-  async (req: Request, res: Response) => {
-    try {
-      const id: number = parseInt(req.params.id);
-      const ownerId = req.auth?.payload.sub;
+DocumentsRouter.delete("/:id", async (req: Request, res: Response) => {
+  try {
+    const id: number = parseInt(req.params.id);
+    const ownerId = req.auth?.payload.sub;
 
-      if (!ownerId) {
-        return res.status(401).json({ message: "Unauthorized" });
-      } 
-
-      const document = await documentRepository.findOne({ where: { id: id, ownerId: ownerId } });
-
-      if (!document) {
-        return res.status(404).json({ message: "Document not found or you don't own it" });
-      }
-
-
-      index.deleteDocument(document.id);
-      // Delete document
-      await documentRepository.delete(document.id);
-
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
-      }
-      const filePath = path.join(
-        __dirname,
-        "../uploads",
-        document.document.filename
-      );
-
-      index.deleteDocument(document.id);
-      // Delete document
-      await documentRepository.delete(document.id);
-
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.error("Error deleting file: ", err);
-          return res.status(500).json({ message: "Error deleting file" });
-        }
-      });
-
-      // Return the new document
-      res.status(204).json();
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
+    if (!ownerId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
+
+    const document = await documentRepository.findOne({
+      where: { id: id, ownerId: ownerId },
+    });
+
+    if (!document) {
+      return res
+        .status(404)
+        .json({ message: "Document not found or you don't own it" });
+    }
+
+    index.deleteDocument(document.id);
+    // Delete document
+    await documentRepository.delete(document.id);
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+    const filePath = path.join(
+      __dirname,
+      "../uploads",
+      document.document.filename
+    );
+
+    index.deleteDocument(document.id);
+    // Delete document
+    await documentRepository.delete(document.id);
+
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error("Error deleting file: ", err);
+        return res.status(500).json({ message: "Error deleting file" });
+      }
+    });
+
+    // Return the new document
+    res.status(204).json();
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
   }
-);
+});
 
 // DocumentsRouter.patch(
 //   "/starred/:id/file",
@@ -663,12 +732,9 @@ DocumentsRouter.delete(
 //         return res.status(404).json({ message: "User not found" });
 //       }
 
-
-
 //       if (!document) {
 //         return res.status(404).json({ message: "Document not found" });
 //       }
-
 
 //       res.status(200).json({ document: updatedDocument });
 //     } catch (err: any) {

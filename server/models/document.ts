@@ -46,6 +46,9 @@ export class Document implements DocumentAttributes {
   @Column()
   ownerId: string;
 
+  @Column({ nullable: true })
+  blobId: string;
+
   @ManyToOne(() => User, (user) => user.documents)
   @JoinColumn({ name: "ownerId" })
   owner: User;
