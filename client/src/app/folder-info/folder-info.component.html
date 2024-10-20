@@ -1,5 +1,5 @@
 <div class="folder-info-container">
-    <div class="info-row" *ngFor="let pair of keyValuePairs; let i = index">
+    <div class="info-row" *ngFor="let pair of folderInfo; let i = index">
       <div class="info-label">{{ pair.key || 'Unnamed Key' }}</div>
       <div class="info-value">{{ pair.value || 'Unnamed Value' }}</div>
       <button class="delete-button" (click)="removePair(i)">✖</button>

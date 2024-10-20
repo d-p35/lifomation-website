@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FolderInfoComponent } from '../../components/folder-info/folder-info.component';
+import { FolderInfoComponent } from '../../folder-info/folder-info.component';
 import { DocViewComponent } from '../doc-view/doc-view.component';
 import { DocListComponent } from '../../components/doc-list/doc-list.component';
 import { Subscription } from 'rxjs';
@@ -13,14 +13,22 @@ import { WebSocketService } from '../../services/websocket.service';
 @Component({
   selector: 'app-government-utilities',
   standalone: true,
-  imports: [CommonModule,FormsModule,NgFor,NgIf, FolderInfoComponent, DocListComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgFor,
+    NgIf,
+    FolderInfoComponent,
+    DocListComponent,
+  ],
   templateUrl: './government-utilities.component.html',
-  styleUrl: './government-utilities.component.scss'
+  styleUrl: './government-utilities.component.scss',
 })
 export class GovernmentUtilitiesComponent {
   documents: any[] = [];
-  folderName: string = 'My Documents';
+  folderInfo: any[] = [];
   nextDocument: String | undefined;
+  folderName: string = 'government';
   itemsPerPage: number = 10;
   totalRecords: number = 0;
   loadedAll: boolean = false;
@@ -33,7 +41,7 @@ export class GovernmentUtilitiesComponent {
   constructor(
     private apiService: ApiService,
     private dataService: DataService,
-    private wsService: WebSocketService,
+    private wsService: WebSocketService
   ) {}
 
   ngOnInit(): void {
@@ -41,12 +49,11 @@ export class GovernmentUtilitiesComponent {
       if (res && res.refresh) {
         if (
           res.document &&
-          (res.document.category.split(',')[0] == this.folderName ||
-            this.folderName == 'My Documents')
+          res.document.categoryName == 'Government and Utilities'
         ) {
           if (res.type == 'delete') {
             this.documents = this.documents.filter(
-              (doc) => doc.id !== res.document.id,
+              (doc) => doc.id !== res.document.id
             );
             if (this.documents.length === 0) {
               this.loadedAll = true; // Ensures that the message is shown
@@ -56,11 +63,11 @@ export class GovernmentUtilitiesComponent {
               {
                 ...res.document,
                 uploadedAtLocal: this.convertToUserTimezone(
-                  new Date(res.document.uploadedAt),
+                  new Date(res.document.uploadedAt)
                 ),
-                lastOpenedLocal: this.convertToUserTimezone(
-                  new Date(res.document.lastOpened),
-                ),
+                // lastOpenedLocal: this.convertToUserTimezone(
+                //   new Date(res.document.lastOpened)
+                // ),
                 fileSize: this.getFileSize(res.document.document.size),
               },
               ...this.documents,
@@ -69,47 +76,54 @@ export class GovernmentUtilitiesComponent {
         }
       }
     });
+
+    this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage);
+
+    this.fetchFolderInfo();
   }
 
   onScroll() {
-    if (!this.userId || this.loadedAll) return;
-    this.fetchDocumentsByPage(
-      this.nextDocument,
-      this.itemsPerPage,
-      this.userId,
-    );
+    if (this.loadedAll) return;
+    this.fetchDocumentsByPage(this.nextDocument, this.itemsPerPage);
   }
 
+  fetchFolderInfo() {
+    this.apiService.getFolderInfo('government').subscribe({
+      next: (res) => {
+        for (let key in res.folderInfo) {
+          this.folderInfo.push({ key, value: res.folderInfo[key] });
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      },
+    });
+  }
 
   switchTab(tab: string) {
     this.selectedTab = tab;
   }
 
-  fetchDocumentsByPage(
-    next: String | undefined,
-    itemsPerPage: number,
-    userId: string,
-  ) {
+  fetchDocumentsByPage(next: String | undefined, itemsPerPage: number) {
     this.apiService
-      .getDocuments(
-        next,
-        itemsPerPage,
-        this.folderName == 'My Documents' ? undefined : this.folderName,
-      )
+      .getDocuments(next, itemsPerPage, 'Government and Utilities')
       .subscribe({
         next: (res) => {
           this.documents = this.documents.concat(
             res.documents.map((doc: any) => ({
               ...doc,
               uploadedAtLocal: this.convertToUserTimezone(
-                new Date(doc.uploadedAt),
+                new Date(doc.uploadedAt)
               ),
               lastOpenedLocal: this.convertToUserTimezone(
-                new Date(doc.lastOpened),
+                new Date(doc.lastOpened)
               ),
               fileSize: this.getFileSize(doc.document.size),
-            })),
+            }))
           );
+          console.log(res.documents);
           this.totalRecords = res.count;
           this.nextDocument = res.nextCursor;
           if (!this.nextDocument) {
@@ -126,7 +140,7 @@ export class GovernmentUtilitiesComponent {
 
   convertToUserTimezone(date: Date): string {
     const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000,
+      date.getTime() - date.getTimezoneOffset() * 60000
     );
     return localDate.toLocaleString();
   }
@@ -155,6 +169,4 @@ export class GovernmentUtilitiesComponent {
     this.wsSubscription.unsubscribe();
     // this.wsService.closeConnection();
   }
-  
-  
 }

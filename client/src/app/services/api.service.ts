@@ -78,6 +78,7 @@ export class ApiService {
 //   ): Observable<any> {
 // }
 
+
   getDocument(documentId: number): Observable<any> {
     return this.http.get(
       this.endpoint + `/api/documents/${documentId}`,
@@ -120,6 +121,23 @@ export class ApiService {
     return this.http.patch(
       this.endpoint + `/api/documents/category/${documentId}`,
       { category },
+    );
+  }
+
+  getFolderInfo(folderName: string): Observable<any> {
+    return this.http.get(
+      this.endpoint + `/api/${folderName}/`,
+    );
+  }
+
+  addFolderInfo(folderName: string, key: string, value: string): Observable<any> {
+    console.log(folderName, key, value);
+    return this.http.patch(
+      this.endpoint + `/api/${folderName}/add`,
+      {
+        key,
+        value
+      },
     );
   }
 

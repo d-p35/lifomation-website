@@ -30,18 +30,18 @@ export async function processImageFile(
   } = await tesseract.recognize(filePath, "eng");
 
   //   const classificationResult = await classifyText(OCRtext);
-  const { categories, keyInfo } = await geminiTextClassification(OCRtext);
+  const { category, keyInfo } = await geminiTextClassification(OCRtext);
 
   const document = new Document();
   document.document = file;
   document.keyInfo = keyInfo;
-  document.category = categories
-    .split(",")
-    .map((category: string) => category.trim())
-    .join(",");
+  // document.category = categories
+  //   .split(",")
+  //   .map((category: string) => category.trim())
+  //   .join(",");
 
 
-  return { document, text: OCRtext, classificationResult: categories };
+  return { document, text: OCRtext, classificationResult: category };
 }
 
 // Function to handle PDF file processing
@@ -77,16 +77,16 @@ export async function processPdfFile(
     document.document = file;
 
     // await index.addDocuments([{ id: document.id, text: combinedText, ownerId }]);
-    const { categories, keyInfo } = await geminiTextClassification(
+    const { category, keyInfo } = await geminiTextClassification(
       combinedText
     );
     document.keyInfo = keyInfo;
-    document.category = categories
-      .split(",")
-      .map((category: string) => category.trim())
-      .join(",");
+    // document.category = categories
+    //   .split(",")
+    //   .map((category: string) => category.trim())
+    //   .join(",");
 
-    return { document, text: combinedText, classificationResult: categories };
+    return { document, text: combinedText, classificationResult: category };
   } else {
     throw new Error("Error processing document with Tika");
   }

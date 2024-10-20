@@ -82,18 +82,22 @@ const UserRepository: Repository<User> = dataSource.getRepository(User);
 
 
 
-export const editDocument = (wss: WebSocketServer) => {
+// export const editDocument = (wss: WebSocketServer) => {
   DocumentsRouter.delete("/:id/delkey-info", async (req: Request, res: Response) => {
     try {
 
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
-      const userId = req.body.userId;
+      const ownerId = req.auth?.payload.sub;
+
+      if (!ownerId) {
+        return res.status(401).json({ message: "User not logged In" });
+      }
   
-      const document = await documentRepository.findOne({ where: { id: documentId } });
+      const document = await documentRepository.findOne({ where: { id: documentId, ownerId: ownerId} });
   
       if (!document) {
-        return res.status(404).json({ error: 'Document not found' });
+        return res.status(404).json({ error: 'Document not found or you don\'t own it' });
       }
 
   
@@ -101,14 +105,7 @@ export const editDocument = (wss: WebSocketServer) => {
         delete document.keyInfo[key];
         const updatedDocument = await documentRepository.save(document);
 
-        const editorEmail = await getEmailFromUserId(userId);
-
-  
-        if (!editorEmail) {
-          return res.status(404).json({ message: "Editor not found"
-          });
-        }
-       
+        
   
         res.status(200).json({ document: updatedDocument });
       } else {
@@ -125,13 +122,16 @@ export const editDocument = (wss: WebSocketServer) => {
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
       const newValue = req.body.newValue;
-      const userId = req.body.userId;
+      const ownerId = req.auth?.payload.sub;
 
-      const originalValue = req.body.editValue;
+      if (!ownerId) {
+        return res.status(401).json({ message: "User not logged In" });
+      }
+
       const originalKey = req.body.editkey;
 
       const document = await documentRepository.findOne({
-        where: { id: documentId },
+        where: { id: documentId, ownerId: ownerId },
       });
 
       if (!document) {
@@ -144,13 +144,6 @@ export const editDocument = (wss: WebSocketServer) => {
       document.keyInfo[key] = newValue;
 
       const updatedDocument = await documentRepository.save(document);
-
-      const editorEmail = await getEmailFromUserId(userId);
-
-      if (!editorEmail) {
-        return res.status(404).json({ message: "Editor not found"
-        });
-      }
       
 
       res.status(200).json({ document: updatedDocument });
@@ -163,14 +156,18 @@ export const editDocument = (wss: WebSocketServer) => {
       const documentId: number = parseInt(req.params.id);
       const key = req.body.key;
       const value = req.body.value;
-      const userId = req.body.userId;
+      const ownerId = req.auth?.payload.sub;
+
+      if (!ownerId) {
+        return res.status(401).json({ message: "User not logged In" });
+      }
 
       const document = await documentRepository.findOne({
-        where: { id: documentId },
+        where: { id: documentId, ownerId: ownerId },
       });
 
       if (!document) {
-        return res.status(404).json({ message: "Document not found" });
+        return res.status(404).json({ message: "Document not found or you don't own it" });
       }
 
       if (document.keyInfo[key]) {
@@ -180,11 +177,11 @@ export const editDocument = (wss: WebSocketServer) => {
       document.keyInfo[key] = value;
       const updatedDocument = await documentRepository.save(document);
 
-      const editorEmail = await getEmailFromUserId(userId);
+      // const editorEmail = await getEmailFromUserId(userId);
 
-      if (!editorEmail) {
-        return res.status(404).json({ message: "Editor not found" });
-      }
+      // if (!editorEmail) {
+      //   return res.status(404).json({ message: "Editor not found" });
+      // }
 
 
       // const getAllSharedUsers= await documentPermissionRepository.find({where: {documentId: documentId}})
@@ -213,7 +210,7 @@ export const editDocument = (wss: WebSocketServer) => {
     }
   });
 
-}
+// }
 
 //------------------------------------------------------------------------------------------------
 //-------------------------SharedComponent-------------------------------------------------------
@@ -288,19 +285,21 @@ DocumentsRouter.get("/", async (req: Request, res: Response) => {
     if (!ownerId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    const categoryName = req.query.categoryName as string;
+
     let cursor = req.query.cursor as string; // This will be in the format "timestamp_id"
 
     let whereClause = {} as any;
-    if (categoryName) {
-      whereClause.category = Like(`${categoryName},%`);
-    }
+    const categoryName = req.query.categoryName as string;
 
+    if (categoryName) {
+      whereClause.categoryName = categoryName ;
+    }
     if (cursor) {
       let cursorDate = new Date(cursor);
       whereClause.uploadedAt = LessThan(cursorDate);
     }
-console.log(whereClause)
+
+
 
     const documents = await documentRepository.find({
       take: rows, // Fetch one extra row to check if there are more documents
@@ -444,7 +443,9 @@ DocumentsRouter.get(
       }
 
 
-      //TODO: Check if user has access to the document
+      if (document.ownerId !== req.auth?.payload.sub) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
 
       res.setHeader("Content-Type", document.document.mimetype);
       res.sendFile(document.document.path, { root: path.resolve() });
@@ -461,6 +462,7 @@ DocumentsRouter.post(
     try {
       const file = req.file;
       const ownerId = req.auth?.payload.sub;
+      // const category = req.body.category; 
 
       if (!file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -468,6 +470,12 @@ DocumentsRouter.post(
       if (!ownerId) {
         return res.status(400).json({ message: "User is not logged in" });
       }
+
+      // if (!category) {
+      //   return res.status(400).json({ message: "Category is required" });
+      // }
+
+
 
       const processFunction =
         file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
@@ -478,25 +486,24 @@ DocumentsRouter.post(
           res
         );
 
-        document.ownerId= ownerId;
-        if (classificationResult.length === 0) {
-          return res
-            .status(500)
-            .json({ message: "Failed to classify document" });
-        }
+        console.log(classificationResult);
+
+        // let document = new Document();
+        // document.category = category
+        // document.document = file;
+        //  document.keyInfo = {};
+       
+        document.document = file;
+        document.ownerId = ownerId;
+
+        // if (classificationResult.length === 0) {
+        //   return res
+        //     .status(500)
+        //     .json({ message: "Failed to classify document" });
+        // }
+
+        document.categoryName = classificationResult
         const newDocument = await documentRepository.save(document);
-        await index.addDocuments(
-          [
-            {
-              id: newDocument.id,
-              title: newDocument.document.originalname,
-              text: text,
-              ownerId,
-              category: classificationResult,
-            },
-          ],
-          { primaryKey: "id" }
-        );
 
 
 
@@ -537,13 +544,20 @@ DocumentsRouter.patch(
     try {
       const id: number = parseInt(req.params.id);
       const category = req.body.category;
-      const document = await documentRepository.findOne({ where: { id: id } });
+      const ownerId = req.auth?.payload.sub;
 
-      if (!document) {
-        return res.status(404).json({ message: "Document not found" });
+      if (!ownerId) {
+        return res.status(401).json({ message: "Unauthorized" });
       }
 
-      document.category = category;
+
+      const document = await documentRepository.findOne({ where: { id: id, ownerId: ownerId } });
+
+      if (!document) {
+        return res.status(404).json({ message: "Document not found or not owned" });
+      }
+
+      document.categoryName = category;
       const updatedDocument = await documentRepository.save(document);
       index.updateDocuments([{ id: updatedDocument.id, category: category }], {
         primaryKey: "id",
@@ -562,7 +576,7 @@ DocumentsRouter.patch(
 //     try {
 //       // Update lastOpened
 //       const id: number = parseInt(req.params.id);
-//       const document = await documentPermissionRepository.findOne({
+//       const document = await documentRepository.findOne({
 //         where: { documentId: id },
 //         relations: { document: true },
 //       });
@@ -586,12 +600,18 @@ DocumentsRouter.delete(
   async (req: Request, res: Response) => {
     try {
       const id: number = parseInt(req.params.id);
+      const ownerId = req.auth?.payload.sub;
 
-      const document = await documentRepository.findOne({ where: { id: id } });
+      if (!ownerId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      } 
+
+      const document = await documentRepository.findOne({ where: { id: id, ownerId: ownerId } });
 
       if (!document) {
-        return res.status(404).json({ message: "Document not found" });
+        return res.status(404).json({ message: "Document not found or you don't own it" });
       }
+
 
       index.deleteDocument(document.id);
       // Delete document

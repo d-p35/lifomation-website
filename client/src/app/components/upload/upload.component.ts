@@ -49,8 +49,8 @@ export class UploadComponent implements OnInit {
   email: string | undefined;
   documentisProcessing: boolean = false;
   selectedCategory: string = '';
-  selectedCategories: string[] = [];
   categories: string[] = [];
+  prevCategory: string = '';
   changeCategoryIsProcessing: boolean = false;
 
   @ViewChild('fileInput') fileInput!: ElementRef;
@@ -107,19 +107,20 @@ export class UploadComponent implements OnInit {
   changeCategory(document: any) {
     if (!this.selectedCategory) return;
     this.changeCategoryIsProcessing = true;
-    if (this.selectedCategory === this.selectedCategories[0]) {
+    if (this.selectedCategory === this.prevCategory) {
       this.messageService.clear('custom');
       this.changeCategoryIsProcessing = false;
       return;
     }
-    this.selectedCategories.unshift(this.selectedCategory);
-    this.selectedCategories = [...new Set(this.selectedCategories)];
+    
+    // this.selectedCategories.unshift(this.selectedCategory);
+    // this.selectedCategories = [...new Set(this.selectedCategories)];
     this.apiService.getUserId().subscribe((userId: string | undefined) => {
       if (userId && userId !== 'Unknown UID') {
         this.apiService
           .changeCategory(
             document.id,
-            this.selectedCategories.join(','),
+            this.selectedCategory,
           )
           .subscribe({
             next: (res) => {
@@ -167,19 +168,8 @@ export class UploadComponent implements OnInit {
             summary: 'Success',
             detail: 'Document uploaded successfully',
           });
-          this.selectedCategories = res.document.category
-            .split(',')
-            .map((category: string) => category.trim());
-
-          if (
-            !this.selectedCategories ||
-            this.selectedCategories.length === 0
-          ) {
-            this.selectedCategories = ['Uncategorized'];
-          }
-
-          this.selectedCategory = this.selectedCategories[0];
-
+          this.prevCategory = res.document.categoryName
+          this.selectedCategory = res.document.categoryName
           setTimeout(() => {
             this.messageService.clear('template');
             this.messageService.add({
