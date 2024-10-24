@@ -81,6 +81,8 @@ export async function processPdfFile(
       combinedText
     );
     document.keyInfo = keyInfo;
+
+    fs.rmSync(documentFolder, { recursive: true, force: true });
     // document.category = categories
     //   .split(",")
     //   .map((category: string) => category.trim())

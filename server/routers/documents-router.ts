@@ -37,23 +37,18 @@ const AGGREGATOR_URL = "https://aggregator.walrus-testnet.walrus.space/v1";
 
 // Encryption configuration
 const algorithm = "aes-256-cbc";
-const key = crypto.randomBytes(32);
-const iv = crypto.randomBytes(16);
+const key = process.env.WALRUS_KEY;
+// const iv = crypto.randomBytes(16);
+
+if (!key) {
+  throw new Error("WALRUS_KEY is not set");
+}
 
 // Encrypt function
-function encrypt(text: Buffer) {
-  let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
-  let encrypted = cipher.update(text);
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
-  return encrypted;
-}
+
 
 // Decrypt function
-function decrypt(encryptedText: Buffer) {
-  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
-  const result = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
-  return result;
-}
+
 
 const upload = multer({ dest: "uploads/" });
 const client = new MeiliSearch({
@@ -70,42 +65,53 @@ const documentRepository: Repository<Document> =
 //   dataSource.getRepository(DocumentPermission);
 const UserRepository: Repository<User> = dataSource.getRepository(User);
 
-async function uploadIntoWalrus(filePath: string) {
-  const fileBuffer = fs.readFileSync(filePath);
+// async function uploadIntoWalrus(filePath: string) {
+//   function encrypt(text: Buffer) {
+//     let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+//     let encrypted = cipher.update(text);
+//     encrypted = Buffer.concat([encrypted, cipher.final()]);
+//     return encrypted;
+//   }
+//   const fileBuffer = fs.readFileSync(filePath);
 
-  // Encrypt the file content
-  // const encryptedData = encrypt(fileBuffer);
+//   // Encrypt the file content
+//   // const encryptedData = encrypt(fileBuffer);
 
-  // Store the encrypted data
-  const response = await fetch(`${PUBLISHER_URL}?epochs=5`, {
-    method: "PUT",
-    body: fileBuffer.toString(),
-    headers: { "Content-Type": "text/plain" },
-  });
+//   // Store the encrypted data
+//   const response = await fetch(`${PUBLISHER_URL}?epochs=5`, {
+//     method: "PUT",
+//     body: fileBuffer.toString(),
+//     headers: { "Content-Type": "text/plain" },
+//   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to store data: ${response.statusText}`);
-  }
+//   if (!response.ok) {
+//     throw new Error(`Failed to store data: ${response.statusText}`);
+//   }
 
-  const responseData = await response.json();
+//   const responseData = await response.json();
 
-  return responseData;
-}
+//   return responseData;
+// }
 
-async function downloadFromWalrus(blobId: string, iv: any) {
-  // Retrieve the encrypted blob
-  const response = await fetch(`${AGGREGATOR_URL}/${blobId}`);
+// async function downloadFromWalrus(blobId: string, iv: any) {
+//   // Retrieve the encrypted blob
+//   function decrypt(encryptedText: Buffer) {
+//     const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
+//     const result = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+//     return result;
+//   }
+//   const response = await fetch(`${AGGREGATOR_URL}/${blobId}`);
 
-  if (!response.ok) {
-    throw new Error(`Failed to retrieve data: ${response.statusText}`);
-  }
+//   if (!response.ok) {
+//     throw new Error(`Failed to retrieve data: ${response.statusText}`);
+//   }
 
-  const encryptedData = await response.text(); // Get response as text
-  // Decrypt the blob content
-  // const decryptedData = decrypt(Buffer.from(encryptedData));
-  // console.log(decryptedData);
-  return Buffer.from(encryptedData);
-}
+//   const encryptedData = await response.text(); // Get response as text
+//   // Decrypt the blob content
+//   // const decryptedData = decrypt(Buffer.from(encryptedData));
+//   // console.log(decryptedData);
+//   return Buffer.from(encryptedData);
+// }
 
 // Middleware to check permissions
 // const checkPermission = (requiredAccessLevel: string) => {
@@ -486,35 +492,72 @@ DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
+function decryptFile(filePath:string): Promise<string> {
+  const decipher = crypto.createDecipher('aes-256-cbc', key);
+  const input = fs.createReadStream(filePath);
+  const output = fs.createWriteStream(`${filePath}.dec`); // Decrypted file output
+
+  input.pipe(decipher).pipe(output);
+
+  return new Promise((resolve, reject) => {
+    output.on('finish', () => resolve(`${filePath}.dec`));
+    output.on('error', reject);
+  });
+}
+
 DocumentsRouter.get("/:id/file", async (req: Request, res: Response) => {
   try {
     const id: number = parseInt(req.params.id);
     const document = await documentRepository.findOne({ where: { id: id } });
 
+    
+
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
+
+    
+
 
     if (document.ownerId !== req.auth?.payload.sub) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (document.blobId) {
-      const decryptedData = await downloadFromWalrus(document.blobId, iv);
-      // Or use document.document.mimetype
+    const filePath = document.document.path;
+    const decryptedFilePath: string = await decryptFile(filePath);
 
-        // res.setHeader("Content-Type", document.document.mimetype);
-        // res.setHeader('Content-Disposition', `attachment; filename="${document.document.originalname}"`);
-        // res.send(decryptedData);
-    }
+    
+    //Walrus Logic
+    // if (document.blobId) {
+    //   const decryptedData = await downloadFromWalrus(document.blobId, iv);
+    //   // Or use document.document.mimetype
+
+    //     // res.setHeader("Content-Type", document.document.mimetype);
+    //     // res.setHeader('Content-Disposition', `attachment; filename="${document.document.originalname}"`);
+    //     // res.send(decryptedData);
+    // }
 
     res.setHeader("Content-Type", document.document.mimetype);
-    res.sendFile(document.document.path, { root: path.resolve() });
+    res.sendFile(decryptedFilePath, { root: path.resolve() });
     
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
+
+
+function encryptFile(filePath: string) : Promise<string> {
+  const cipher = crypto.createCipher('aes-256-cbc', key);
+  const input = fs.createReadStream(filePath);
+  const output = fs.createWriteStream(`${filePath}.enc`);
+
+  input.pipe(cipher).pipe(output);
+
+  return new Promise((resolve, reject) => {
+    output.on('finish', () => resolve(`${filePath}.enc`)); // Return encrypted file path
+    output.on('error', reject);
+  });
+}
 
 DocumentsRouter.post(
   "/",
@@ -525,6 +568,7 @@ DocumentsRouter.post(
       const ownerId = req.auth?.payload.sub;
       // const category = req.body.category;
 
+
       if (!file) {
         return res.status(400).json({ message: "No file uploaded" });
       }
@@ -532,29 +576,18 @@ DocumentsRouter.post(
         return res.status(400).json({ message: "User is not logged in" });
       }
 
-      // if (!category) {
-      //   return res.status(400).json({ message: "Category is required" });
+      // let blobId=null
+      // try{
+      //   const response = await uploadIntoWalrus(file.path);
+      //   blobId = response.newlyCreated?.blobObject?.blobId || response.alreadyCertified?.blobId;
+      // }
+      // catch(err){
+      //   console.log(err)
       // }
 
-      // const instance = new Cryptify(file.path, key);
 
-      // const encrpted = await instance.encrypt();
-
-      // console.log(key, iv)
-
-      let blobId=null
-      try{
-        const response = await uploadIntoWalrus(file.path);
-        blobId = response.newlyCreated?.blobObject?.blobId || response.alreadyCertified?.blobId;
-      }
-      catch(err){
-        console.log(err)
-      }
 
       
-
-
-      // console.log(blobId);
 
       const processFunction =
         file.mimetype !== "application/pdf" ? processImageFile : processPdfFile;
@@ -565,7 +598,13 @@ DocumentsRouter.post(
           res
         );
 
-        console.log(classificationResult);
+        const encryptedFilePath:string = await encryptFile(file.path);
+
+        fs.unlinkSync(file.path);
+
+        file.path = encryptedFilePath;
+        file.filename = file.filename + ".enc";
+
 
         // let document = new Document();
         // document.category = category
@@ -574,7 +613,7 @@ DocumentsRouter.post(
 
         document.document = file;
         document.ownerId = ownerId;
-        document.blobId = blobId;
+        // document.blobId = blobId;
 
         // if (classificationResult.length === 0) {
         //   return res

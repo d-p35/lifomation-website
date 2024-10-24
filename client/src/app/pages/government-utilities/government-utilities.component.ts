@@ -65,9 +65,9 @@ export class GovernmentUtilitiesComponent {
                 uploadedAtLocal: this.convertToUserTimezone(
                   new Date(res.document.uploadedAt)
                 ),
-                // lastOpenedLocal: this.convertToUserTimezone(
-                //   new Date(res.document.lastOpened)
-                // ),
+                lastOpenedLocal: this.convertToUserTimezone(
+                  new Date(res.document.lastOpened)
+                ),
                 fileSize: this.getFileSize(res.document.document.size),
               },
               ...this.documents,
