@@ -492,17 +492,12 @@ DocumentsRouter.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-function decryptFile(filePath:string): Promise<string> {
+function decryptFileStream(filePath:string) {
   const decipher = crypto.createDecipher('aes-256-cbc', key);
-  const input = fs.createReadStream(filePath);
-  const output = fs.createWriteStream(`${filePath}.dec`); // Decrypted file output
+  const input = fs.createReadStream(filePath);  // Read the encrypted file
 
-  input.pipe(decipher).pipe(output);
-
-  return new Promise((resolve, reject) => {
-    output.on('finish', () => resolve(`${filePath}.dec`));
-    output.on('error', reject);
-  });
+  // Pipe the input stream through the decipher and return it
+  return input.pipe(decipher);
 }
 
 DocumentsRouter.get("/:id/file", async (req: Request, res: Response) => {
@@ -523,8 +518,19 @@ DocumentsRouter.get("/:id/file", async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    res.setHeader("Content-Type", document.document.mimetype);
+    res.setHeader('Content-Disposition', `attachment; filename=${document.document.filename}`);
+
     const filePath = document.document.path;
-    const decryptedFilePath: string = await decryptFile(filePath);
+    const decryptedStream = decryptFileStream(filePath);
+    decryptedStream.pipe(res);
+
+    
+
+    decryptedStream.on('error', (error:any) => {
+      console.error('Error during file decryption:', error);
+      res.status(500).send('Error decrypting or sending the file');
+    });
 
     
     //Walrus Logic
@@ -537,8 +543,7 @@ DocumentsRouter.get("/:id/file", async (req: Request, res: Response) => {
     //     // res.send(decryptedData);
     // }
 
-    res.setHeader("Content-Type", document.document.mimetype);
-    res.sendFile(decryptedFilePath, { root: path.resolve() });
+   
     
   } catch (err: any) {
     res.status(500).json({ message: err.message });
